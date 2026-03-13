@@ -3,8 +3,9 @@
     "",
     "\\Game_Donkey_Kong",
     "\\Game_Donkey_Kong\\include",
-    "\\Game_Donkey_Kong\\resources"
+    "\\Game_Donkey_Kong\\resources",
+    "\\Game_Donkey_Kong\\src"
   ],
-  "SelectedNode": "\\Game_Donkey_Kong\\src",
+  "SelectedNode": "\\Game_Donkey_Kong\\include\\resource_dir.h",
   "PreviewInSolutionExplorer": false
 }

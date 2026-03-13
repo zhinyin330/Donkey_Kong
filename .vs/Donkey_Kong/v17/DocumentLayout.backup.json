@@ -3,8 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\ResourceManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\ResourceManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\ResourceManager.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\ResourceManager.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Enemy.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\Enemy.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Enemy.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\Enemy.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\Player.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\player.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\player.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Scene.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\Scene.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Game_Donkey_Kong\\src\\Game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,19 +50,136 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ResourceManager.cpp",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\ResourceManager.cpp",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\ResourceManager.cpp",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\ResourceManager.cpp",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\ResourceManager.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-09T08:51:37.823Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "main.c",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\main.c",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\main.c",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\main.c",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\main.c",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2026-03-09T08:29:53.917Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "README.md",
-              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\README.md",
-              "RelativeDocumentMoniker": "Game_Donkey_Kong\\README.md",
-              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\README.md",
-              "RelativeToolTip": "Game_Donkey_Kong\\README.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-03-09T08:18:09.251Z",
+              "Title": "Game.h",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Game.h",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Game.h",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Game.h",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Game.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-09T08:31:57.026Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ResourceManager.h",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\ResourceManager.h",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\ResourceManager.h",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\ResourceManager.h",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\ResourceManager.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-09T08:51:30.716Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Enemy.cpp",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Enemy.cpp",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Enemy.cpp",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Enemy.cpp",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Enemy.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-09T08:50:05.497Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Enemy.h",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Enemy.h",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Enemy.h",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Enemy.h",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Enemy.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-09T08:49:18.997Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Player.cpp",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Player.cpp",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Player.cpp",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Player.cpp",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Player.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-09T08:33:44.822Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Player.h",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Player.h",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Player.h",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Player.h",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Player.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-03-09T08:33:26.276Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Scene.cpp",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Scene.cpp",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Scene.cpp",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Scene.cpp",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Scene.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-09T08:33:13.989Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Game.cpp",
+              "DocumentMoniker": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Game.cpp",
+              "RelativeDocumentMoniker": "Game_Donkey_Kong\\src\\Game.cpp",
+              "ToolTip": "C:\\Users\\zhiyiz\\Documents\\GitHub\\Donkey_Kong\\Game_Donkey_Kong\\src\\Game.cpp",
+              "RelativeToolTip": "Game_Donkey_Kong\\src\\Game.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-03-09T08:30:09.906Z",
               "EditorCaption": ""
             }
           ]
