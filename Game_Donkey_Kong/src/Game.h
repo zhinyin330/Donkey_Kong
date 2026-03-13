@@ -1,11 +1,6 @@
+﻿//Game.h
 #pragma once
-#include "Scene.h"
+#include "raylib.h"
 
-class Game
-{
-public:
-    void run();
-
-private:
-    Scene scene;
-};
+// 游戏主循环函数声明
+void RunGameLoop();
