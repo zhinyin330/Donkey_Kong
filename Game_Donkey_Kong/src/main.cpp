@@ -19,7 +19,7 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(800, 600, "Donkey Kong");
+	InitWindow(800, 800, "Donkey Kong");
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	//帮程序找到资源文件夹
