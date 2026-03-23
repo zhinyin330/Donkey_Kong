@@ -3,6 +3,9 @@
 
 void ShowMenuScreen()
 {
+    InitAudioDevice(); // 初始化音频系统
+    Music bgm = LoadMusicStream("audio/Title_Theme.ogg");
+    PlayMusicStream(bgm); // 播放
     // 加载菜单资源
     
     Font font = GetFontDefault();                        // 自定义字体
@@ -30,6 +33,8 @@ void ShowMenuScreen()
 
     while (!startGame && !WindowShouldClose())
     {
+        UpdateMusicStream(bgm); // ⚠️ 每帧必须调用
+
         BeginDrawing();
         ClearBackground(BLACK);
         timer += GetFrameTime();
@@ -75,5 +80,6 @@ void ShowMenuScreen()
             startGame = true;  // 退出菜单，进入游戏
         }
     }
-
+    UnloadMusicStream(bgm);// 🧹 清理
+    CloseAudioDevice();
 }

@@ -404,6 +404,9 @@
     <Image Include="resources\imagtes\enemy1.jpg">
       <Filter>Game Resource Files\imagtes</Filter>
     </Image>
+    <Image Include="resources\imagtes\enemy1.png">
+      <Filter>Game Resource Files\imagtes</Filter>
+    </Image>
     <Image Include="resources\imagtes\imatge1.png">
       <Filter>Game Resource Files\imagtes</Filter>
     </Image>
