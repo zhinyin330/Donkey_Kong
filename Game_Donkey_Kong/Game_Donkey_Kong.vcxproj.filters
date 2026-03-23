@@ -10,6 +10,42 @@
     <Filter Include="Game Resource Files">
       <UniqueIdentifier>{BAF00917-2652-E724-AFBF-2DD71B201EE4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Resource Files\Architecture">
+      <UniqueIdentifier>{4CF8C1C1-3849-AD03-61AD-9BC54D5D406D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Barrel">
+      <UniqueIdentifier>{E1FA51D5-CD0A-FEA5-36C4-62C422F3EC3E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Characters">
+      <UniqueIdentifier>{49E2024B-3508-CDB1-1E4E-527D0A13F27D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Characters\DonkeyKong">
+      <UniqueIdentifier>{D19692A9-3DB1-F54A-86D3-05DFF22C1D52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Characters\FireSprites">
+      <UniqueIdentifier>{4813EE9A-347B-B468-9DE6-C87E896DCB54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Characters\Mario">
+      <UniqueIdentifier>{10ADCA54-FC93-8C4C-A5E4-F26991AA05B3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Characters\Princess">
+      <UniqueIdentifier>{BF0F2BC4-2B9F-ECAE-349B-CDC6A0A927BB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\Items">
+      <UniqueIdentifier>{ABDE9A73-17A1-CEFD-6051-5D8ACC52A7DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\UI">
+      <UniqueIdentifier>{A7C16A2A-93BB-937C-7C28-2A8D68C1F9E8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\VFX">
+      <UniqueIdentifier>{BDFAC277-2932-0B0F-323C-6F329EF23108}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\fonts">
+      <UniqueIdentifier>{930EA575-FFD0-D8FF-4881-678CB482B1DD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Resource Files\imagtes">
+      <UniqueIdentifier>{93167554-FF23-A33A-880A-9F25F4166FF1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Windows Resource Files">
       <UniqueIdentifier>{6B659E97-575F-C7E9-40CC-5DFA2C652D56}</UniqueIdentifier>
     </Filter>
@@ -61,6 +97,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\fonts\donkey-kong-nes-1981.ttf">
+      <Filter>Game Resource Files\fonts</Filter>
+    </None>
     <None Include="src\icon.ico">
       <Filter>Windows Resource Files</Filter>
     </None>
@@ -71,8 +110,305 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\wabbit_alpha.png">
-      <Filter>Game Resource Files</Filter>
+    <Image Include="resources\Architecture\Dk_Dirt_Fall.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_Dirt_Idle.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_FloorPart.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_Ladder.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_Spring_Active.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_Spring_Idle.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Blue_Fall1.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Blue_Fall2.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Blue_Mov1.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Blue_Mov2.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Blue_Mov3.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Blue_Mov4.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Fall1.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Fall2.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Idle.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Mov1.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Mov2.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Mov3.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\Dk_Barrel_Mov4.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_L.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_M.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_R.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Emote1.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Emote2.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Fall1.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Fall2.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Fall3.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Fall4.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Idle1.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Idle2.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Ladder1.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_Ladder2.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_LadderPrincess1.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_LadderPrincess2.png">
+      <Filter>Game Resource Files\Characters\DonkeyKong</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite1.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite2.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite_Blue1.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite_Blue2.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite_Jump1.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite_Jump2.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite_Jump_Blue1.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\FireSprites\Dk_FireSprite_Jump_Blue2.png">
+      <Filter>Game Resource Files\Characters\FireSprites</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Death1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Death2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Death3.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Death4.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_DeathEnd.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Hammer_Jump1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Hammer_Jump2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Hammer_Walk1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Hammer_Walk2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Hammer_idle1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Hammer_idle2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Idle1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_IdleBack.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Jump.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Ladder1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Ladder2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_LadderEnd1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_LadderEnd2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Walk1.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_Walk2.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Mario\Dk_Mario_WalkEnd.png">
+      <Filter>Game Resource Files\Characters\Mario</Filter>
+    </Image>
+    <Image Include="resources\Characters\Princess\Dk_Princess_Idle1.png">
+      <Filter>Game Resource Files\Characters\Princess</Filter>
+    </Image>
+    <Image Include="resources\Characters\Princess\Dk_Princess_Idle2.png">
+      <Filter>Game Resource Files\Characters\Princess</Filter>
+    </Image>
+    <Image Include="resources\Characters\Princess\Dk_Princess_Walk1.png">
+      <Filter>Game Resource Files\Characters\Princess</Filter>
+    </Image>
+    <Image Include="resources\Characters\Princess\Dk_Princess_Walk2.png">
+      <Filter>Game Resource Files\Characters\Princess</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_GoldenPiston.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Hammer_Right.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Hammer_Up.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Item1.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Item2.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Item3.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_OilCanister.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Oil_Fire1.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Oil_Fire2.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Oil_Fire3.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Dk_Oil_Fire4.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_Kong_StartScreen.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_UI_1up.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_UI_BonusScore.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_UI_CurrentLevel.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_UI_HighScore.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_UI_Numbers.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_DonkeyKong_Stars.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Hammer_XP1.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Hammer_XP2.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Hammer_XP3.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Hammer_XP4.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Heart1.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Heart2.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_M_HELP!.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Points_100.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Points_200.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Points_300.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Points_500.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\VFX\Dk_Points_800.png">
+      <Filter>Game Resource Files\VFX</Filter>
+    </Image>
+    <Image Include="resources\imagtes\enemy1.jpg">
+      <Filter>Game Resource Files\imagtes</Filter>
+    </Image>
+    <Image Include="resources\imagtes\imatge1.png">
+      <Filter>Game Resource Files\imagtes</Filter>
+    </Image>
+    <Image Include="resources\imagtes\imatge2.png">
+      <Filter>Game Resource Files\imagtes</Filter>
     </Image>
   </ItemGroup>
 </Project>
