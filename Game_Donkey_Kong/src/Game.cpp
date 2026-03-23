@@ -23,19 +23,13 @@ void RunGameLoop()
         // UPDATE
         player.Update();
 
-        // DRAW
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-
-        player.Draw();
-
-        EndDrawing();
-
         // 更新游戏逻辑
         // TODO: 更新玩家、敌人、场景等
-       
+
         BeginDrawing();
         ClearBackground(BLACK);
+
+        player.Draw(); 
 
         // 绘制游戏元素
         DrawTexturePro(dongkeyKong, sourceRec2, destRec2, origin2, 0.0f, WHITE);
