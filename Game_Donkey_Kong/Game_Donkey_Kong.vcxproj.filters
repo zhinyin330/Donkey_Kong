@@ -40,6 +40,9 @@
     <Filter Include="Game Resource Files\VFX">
       <UniqueIdentifier>{BDFAC277-2932-0B0F-323C-6F329EF23108}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Resource Files\audio">
+      <UniqueIdentifier>{5BB24D75-C774-81FF-1025-108C7C265ADD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Game Resource Files\fonts">
       <UniqueIdentifier>{930EA575-FFD0-D8FF-4881-678CB482B1DD}</UniqueIdentifier>
     </Filter>
@@ -97,6 +100,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\audio\Title_Theme.ogg">
+      <Filter>Game Resource Files\audio</Filter>
+    </None>
     <None Include="resources\fonts\donkey-kong-nes-1981.ttf">
       <Filter>Game Resource Files\fonts</Filter>
     </None>
