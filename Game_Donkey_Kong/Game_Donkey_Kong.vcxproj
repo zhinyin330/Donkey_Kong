@@ -424,6 +424,7 @@
     <Image Include="resources\VFX\Dk_Points_500.png" />
     <Image Include="resources\VFX\Dk_Points_800.png" />
     <Image Include="resources\imagtes\enemy1.jpg" />
+    <Image Include="resources\imagtes\enemy1.png" />
     <Image Include="resources\imagtes\imatge1.png" />
     <Image Include="resources\imagtes\imatge2.png" />
   </ItemGroup>
