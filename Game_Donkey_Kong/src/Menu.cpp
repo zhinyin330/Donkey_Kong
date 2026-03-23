@@ -61,7 +61,7 @@ void ShowMenuScreen()
             DrawTexturePro(img1, sourceRec, destRec, origin, 0.0f, WHITE);
         else
             DrawTexturePro(img2, sourceRec, destRec, origin, 0.0f, WHITE);
-        // Mario
+        // dongkeyKong
         DrawTexturePro(enemy1, sourceRec1, destRec1, origin1, 0.0f, WHITE);
 
         // 绘制提示文字
