@@ -20,10 +20,13 @@ void ShowMenuScreen()
 
     // 设置图片显示大小和位置
     Rectangle sourceRec = { 0, 0, (float)img1.width, (float)img1.height }; // 原图大小
-    Rectangle destRec = { 140, 180, 500, 250 };                             // 显示位置和大小
+    Rectangle destRec = { 110, 180, 580, 330 };                             // 显示位置和大小
     Vector2 origin = { 0, 0 };
     //敌人
-    Texture2D enemy1 = LoadTexture("Enemy/enemy1.jpg");
+    Texture2D enemy1 = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote2.png");
+    Rectangle sourceRec1 = { 0, 0, (float)enemy1.width, (float)enemy1.height }; // 原图大小
+    Rectangle destRec1 = { 310, 550, 180, 100 };
+    Vector2 origin1 = { 0, 0 };
 
     while (!startGame && !WindowShouldClose())
     {
@@ -59,10 +62,10 @@ void ShowMenuScreen()
         else
             DrawTexturePro(img2, sourceRec, destRec, origin, 0.0f, WHITE);
         // Mario
-        DrawRectangle(100, 470, 30, 30, BLUE);
+        DrawTexturePro(enemy1, sourceRec1, destRec1, origin1, 0.0f, WHITE);
 
         // 绘制提示文字
-        DrawTextEx(font, u8"© NINTENDO 1981", { 300, 720 }, 30, 1, YELLOW);
+        DrawTextEx(font, u8"© NINTENDO 1981", { 290, 720 }, 30, 1, YELLOW);
 
         EndDrawing();
 
