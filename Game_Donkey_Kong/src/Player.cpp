@@ -1,62 +1,39 @@
 #include "Player.h"
 #include "resource_dir.h" 
 
-struct Player {
-    Vector2 position;
-    Vector2 velocity;
-
-    float speed;
-    float jumpForce;
-    float gravity;
-
-    bool isJumping;
-    bool moving;
-
-    // Animación
-    Texture2D idleTexture;
-    Texture2D walkTextures[3];
-    Texture2D jumpTexture;
-
-    int currentFrame;
-    float frameTime;
-    float frameCounter;
-
-    bool facingRight;
-};
-
 void InitPlayer(Player& player,
     Texture2D idle,
     Texture2D walk1,
     Texture2D walk2,
     Texture2D walk3,
+    Texture2D jump,
     Vector2 startPos)
 {
     player.position = startPos;
     player.velocity = { 0, 0 };
 
-    player.speed = 3.0f;
-    player.jumpForce = 8.0f;
-    player.gravity = 0.4f;
+    player.speed = 200.0f;     // ? ahora en píxeles por segundo
+    player.jumpForce = 350.0f; // salto más realista
+    player.gravity = 900.0f;   // gravedad realista
 
     player.isJumping = false;
     player.moving = false;
 
-    
-    player.idleTexture = LoadTexture("Characters/Mario/Dk_Mario_Idle1.png");
-    player.walkTextures[0] = LoadTexture("Characters/Mario/Dk_Mario_Walk1.png");
-    player.walkTextures[1] = LoadTexture("Characters/Mario/Dk_Mario_Walk2.png");
-    player.walkTextures[2] = LoadTexture("Characters/Mario/Dk_Mario_WalkEnd.png");
-    player.jumpTexture = LoadTexture("Characters/Mario/Dk_Mario_Jump.png");
+    // ? Usar texturas pasadas desde fuera
+    player.idleTexture = idle;
+    player.walkTextures[0] = walk1;
+    player.walkTextures[1] = walk2;
+    player.walkTextures[2] = walk3;
+    player.jumpTexture = jump;
 
     player.currentFrame = 0;
-    player.frameTime = 0.15f; // tiempo entre frames
+    player.frameTime = 0.15f;
     player.frameCounter = 0.0f;
 
     player.facingRight = true;
 }
 
-//cargar el personaje
-
+// Liberar recursos (opcional si las gestionas en main)
 void UnloadPlayer(Player& player)
 {
     UnloadTexture(player.idleTexture);
@@ -65,22 +42,24 @@ void UnloadPlayer(Player& player)
         UnloadTexture(player.walkTextures[i]);
     }
 
-    UnloadTexture(player.jumpTexture); 
+    UnloadTexture(player.jumpTexture);
 }
 
-// subir el personaje
+// Update
+void UpdatePlayer(Player& player)
+{
+    float dt = GetFrameTime(); // ?? clave para independencia de FPS
 
-void UpdatePlayer(Player& player) {
     player.moving = false;
 
     // Movimiento horizontal
     if (IsKeyDown(KEY_RIGHT)) {
-        player.position.x += player.speed;
+        player.position.x += player.speed * dt;
         player.moving = true;
         player.facingRight = true;
     }
     if (IsKeyDown(KEY_LEFT)) {
-        player.position.x -= player.speed;
+        player.position.x -= player.speed * dt;
         player.moving = true;
         player.facingRight = false;
     }
@@ -92,10 +71,10 @@ void UpdatePlayer(Player& player) {
     }
 
     // Gravedad
-    player.velocity.y += player.gravity;
-    player.position.y += player.velocity.y;
+    player.velocity.y += player.gravity * dt;
+    player.position.y += player.velocity.y * dt;
 
-    // Suelo temporal
+    // Suelo
     float groundLevel = 400;
 
     if (player.position.y >= groundLevel) {
@@ -104,9 +83,9 @@ void UpdatePlayer(Player& player) {
         player.isJumping = false;
     }
 
-    // Animación caminar
+    // Animación
     if (player.moving && !player.isJumping) {
-        player.frameCounter += GetFrameTime();
+        player.frameCounter += dt;
 
         if (player.frameCounter >= player.frameTime) {
             player.frameCounter = 0.0f;
@@ -122,14 +101,12 @@ void UpdatePlayer(Player& player) {
     }
 }
 
-// Draw 
-void DrawPlayer(Player& player) {
+// Draw
+void DrawPlayer(Player& player)
+{
     Texture2D texture;
 
-    // PRIORIDAD DE ESTADOS:
-    // 1. Saltando
-    // 2. Caminando
-    // 3. Idle
+    // Prioridad: salto > caminar > idle
     if (player.isJumping) {
         texture = player.jumpTexture;
     }

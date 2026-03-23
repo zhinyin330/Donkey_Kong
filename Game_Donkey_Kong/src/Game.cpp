@@ -7,7 +7,13 @@ void RunGameLoop()
     // 假设你窗口已经初始化
     bool gameOver = false;
     Player player;
-    player.Init();
+    Texture2D idle = LoadTexture("Characters/Mario/Dk_Mario_Idle1.png");
+    Texture2D walk1 = LoadTexture("Characters/Mario/Dk_Mario_Walk1.png");
+    Texture2D walk2 = LoadTexture("Characters/Mario/Dk_Mario_Walk2.png");
+    Texture2D walk3 = LoadTexture("Characters/Mario/Dk_Mario_WalkEnd.png");
+    Texture2D jump = LoadTexture("Characters/Mario/Dk_Mario_Jump.png");
+
+    InitPlayer(player, idle, walk1, walk2, walk3, jump, { 100, 400 });
     // 加载游戏资源
 
     Texture dongkeyKong = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_M.png");;
@@ -18,12 +24,11 @@ void RunGameLoop()
     {
         // 更新游戏逻辑
         // TODO: 更新玩家、敌人、场景等
+        UpdatePlayer(player);
 
         BeginDrawing();
         ClearBackground(BLACK);
-        player.Update();
-
-        player.Draw();
+        DrawPlayer(player);
 
         // 绘制游戏元素
         DrawTexturePro(dongkeyKong, sourceRec2, destRec2, origin2, 0.0f, WHITE);
@@ -31,6 +36,7 @@ void RunGameLoop()
 
         EndDrawing();
     }
+    UnloadPlayer(player);
 
     // 卸载资源
     UnloadTexture(dongkeyKong);
