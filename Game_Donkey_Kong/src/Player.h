@@ -9,6 +9,11 @@ private:
 
     float speed;
 
+    //Gravedad
+    float velocityY;
+    float gravity;
+    bool isJumping;
+
 public:
     Player();
 

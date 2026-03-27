@@ -9,16 +9,33 @@ Player::Player() {
 }
 
 void Player::HandleInput() {
+    // Movimiento
     if (IsKeyDown(KEY_A)) {
         position.x -= speed;
     }
     if (IsKeyDown(KEY_D)) {
         position.x += speed;
     }
+
+    // Saltar
+    if (IsKeyPressed(KEY_SPACE) && !isJumping) {
+        velocityY = -10.0f; // fuerza del salto
+        isJumping = true;
+    }
 }
 
 void Player::Update() {
-    // De momento vacío
+    // Gravedad
+    velocityY += gravity;
+    position.y += velocityY;
+
+    //Suelo
+    float groundLevel = 300.0f;
+    if (position.y >= groundLevel) {
+        position.y = groundLevel;
+        velocityY = 0.0f;
+        isJumping = false;
+    }
 }
 
 void Player::Draw() {
