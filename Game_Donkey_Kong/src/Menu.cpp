@@ -82,4 +82,5 @@ void ShowMenuScreen()
     }
     UnloadMusicStream(bgm);// 🧹 清理
     CloseAudioDevice();
+    CloseWindow();
 }

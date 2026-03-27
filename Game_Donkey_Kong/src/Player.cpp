@@ -3,6 +3,7 @@
 
 Player::Player() {
     texture = LoadTexture("Characters/Mario/Dk_Mario_Idle1.png"); // tu sprite en reposo
+
     position = { 100.0f, 300.0f };
     speed = 4.0f;
 }
