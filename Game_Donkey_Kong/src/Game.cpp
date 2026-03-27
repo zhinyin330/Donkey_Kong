@@ -1,12 +1,14 @@
 ﻿#include "Game.h"
 #include "resource_dir.h"
-#include "player.h"
+#include "Player.h"
+#include "Scene.h"
 
 void RunGameLoop()
 {
     // 假设你窗口已经初始化
     bool gameOver = false;
-    InitWindow(800, 800, "Donkey Kong");
+    InitWindow(620, 700, "Donkey Kong");
+    Scene scene;
     Player player;
     SetTargetFPS(60);
 
@@ -22,7 +24,8 @@ void RunGameLoop()
 
         // UPDATE
         player.HandleInput();
-        player.Update();
+        player.Update(scene);
+
 
         // 更新游戏逻辑
         // TODO: 更新玩家、敌人、场景等
@@ -30,6 +33,7 @@ void RunGameLoop()
         BeginDrawing();
         ClearBackground(BLACK);
 
+        scene.Draw();
         player.Draw(); 
 
         // 绘制游戏元素

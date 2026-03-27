@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Player.h"
 #include "resource_dir.h" 
 
 Player::Player() {
@@ -24,20 +25,48 @@ void Player::HandleInput() {
     }
 }
 
-void Player::Update() {
-    // Gravedad
-    velocityY += gravity;
-    position.y += velocityY;
+void Player::Update(Scene& scene) {
 
-    //Suelo
-    float groundLevel = 200.0f;
-    if (position.y >= groundLevel) {
-        position.y = groundLevel;
-        velocityY = 0.0f;
+    int tileSize = scene.GetTileSize();
+
+    // gravedad
+    velocityY += gravity;
+
+    // siguiente posición en Y
+    float nextY = position.y + velocityY;
+
+    // calcular tiles debajo del jugador
+    int leftTile = (int)(position.x / tileSize);
+    int rightTile = (int)((position.x + texture.width * scale) / tileSize);
+    int bottomTile = (int)((nextY + texture.height * scale) / tileSize);
+
+    // comprobar colisión suelo
+    if (scene.IsSolid(leftTile, bottomTile) ||
+        scene.IsSolid(rightTile, bottomTile)) {
+
+        // ajustar al borde del bloque
+        position.y = bottomTile * tileSize - (texture.height * scale);
+
+        velocityY = 0;
         isJumping = false;
+    }
+    else {
+        position.y = nextY;
+        isJumping = true;
     }
 }
 
 void Player::Draw() {
-    DrawTexture(texture, (int)position.x, (int)position.y, WHITE);
+    Rectangle source = { 0, 0, (float)texture.width, (float)texture.height };
+
+    float scale = 2.5f; // AJUSTA ESTO
+
+    Rectangle dest = {
+        position.x,
+        position.y,
+        texture.width * scale,
+        texture.height * scale
+    };
+
+    DrawTexturePro(texture, source, dest, { 0,0 }, 0.0f, WHITE);
 }

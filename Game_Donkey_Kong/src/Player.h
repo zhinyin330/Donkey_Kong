@@ -20,6 +20,9 @@ public:
     void HandleInput();
     void Update();
     void Draw();
-
-
 };
+
+//coliision
+class Scene; // forward declaration
+
+void Update(Scene& scene);
