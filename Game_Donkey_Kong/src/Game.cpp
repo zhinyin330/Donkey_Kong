@@ -18,9 +18,10 @@ void RunGameLoop()
     Vector2 origin2 = { 0, 0 };
     while (!WindowShouldClose() && !gameOver)
     {
-        player.HandleInput();
+        
 
         // UPDATE
+        player.HandleInput();
         player.Update();
 
         // 更新游戏逻辑
