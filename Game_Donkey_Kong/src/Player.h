@@ -1,6 +1,8 @@
 #pragma once
 #include "raylib.h"
 
+class Scene; // declaracion adelantada (collision)
+
 class Player {
 
 private:
@@ -14,15 +16,12 @@ private:
     float gravity;
     bool isJumping;
 
+    float scale;
+
 public:
     Player();
 
     void HandleInput();
-    void Update();
+    void Update(Scene& scene);
     void Draw();
 };
-
-//coliision
-class Scene; // forward declaration
-
-void Update(Scene& scene);
