@@ -36,26 +36,56 @@ void Player::Update(Scene& scene) {
 
     int tileSize = scene.GetTileSize();
 
-    // gravedad
+    float nextX = position.x;
+    float nextY = position.y;
+
+    // MOVIMIENTO HORIZONTAL
+    if (IsKeyDown(KEY_A)) {
+        nextX -= speed;
+    }
+    if (IsKeyDown(KEY_D)) {
+        nextX += speed;
+    }
+
+    int leftTile = (int)(nextX / tileSize);
+    int rightTile = (int)((nextX + texture.width * scale) / tileSize);
+    int topTile = (int)(position.y / tileSize);
+    int bottomTile = (int)((position.y + texture.height * scale) / tileSize);
+
+    // colisión lateral
+    if (scene.IsSolid(leftTile, topTile) || scene.IsSolid(leftTile, bottomTile) ||
+        scene.IsSolid(rightTile, topTile) || scene.IsSolid(rightTile, bottomTile)) {
+
+        // bloquea movimiento
+        nextX = position.x;
+    }
+
+    position.x = nextX;
+
+
+    // MOVIMIENTO VERTICAL
     velocityY += gravity;
+    nextY = position.y + velocityY;
 
-    // siguiente posición en Y
-    float nextY = position.y + velocityY;
+    topTile = (int)(nextY / tileSize);
+    bottomTile = (int)((nextY + texture.height * scale) / tileSize);
+    leftTile = (int)(position.x / tileSize);
+    rightTile = (int)((position.x + texture.width * scale) / tileSize);
 
-    //calcular tiles debajo del jugardor
-    float playerBottom = nextY + texture.height * scale;
+    //COLISIÓN ABAJO (suelo)
+    if (velocityY > 0 &&
+        (scene.IsSolid(leftTile, bottomTile) || scene.IsSolid(rightTile, bottomTile))) {
 
-    int leftTile = (int)(position.x / tileSize);
-    int rightTile = (int)((position.x + texture.width * scale) / tileSize);
-    int bottomTile = (int)(playerBottom / tileSize);
-
-    if (scene.IsSolid(leftTile, bottomTile) || scene.IsSolid(rightTile, bottomTile)) {
-
-        // colocar justo encima del bloque
         position.y = bottomTile * tileSize - texture.height * scale;
-
         velocityY = 0;
         isJumping = false;
+    }
+    //COLISIÓN ARRIBA (techo)
+    else if (velocityY < 0 &&
+        (scene.IsSolid(leftTile, topTile) || scene.IsSolid(rightTile, topTile))) {
+
+        position.y = (topTile + 1) * tileSize;
+        velocityY = 0;
     }
     else {
         position.y = nextY;
