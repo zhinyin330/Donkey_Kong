@@ -39,14 +39,6 @@ void Player::Update(Scene& scene) {
     float nextX = position.x;
     float nextY = position.y;
 
-    // MOVIMIENTO HORIZONTAL
-    if (IsKeyDown(KEY_A)) {
-        nextX -= speed;
-    }
-    if (IsKeyDown(KEY_D)) {
-        nextX += speed;
-    }
-
     int leftTile = (int)(nextX / tileSize);
     int rightTile = (int)((nextX + texture.width * scale) / tileSize);
     int topTile = (int)(position.y / tileSize);
