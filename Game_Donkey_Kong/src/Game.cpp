@@ -7,7 +7,7 @@ void RunGameLoop()
 {
     // 假设你窗口已经初始化
     bool gameOver = false;
-    InitWindow(800, 600, "Donkey Kong");
+    InitWindow(700, 620, "Donkey Kong");
     Scene scene;
     Player player;
     SetTargetFPS(60);
