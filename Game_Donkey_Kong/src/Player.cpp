@@ -12,21 +12,25 @@ Player::Player() {
     gravity = 0.5f;
     isJumping = false;
 
-    scale = 1.0f;
+    scale = 1.5f;
+
+    moveX = 0.0f;
 }
 
 void Player::HandleInput() {
+
     // Movimiento
+    moveX = 0;
     if (IsKeyDown(KEY_A)) {
-        position.x -= speed;
+        moveX = -1;
     }
     if (IsKeyDown(KEY_D)) {
-        position.x += speed;
+        moveX = +1;
     }
 
     // Saltar
     if (IsKeyPressed(KEY_SPACE) && !isJumping) {
-        velocityY = -10.0f; // fuerza del salto
+        velocityY = -12.0f; // fuerza del salto
         isJumping = true;
     }
 }
@@ -36,47 +40,49 @@ void Player::Update(Scene& scene) {
 
     int tileSize = scene.GetTileSize();
 
-    float nextX = position.x;
-    float nextY = position.y;
+    // HORIZONTAL
+
+    float nextX = position.x + moveX * speed;
 
     int leftTile = (int)(nextX / tileSize);
-    int rightTile = (int)((nextX + texture.width * scale) / tileSize);
+    int rightTile = (int)((nextX + texture.width * scale - 1) / tileSize);
     int topTile = (int)(position.y / tileSize);
-    int bottomTile = (int)((position.y + texture.height * scale) / tileSize);
+    int bottomTile = (int)((position.y + texture.height * scale - 1) / tileSize);
 
-    // colisión lateral
-    if (scene.IsSolid(leftTile, topTile) || scene.IsSolid(leftTile, bottomTile) ||
-        scene.IsSolid(rightTile, topTile) || scene.IsSolid(rightTile, bottomTile)) {
-
-        // bloquea movimiento
-        nextX = position.x;
+    if (moveX < 0) {
+        if (scene.IsSolid(leftTile, topTile) || scene.IsSolid(leftTile, bottomTile)) {
+            nextX = (float) (leftTile + 1) * tileSize;
+        }
+    }
+    else if (moveX > 0) {
+        if (scene.IsSolid(rightTile, topTile) || scene.IsSolid(rightTile, bottomTile)) {
+            nextX = (float) (rightTile * tileSize) - texture.width * scale;
+        }
     }
 
     position.x = nextX;
 
+    // VERTICAL
 
-    // MOVIMIENTO VERTICAL
     velocityY += gravity;
-    nextY = position.y + velocityY;
+    float nextY = position.y + velocityY;
 
-    topTile = (int)(nextY / tileSize);
-    bottomTile = (int)((nextY + texture.height * scale) / tileSize);
     leftTile = (int)(position.x / tileSize);
     rightTile = (int)((position.x + texture.width * scale) / tileSize);
+    topTile = (int)(nextY / tileSize);
+    bottomTile = (int)((nextY + texture.height * scale) / tileSize);
 
-    //COLISIÓN ABAJO (suelo)
     if (velocityY > 0 &&
         (scene.IsSolid(leftTile, bottomTile) || scene.IsSolid(rightTile, bottomTile))) {
 
-        position.y = bottomTile * tileSize - texture.height * scale;
+        position.y = (float) bottomTile * tileSize - texture.height * scale;
         velocityY = 0;
         isJumping = false;
     }
-    //COLISIÓN ARRIBA (techo)
     else if (velocityY < 0 &&
         (scene.IsSolid(leftTile, topTile) || scene.IsSolid(rightTile, topTile))) {
 
-        position.y = (topTile + 1) * tileSize;
+        position.y = (float) (topTile + 1) * tileSize;
         velocityY = 0;
     }
     else {
@@ -86,4 +92,11 @@ void Player::Update(Scene& scene) {
 
 void Player::Draw() {
     DrawTextureEx(texture,position,0.0f,scale,WHITE);
-}
+    DrawRectangleLines(
+        position.x,
+        position.y,
+        texture.width * scale,
+        texture.height * scale,
+        RED
+    );
+} 

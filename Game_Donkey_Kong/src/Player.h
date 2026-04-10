@@ -18,6 +18,8 @@ private:
 
     float scale;
 
+    float moveX;
+
 public:
     Player();
 

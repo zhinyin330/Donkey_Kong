@@ -79,10 +79,10 @@ void Scene::Draw() {
 
                 // float para decir porque rectangle es float y sus variables son int.
                 Rectangle dest = {
-                    (float)(x * tileSize),
-                    (float)(y * tileSize),
-                    (float)(tileSize),
-                    (float)(tileSize)
+                (float)(x * tileSize * tileScale),
+                (float)(y * tileSize * tileScale),
+                (float)(tileSize * tileScale),
+                (float)(tileSize * tileScale)
                 };
 
                 DrawTexturePro(tileTexture, source, dest, { 0,0 }, 0.0f, WHITE);
