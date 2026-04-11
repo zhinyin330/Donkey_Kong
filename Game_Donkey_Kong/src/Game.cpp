@@ -7,7 +7,8 @@ void RunGameLoop()
 {
     // 假设你窗口已经初始化
     bool gameOver = false;
-    InitWindow(700, 620, "Donkey Kong");
+
+    InitWindow(Scene::GetScreenWidth(), Scene::GetScreenHeight(), "Donkey Kong");
     Scene scene;
     Player player;
     SetTargetFPS(60);
