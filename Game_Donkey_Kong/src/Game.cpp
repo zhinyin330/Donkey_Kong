@@ -9,6 +9,7 @@ void RunGameLoop()
     bool gameOver = false;
 
     InitWindow(Scene::GetScreenWidth(), Scene::GetScreenHeight(), "Donkey Kong");
+    
     Scene scene;
     Player player;
     SetTargetFPS(60);
