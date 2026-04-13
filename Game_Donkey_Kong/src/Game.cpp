@@ -2,6 +2,7 @@
 #include "resource_dir.h"
 #include "Player.h"
 #include "Scene.h"
+#include "Enemy.h"
 
 void RunGameLoop()
 {
@@ -9,6 +10,7 @@ void RunGameLoop()
     bool gameOver = false;
 
     InitWindow(Scene::GetScreenWidth(), Scene::GetScreenHeight(), "Donkey Kong");
+<<<<<<< HEAD
     
     Scene scene;
     Player player;
@@ -24,9 +26,22 @@ void RunGameLoop()
     {
         
 
+=======
+
+    InitAudioDevice();//audio
+    Scene scene;
+    Player player;
+    Enemy enemy;
+    SetTargetFPS(60);
+
+   
+   
+    while (!WindowShouldClose() && !gameOver) {
+>>>>>>> 73a6ffbaf5165031e9411a3bdf07db67fd4e242b
         // UPDATE
         player.HandleInput();
         player.Update(scene);
+        enemy.Update();
 
 
         // 更新游戏逻辑
@@ -37,15 +52,27 @@ void RunGameLoop()
 
         scene.Draw();
         player.Draw(); 
+<<<<<<< HEAD
 
         // 绘制游戏元素
         DrawTexturePro(dongkeyKong, sourceRec2, destRec2, origin2, 0.0f, WHITE);
 
+=======
+        enemy.Draw();
+        // Dibujar Donkey Kong (opcional)
+        if (dongkeyKong.id != 0) {
+            DrawTextureEx(dongkeyKong, { 110, 400 }, 0.0f, 1.0f, WHITE);
+        }
+>>>>>>> 73a6ffbaf5165031e9411a3bdf07db67fd4e242b
 
         EndDrawing();
 
     }
 
+<<<<<<< HEAD
     // 卸载资源
     UnloadTexture(dongkeyKong);
+=======
+    CloseWindow();
+>>>>>>> 73a6ffbaf5165031e9411a3bdf07db67fd4e242b
 }

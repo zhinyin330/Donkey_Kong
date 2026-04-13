@@ -6,6 +6,8 @@ Player::Player() {
     // Cargar texturas
     idleTexture = LoadTexture("Characters/Mario/Dk_Mario_Idle1.png");
     jumpTexture = LoadTexture("Characters/Mario/Dk_Mario_Jump.png");
+    jumpSound = LoadSound("audio/SFXjump.mp3");
+    SetSoundVolume(jumpSound, 5.0f);
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
@@ -51,6 +53,8 @@ Player::~Player() {
     // Liberar todas las texturas
     UnloadTexture(idleTexture);
     UnloadTexture(jumpTexture);
+    //audio
+    UnloadSound(jumpSound);
     for (Texture2D& tex : walkTextures) {
         UnloadTexture(tex);
     }
@@ -145,11 +149,13 @@ void Player::HandleInput() {
     if (IsKeyPressed(KEY_SPACE) && !isJumping) {
         velocityY = -6.0f;
         isJumping = true;
+        PlaySound(jumpSound);
     }
 
     // Determinar estado actual para la animación
     if (isJumping) {
         ChangeState(PlayerState::JUMPING);
+
     }
     else if (moveX != 0) {
         ChangeState(PlayerState::WALKING);

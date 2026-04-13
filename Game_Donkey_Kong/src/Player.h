@@ -18,6 +18,9 @@ private:
     Texture2D jumpTexture;
     Texture2D currentTexture;
 
+    //Audio
+    Sound jumpSound;
+
     // Animación
     PlayerState currentState;
     int currentFrame;
