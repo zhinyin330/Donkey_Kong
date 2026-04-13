@@ -3,38 +3,49 @@
 #include "Player.h"
 #include "Scene.h"
 
-void RunGameLoop() {
+void RunGameLoop()
+{
+    // 假设你窗口已经初始化
     bool gameOver = false;
 
     InitWindow(Scene::GetScreenWidth(), Scene::GetScreenHeight(), "Donkey Kong");
-    SetTargetFPS(60);
-
+    
     Scene scene;
     Player player;
+    SetTargetFPS(60);
 
-    // Textura de Donkey Kong (opcional)
-    Texture dongkeyKong = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_M.png");
+    // 加载游戏资源
 
-    while (!WindowShouldClose() && !gameOver) {
+    Texture dongkeyKong = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_M.png");;
+    Rectangle sourceRec2 = { 0, 0, (float)dongkeyKong.width, (float)dongkeyKong.height }; // 原图大小
+    Rectangle destRec2 = { 110, 400, 130, 80 };
+    Vector2 origin2 = { 0, 0 };
+    while (!WindowShouldClose() && !gameOver)
+    {
+        
+
         // UPDATE
         player.HandleInput();
         player.Update(scene);
 
-        // DRAW
+
+        // 更新游戏逻辑
+        // TODO: 更新玩家、敌人、场景等
+
         BeginDrawing();
         ClearBackground(BLACK);
 
         scene.Draw();
-        player.Draw();
+        player.Draw(); 
 
-        // Dibujar Donkey Kong (opcional)
-        if (dongkeyKong.id != 0) {
-            DrawTextureEx(dongkeyKong, { 110, 400 }, 0.0f, 1.0f, WHITE);
-        }
+        // 绘制游戏元素
+        DrawTexturePro(dongkeyKong, sourceRec2, destRec2, origin2, 0.0f, WHITE);
+
 
         EndDrawing();
+
     }
 
+    // 卸载资源
     UnloadTexture(dongkeyKong);
-    CloseWindow();
 }

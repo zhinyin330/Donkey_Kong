@@ -4,23 +4,25 @@
 Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
 
+    int baseOffset = 4 * tileScale;  // 4 * 2 = 8
+
     // Inicializar mapa
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             level[y][x] = 0;
-            visualOffsetY[y][x] = 16;
-        }
-    }
+            visualOffsetY[y][x] = baseOffset;
+        };
+    };
 
-    // PLATAFORMAS (ajustadas para mapHeight=24)
+    // PLATAFORMAS HORIZONTALES CON INCLINACIÓN EN LOS EXTREMOS
     int platformHeights[] = {
-        mapHeight - 1,   // 23 - Suelo
-        mapHeight - 5,   // 19
-        mapHeight - 9,   // 15
-        mapHeight - 13,  // 11
-        mapHeight - 17,  // 7
-        mapHeight - 20,  // 4
-        mapHeight - 22   // 2 - Superior
+        mapHeight - 1,   // Suelo
+        mapHeight - 4,   // 
+        mapHeight - 7,   // 
+        mapHeight - 10,  // 
+        mapHeight - 13,  // 
+        mapHeight - 16,  // 
+        mapHeight - 19   // Superior
     };
 
     int platformCount = sizeof(platformHeights) / sizeof(platformHeights[0]);
@@ -29,44 +31,47 @@ Scene::Scene() {
         int y = platformHeights[i];
 
         if (i == 0) {
-            // Y=23 - SUELO: mitad derecha SUBE
+            // Y=25  SUELO: solo la mitad derecha SUBE hacia la derecha
             for (int x = 0; x < mapWidth; x++) {
                 level[y][x] = 1;
+
                 if (x >= 12 && x <= 24) {
-                    float t = (float)(x - 12) / 12.0f;
-                    visualOffsetY[y][x] = 16 - (int)(t * 12);
+                    // Mitad derecha: sube hacia la derecha
+                    float t = (float)(x - 12) / 12.0f;  // 0 _ 1
+                    visualOffsetY[y][x] = 16 - (int)(t * 12);  // 16 _ 4 (sube)
                 }
                 else {
-                    visualOffsetY[y][x] = 16;
+                    visualOffsetY[y][x] = 16;  // Mitad izquierda plana
                 }
             }
         }
         else if (i == platformCount - 1) {
-            // Y=2 - SUPERIOR: corta
-            int startX = mapWidth / 2 - 3;
-            int endX = mapWidth / 2 + 3;
+            // Y=2  SUPERIOR: plana (central)
+            int startX = mapWidth / 2 - 3;   // Centro - 3 tiles
+            int endX = mapWidth / 2 + 3;     // Centro + 3 tiles (total 6 tiles)
             for (int x = startX; x < endX; x++) {
                 level[y][x] = 1;
                 visualOffsetY[y][x] = 16;
             }
         }
         else if (i == 1) {
-            // Y=19 - IZQUIERDA: RECTA
+            // Y=21  IZQUIERDA: TODA baja hacia la DERECHA
             for (int x = 0; x < mapWidth - 4; x++) {
                 level[y][x] = 1;
-                visualOffsetY[y][x] = 16;
+                float t = (float)x / (float)(mapWidth - 5);  // 0 _ 1
+                visualOffsetY[y][x] = 16 + (int)(t * 16);  // 16 _ 32 (baja hacia derecha)
             }
         }
         else if (i == 2) {
-            // Y=15 - DERECHA: baja hacia IZQUIERDA
+            // Y=17  DERECHA: TODA baja hacia la IZQUIERDA
             for (int x = 4; x < mapWidth; x++) {
                 level[y][x] = 1;
-                float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);
-                visualOffsetY[y][x] = 16 + (int)(t * 16);
+                float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);  // 1 _ 0
+                visualOffsetY[y][x] = 16 + (int)(t * 16);  // 32 _ 16 (baja hacia izquierda)
             }
         }
         else if (i == 3) {
-            // Y=11 - IZQUIERDA: baja hacia DERECHA
+            // Y=13  IZQUIERDA: TODA baja hacia la DERECHA
             for (int x = 0; x < mapWidth - 4; x++) {
                 level[y][x] = 1;
                 float t = (float)x / (float)(mapWidth - 5);
@@ -74,7 +79,7 @@ Scene::Scene() {
             }
         }
         else if (i == 4) {
-            // Y=7 - DERECHA: baja hacia IZQUIERDA
+            // Y=9  DERECHA: TODA baja hacia la IZQUIERDA
             for (int x = 4; x < mapWidth; x++) {
                 level[y][x] = 1;
                 float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);
@@ -82,15 +87,17 @@ Scene::Scene() {
             }
         }
         else if (i == 5) {
-            // Y=4 - IZQUIERDA: SOLO ÚLTIMAS bajan
+            // Y=5  IZQUIERDA: SOLO las ÚLTIMAS bajan hacia la DERECHA
             for (int x = 0; x < mapWidth - 4; x++) {
                 level[y][x] = 1;
+
                 if (x >= 16) {
-                    float t = (float)(x - 16) / 8.0f;
-                    visualOffsetY[y][x] = 16 + (int)(t * 16);
+                    // Últimas plataformas: bajan hacia la derecha
+                    float t = (float)(x - 12) / 12.0f;  // 0 _ 1
+                    visualOffsetY[y][x] = 16 + (int)(t * 16);  // 16 _ 32 (baja)
                 }
                 else {
-                    visualOffsetY[y][x] = 16;
+                    visualOffsetY[y][x] = 16;  // Primeras: rectas
                 }
             }
         }
@@ -105,12 +112,12 @@ bool Scene::IsSolid(int x, int y) {
 
 void Scene::Draw() {
     int scaledTileSize = tileSize * tileScale;
-    int platformVisualHeight = 18;
+    int platformVisualHeight = 16;  // ? CAMBIAR DE 18 A 16 (8px * 2)
 
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             if (level[y][x] == 1) {
-                Rectangle source = { 0, 4, 16, 8 };
+                Rectangle source = { 0, 4, 16, 8 };  // Ignora 4px superiores
                 int offsetY = visualOffsetY[y][x];
 
                 Rectangle dest = {
