@@ -33,10 +33,11 @@ Player::Player() {
 
     int tileSize = 32;  // tileSize * tileScale
     int startTileX = 2; // Columna donde aparece Mario
-    int startTileY = 21; // Suelo principal
+    int startTileY = 25; // Suelo principal
 
     // FÓRMULA para la posición Y con hitbox rectangular
-    int platformSolidOffsetY = 16; // platformHitboxOffsetY * tileScale (8 * 2)
+    int platformSolidOffsetY = 16;
+
     position.x = (float)(startTileX * tileSize);
     position.y = (float)(startTileY * tileSize) + platformSolidOffsetY
         - (baseHitboxOffsetY + baseHitboxHeight) * scale;
@@ -200,12 +201,17 @@ void Player::Update(Scene& scene) {
     int topTile = (int)(hitboxTopY / tileSize);
     int bottomTile = (int)((hitboxBottomY - 1) / tileSize);
 
+    if (position.x < 0) position.x = 0;
+    if (position.x + currentTexture.width * scale > Scene::GetScreenWidth())
+        position.x = Scene::GetScreenWidth() - currentTexture.width * scale;
+
     // Colisión horizontal (usando la hitbox rectangular de la plataforma)
     if (moveX < 0) {
         for (int ty = topTile; ty <= bottomTile; ty++) {
             if (scene.IsSolid(leftTile, ty)) {
                 // Verificar si la hitbox del jugador intersecta con la parte sólida de la plataforma
-                float platformTop = ty * tileSize + platformHitboxOffsetY;
+                int tileOffsetY = scene.GetVisualOffsetY(leftTile, ty); 
+                float platformTop = ty * tileSize + tileOffsetY;
                 float platformBottom = platformTop + platformHitboxHeight;
 
                 if (hitboxBottomY > platformTop && hitboxTopY < platformBottom) {
@@ -248,6 +254,7 @@ void Player::Update(Scene& scene) {
     if (velocityY > 0) {
         for (int tx = leftTile; tx <= rightTile; tx++) {
             if (scene.IsSolid(tx, nextBottomTile)) {
+                int tileOffsetY = scene.GetVisualOffsetY(tx, nextBottomTile);
                 float platformTop = nextBottomTile * tileSize + platformHitboxOffsetY;
 
                 if (nextHitboxBottomY >= platformTop && hitboxBottomY <= platformTop) {
@@ -264,10 +271,19 @@ void Player::Update(Scene& scene) {
         }
     }
 
+    if (position.y > Scene::GetScreenHeight()) {
+        // Reiniciar posición
+        position.x = 2 * tileSize;
+        position.y = 21 * tileSize + 16 - (baseHitboxOffsetY + baseHitboxHeight) * scale;
+        velocityY = 0;
+        isJumping = false;
+    }
+
     // Salto (colisión con parte inferior de plataforma)
     if (velocityY < 0) {
         for (int tx = leftTile; tx <= rightTile; tx++) {
             if (scene.IsSolid(tx, nextTopTile)) {
+                int tileOffsetY = scene.GetVisualOffsetY(tx, nextTopTile);
                 float platformBottom = nextTopTile * tileSize + platformHitboxOffsetY + platformHitboxHeight;
 
                 if (nextHitboxTopY <= platformBottom && hitboxTopY >= platformBottom) {

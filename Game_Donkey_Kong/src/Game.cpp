@@ -4,9 +4,7 @@
 #include "Scene.h"
 #include "Enemy.h"
 
-void RunGameLoop()
-{
-    // 假设你窗口已经初始化
+void RunGameLoop() {
     bool gameOver = false;
 
     InitWindow(Scene::GetScreenWidth(), Scene::GetScreenHeight(), "Donkey Kong");
@@ -18,29 +16,27 @@ void RunGameLoop()
     SetTargetFPS(60);
 
    
-    while (!WindowShouldClose() && !gameOver)
-    {
-        
-
+   
+    while (!WindowShouldClose() && !gameOver) {
         // UPDATE
         player.HandleInput();
         player.Update(scene);
         enemy.Update();
 
-
-        // 更新游戏逻辑
-        // TODO: 更新玩家、敌人、场景等
-
+        // DRAW
         BeginDrawing();
         ClearBackground(BLACK);
 
         scene.Draw();
         player.Draw(); 
         enemy.Draw();
-
+        // Dibujar Donkey Kong (opcional)
+        if (dongkeyKong.id != 0) {
+            DrawTextureEx(dongkeyKong, { 110, 400 }, 0.0f, 1.0f, WHITE);
+        }
 
         EndDrawing();
-
     }
 
+    CloseWindow();
 }
