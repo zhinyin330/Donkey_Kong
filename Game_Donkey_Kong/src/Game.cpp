@@ -9,18 +9,23 @@ void RunGameLoop()
     // 假设你窗口已经初始化
     bool gameOver = false;
 
+
+    // 加载游戏资源
     InitWindow(Scene::GetScreenWidth(), Scene::GetScreenHeight(), "Donkey Kong");
-    InitAudioDevice();
-    SetTargetFPS(60);
-    
     InitAudioDevice();//audio
+    SetTargetFPS(60);
+
     Scene scene;
     Player player;
     Enemy enemy;
+ 
 
-    // 加载游戏资源
+   
 
-    while (!WindowShouldClose() && !gameOver) {
+
+
+   while (!WindowShouldClose() && !gameOver) {
+
         // UPDATE
         player.HandleInput();
         player.Update(scene);
@@ -29,7 +34,6 @@ void RunGameLoop()
 
         // 更新游戏逻辑
         // TODO: 更新玩家、敌人、场景等
-
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -46,4 +50,5 @@ void RunGameLoop()
     CloseAudioDevice();
     CloseWindow();
 
+    
 }

@@ -1,4 +1,4 @@
-#include "Player.h"
+Ôªø#include "Player.h"
 #include "Scene.h"
 #include "resource_dir.h" 
 
@@ -11,48 +11,90 @@ Player::Player() {
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
-    walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_WalkEnd.png"));
+    walkEndTexture = LoadTexture("Characters/Mario/Dk_Mario_WalkEnd.png");
 
     currentTexture = idleTexture;
-    speed = 7.0f;
+    speed = 5.0f;
     velocityY = 0.0f;
-    gravity = 0.2f;
+    gravity = 0.3f;
     isJumping = false;
     scale = 2.0f;
     moveX = 0.0f;
 
-    // ConfiguraciÛn CRÕTICA de hitbox
-    baseHitboxOffsetY = 2;
-    baseHitboxHeight = 14;
+    // Configuraci√≥n CR√çTICA de hitbox
+    baseHitboxOffsetY = 4;
+    baseHitboxHeight = 12;
 
-    // Asegurar que los pies estÈn en la misma posiciÛn relativa
+    // Asegurar que los pies est√©n en la misma posici√≥n relativa
     // offsetY + height debe ser IGUAL para todos los estados
     int feetOffset = baseHitboxOffsetY + baseHitboxHeight;  // = 16
-    jumpHitboxOffsetY = 0;  // Ajusta seg˙n tu sprite de salto
+    jumpHitboxOffsetY = 0;  // Ajusta seg√∫n tu sprite de salto
     jumpHitboxHeight = feetOffset - jumpHitboxOffsetY;  // = 13
 
     int tileSize = 32;  // tileSize * tileScale
     int startTileX = 2; // Columna donde aparece Mario
     int startTileY = 21; // Suelo principal
 
-    // F”RMULA para la posiciÛn Y con hitbox rectangular
-    int platformSolidOffsetY = 16; // platformHitboxOffsetY * tileScale (8 * 2)
+    // F√ìRMULA para la posici√≥n Y con hitbox rectangular
+    int platformOffsetY = 8;  // baseOffset = 4 * tileScale = 8
     position.x = (float)(startTileX * tileSize);
-    position.y = (float)(startTileY * tileSize) + platformSolidOffsetY
+    position.y = (float)(startTileY * tileSize) + platformOffsetY
         - (baseHitboxOffsetY + baseHitboxHeight) * scale;
 
-    // AnimaciÛn
+    // Animaci√≥n
     currentState = PlayerState::IDLE;
     currentFrame = 0;
+    walkEndCounter = 0;
     frameCounter = 0;
     frameSpeed = 0.15f;
     facingRight = true;
+}
+
+void Player::HandleInput() {
+    moveX = 0;
+
+    if (IsKeyDown(KEY_A)) {
+        moveX = -1;
+        facingRight = false;
+    }
+    if (IsKeyDown(KEY_D)) {
+        moveX = 1;
+        facingRight = true;
+    }
+
+    if (IsKeyPressed(KEY_SPACE) && !isJumping) {
+        velocityY = -8.0f;
+        isJumping = true;
+        PlaySound(jumpSound);
+    }
+
+    // DEBUG
+    static int lastMoveX = 0;
+    if (moveX != lastMoveX) {
+        lastMoveX = moveX;
+    }
+
+    if (isJumping) {
+        ChangeState(PlayerState::JUMPING);
+    }
+    else if (moveX != 0) {
+        ChangeState(PlayerState::WALKING);
+    }
+    else {
+        if (currentState == PlayerState::WALKING) {
+            ChangeState(PlayerState::WALK_END);
+        }
+        else if (currentState != PlayerState::WALK_END) {
+            ChangeState(PlayerState::IDLE);
+        }
+    }
 }
 
 Player::~Player() {
     // Liberar todas las texturas
     UnloadTexture(idleTexture);
     UnloadTexture(jumpTexture);
+    UnloadTexture(walkEndTexture);
     //audio
     UnloadSound(jumpSound);
     for (Texture2D& tex : walkTextures) {
@@ -76,14 +118,15 @@ int Player::GetCurrentHitboxHeight() {
 
 void Player::ChangeState(PlayerState newState) {
     if (currentState != newState) {
-        // GUARDAR la posiciÛn de los pies antes de cambiar
-        float feetY = GetFeetPosition();
+        // DEBUG
+        const char* stateNames[] = { "IDLE", "WALKING", "WALK_END", "JUMPING" };
 
+        float feetY = GetFeetPosition();
         currentState = newState;
         currentFrame = 0;
         frameCounter = 0;
+        walkEndCounter = 0;
 
-        // Actualizar textura
         switch (currentState) {
         case PlayerState::IDLE:
             currentTexture = idleTexture;
@@ -93,12 +136,14 @@ void Player::ChangeState(PlayerState newState) {
                 currentTexture = walkTextures[0];
             }
             break;
+        case PlayerState::WALK_END:
+            currentTexture = walkEndTexture;
+            break;
         case PlayerState::JUMPING:
             currentTexture = jumpTexture;
             break;
         }
 
-        // RESTAURAR la posiciÛn de los pies (solo si est· en el suelo)
         if (!isJumping || currentState == PlayerState::JUMPING) {
             SetFeetPosition(feetY);
         }
@@ -113,11 +158,9 @@ void Player::UpdateAnimation() {
 
         switch (currentState) {
         case PlayerState::IDLE:
-            // No hay animaciÛn en idle (solo un frame)
             break;
 
         case PlayerState::WALKING:
-            // Ciclar entre los frames de caminar
             currentFrame++;
             if (currentFrame >= walkTextures.size()) {
                 currentFrame = 0;
@@ -125,45 +168,20 @@ void Player::UpdateAnimation() {
             currentTexture = walkTextures[currentFrame];
             break;
 
+        case PlayerState::WALK_END:
+            walkEndCounter++;
+            if (walkEndCounter >= 60) {
+                ChangeState(PlayerState::IDLE);
+            }
+   
+            break;
+
         case PlayerState::JUMPING:
-            // Solo un frame para saltar
             break;
         }
     }
 }
 
-void Player::HandleInput() {
-    // Movimiento horizontal
-    moveX = 0;
-
-    if (IsKeyDown(KEY_A)) {
-        moveX = -1;
-        facingRight = false;
-    }
-    if (IsKeyDown(KEY_D)) {
-        moveX = 1;
-        facingRight = true;
-    }
-
-    // Saltar
-    if (IsKeyPressed(KEY_SPACE) && !isJumping) {
-        velocityY = -6.0f;
-        isJumping = true;
-        PlaySound(jumpSound);
-    }
-
-    // Determinar estado actual para la animaciÛn
-    if (isJumping) {
-        ChangeState(PlayerState::JUMPING);
-
-    }
-    else if (moveX != 0) {
-        ChangeState(PlayerState::WALKING);
-    }
-    else {
-        ChangeState(PlayerState::IDLE);
-    }
-}
 
 float Player::GetFeetPosition() {
     int currentOffsetY = GetCurrentHitboxOffsetY();
@@ -190,14 +208,13 @@ void Player::Update(Scene& scene) {
     // ========== HORIZONTAL ==========
     float nextX = position.x + moveX * speed;
 
-    // LÌmites del mapa
+    // L√≠mites del mapa
     int mapWidthPixels = Scene::GetScreenWidth();
     if (nextX < 0) nextX = 0;
     if (nextX + currentTexture.width * scale > mapWidthPixels) {
         nextX = mapWidthPixels - currentTexture.width * scale;
     }
 
-    // ColisiÛn horizontal simple
     int leftTile = (int)(nextX / tileSize);
     int rightTile = (int)((nextX + currentTexture.width * scale - 1) / tileSize);
 
@@ -209,30 +226,87 @@ void Player::Update(Scene& scene) {
 
     bool horizontalCollision = false;
 
+    // Verificar tambi√©n el tile actual (no solo el siguiente)
+    int currentLeftTile = (int)(position.x / tileSize);
+    int currentRightTile = (int)((position.x + currentTexture.width * scale - 1) / tileSize);
+
     if (moveX < 0) {
-        for (int ty = topTile; ty <= bottomTile && !horizontalCollision; ty++) {
+        for (int ty = topTile; ty <= bottomTile + 1 && !horizontalCollision; ty++) {  // 
             if (scene.IsSolid(leftTile, ty)) {
                 int tileOffsetY = scene.GetVisualOffsetY(leftTile, ty);
                 float platformTop = ty * tileSize + tileOffsetY;
                 float platformBottom = platformTop + platformHitboxHeight;
 
-                if (hitboxBottomY > platformTop && hitboxTopY < platformBottom) {
+                float feetLevel = hitboxBottomY;
+                float headLevel = hitboxTopY;
+
+                // Verificar colisi√≥n con esquina inferior
+                if (platformTop < headLevel + 8 && platformBottom > feetLevel - 8) {
+                    // Si la plataforma est√° m√°s baja que sus pies, permitir pasar (rampa)
+                    if (platformTop <= feetLevel + 4 && moveX < 0) {
+                        // Verificar si hay plataforma S√ìLIDA debajo
+                        continue;
+                    }
+
                     nextX = (float)(leftTile + 1) * tileSize;
                     horizontalCollision = true;
+                }
+            }
+
+            if (!horizontalCollision && scene.IsSolid(currentLeftTile, ty)) {
+                int tileOffsetY = scene.GetVisualOffsetY(currentLeftTile, ty);
+                float platformTop = ty * tileSize + tileOffsetY;
+                float platformBottom = platformTop + platformHitboxHeight;
+
+                float feetLevel = hitboxBottomY;
+                float headLevel = hitboxTopY;
+
+                // Verificar si estamos JUSTO en el borde
+                if (platformTop < headLevel + 8 && platformBottom > feetLevel - 8) {
+                    // Si la plataforma est√° a la altura del cuerpo, bloquear
+                    if (platformTop > feetLevel - 4) {
+                        nextX = (float)(currentLeftTile + 1) * tileSize;
+                        horizontalCollision = true;
+                        break;
+                    }
                 }
             }
         }
     }
     else if (moveX > 0) {
-        for (int ty = topTile; ty <= bottomTile && !horizontalCollision; ty++) {
+        for (int ty = topTile; ty <= bottomTile + 2 && !horizontalCollision; ty++) {  //  para esquinas
             if (scene.IsSolid(rightTile, ty)) {
                 int tileOffsetY = scene.GetVisualOffsetY(rightTile, ty);
                 float platformTop = ty * tileSize + tileOffsetY;
                 float platformBottom = platformTop + platformHitboxHeight;
 
-                if (hitboxBottomY > platformTop && hitboxTopY < platformBottom) {
+                float feetLevel = hitboxBottomY;
+                float headLevel = hitboxTopY;
+
+                if (platformTop < headLevel + 8 && platformBottom > feetLevel - 8) {
+                    if (platformTop <= feetLevel + 4 && moveX > 0) {
+                        continue;
+                    }
+
                     nextX = (float)(rightTile * tileSize) - currentTexture.width * scale;
                     horizontalCollision = true;
+                }
+            }
+
+            if (!horizontalCollision && scene.IsSolid(currentRightTile, ty)) {
+                int tileOffsetY = scene.GetVisualOffsetY(currentRightTile, ty);
+                float platformTop = ty * tileSize + tileOffsetY;
+                float platformBottom = platformTop + platformHitboxHeight;
+
+                float feetLevel = hitboxBottomY;
+                float headLevel = hitboxTopY;
+
+                if (platformTop < headLevel + 8 && platformBottom > feetLevel - 8) {
+                    if (platformTop > feetLevel - 4) {
+                        nextX = (float)(currentRightTile * tileSize) - currentTexture.width * scale;
+                        horizontalCollision = true;
+                        break;
+                    }
                 }
             }
         }
@@ -247,13 +321,13 @@ void Player::Update(Scene& scene) {
     float nextFeetY = nextY + (currentOffsetY + currentHeight) * scale;
     float nextHeadY = nextY + currentOffsetY * scale;
 
-    int nextFeetTileY = (int)(nextFeetY / tileSize);
-    int nextHeadTileY = (int)(nextHeadY / tileSize);
+    int nextFeetTileY = (int)((nextFeetY - 1) / tileSize);
+    int nextHeadTileY = (int)((nextHeadY) / tileSize);
 
     leftTile = (int)(position.x / tileSize);
-    rightTile = (int)((position.x + currentTexture.width * scale) / tileSize);
+    rightTile = (int)((position.x + currentTexture.width * scale - 1) / tileSize);
 
-    // LÌmites verticales
+    // L√≠mites verticales
     int mapHeightPixels = Scene::GetScreenHeight();
     if (nextFeetY > mapHeightPixels) {
         // Reiniciar al caer
@@ -270,18 +344,25 @@ void Player::Update(Scene& scene) {
         velocityY = 0;
     }
 
-    // ColisiÛn al CAER
+    // Colisi√≥n al CAER
     if (velocityY >= 0) {
         bool landed = false;
         float groundY = nextY;
 
-        for (int tx = leftTile; tx <= rightTile && !landed; tx++) {
+        // Calcular el ancho del mapa en tiles
+        int mapWidthTiles = Scene::GetScreenWidth() / tileSize;
+
+        int checkLeftTile = leftTile - 1 ;
+        int checkRightTile = rightTile + 1;
+        if (checkLeftTile < 0) checkLeftTile = 0;
+        if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
+
+        for (int tx = checkLeftTile; tx <= checkRightTile && !landed; tx++) {
             for (int ty = (int)(hitboxBottomY / tileSize); ty <= nextFeetTileY; ty++) {
                 if (scene.IsSolid(tx, ty)) {
                     int tileOffsetY = scene.GetVisualOffsetY(tx, ty);
                     float platformTop = ty * tileSize + tileOffsetY;
 
-                    // Si los pies van a cruzar la plataforma
                     if (nextFeetY >= platformTop && hitboxBottomY <= platformTop + 5) {
                         groundY = platformTop - (currentOffsetY + currentHeight) * scale;
                         landed = true;
@@ -304,13 +385,20 @@ void Player::Update(Scene& scene) {
         }
     }
 
-    // ColisiÛn al SALTAR (golpear techo)
+    // Colisi√≥n al SALTAR (golpear techo)
     if (velocityY < 0) {
         bool hitCeiling = false;
         float ceilingY = nextY;
 
+        // Ampliar rango horizontal tambi√©n
+        int checkLeftTile = leftTile - 1;
+        int checkRightTile = rightTile + 1;
+        if (checkLeftTile < 0) checkLeftTile = 0;
+        int mapWidthTiles = Scene::GetScreenWidth() / tileSize;
+        if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
+
         for (int tx = leftTile; tx <= rightTile && !hitCeiling; tx++) {
-            for (int ty = nextHeadTileY; ty <= (int)(hitboxTopY / tileSize); ty++) {
+            for (int ty = nextHeadTileY - 1; ty <= (int)(hitboxTopY / tileSize); ty++) {
                 if (scene.IsSolid(tx, ty)) {
                     int tileOffsetY = scene.GetVisualOffsetY(tx, ty);
                     float platformBottom = ty * tileSize + tileOffsetY + platformHitboxHeight;
@@ -363,7 +451,7 @@ void Player::Draw() {
         RED
     );
 
-    // NUEVO: Dibujar lÌnea de pies (debe tocar exactamente el suelo)
+    // NUEVO: Dibujar l√≠nea de pies (debe tocar exactamente el suelo)
     float feetY = position.y + (currentOffsetY + currentHeight) * scale;
     DrawLine(
         position.x,
@@ -373,7 +461,7 @@ void Player::Draw() {
         GREEN
     );
 
-    // NUEVO: Dibujar lÌnea superior de hitbox
+    // NUEVO: Dibujar l√≠nea superior de hitbox
     float hitboxTopY = position.y + currentOffsetY * scale;
     DrawLine(
         position.x,
