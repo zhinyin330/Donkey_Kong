@@ -1,20 +1,20 @@
-ï»¿#include "Scene.h"
+#include "Scene.h"
 #include "resource_dir.h" 
 
 Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
 
-    int baseOffset = platformHitboxOffsetY * tileScale;  
+    int baseOffset = 4 * tileScale;  // 4 * 2 = 8
 
     // Inicializar mapa
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             level[y][x] = 0;
             visualOffsetY[y][x] = baseOffset;
-        }
-    }
+        };
+    };
 
-    // PLATAFORMAS
+    // PLATAFORMAS HORIZONTALES CON INCLINACIÓN EN LOS EXTREMOS
     int platformHeights[] = {
         mapHeight - 1,   // Suelo
         mapHeight - 4,   // 
@@ -31,69 +31,73 @@ Scene::Scene() {
         int y = platformHeights[i];
 
         if (i == 0) {
-            // SUELO: mitad derecha SUBE
+            // Y=25  SUELO: solo la mitad derecha SUBE hacia la derecha
             for (int x = 0; x < mapWidth; x++) {
                 level[y][x] = 1;
+
                 if (x >= 12 && x <= 24) {
-                    float t = (float)(x - 12) / 12.0f;
-                    visualOffsetY[y][x] = baseOffset - (int)(t * 10);  
+                    // Mitad derecha: sube hacia la derecha
+                    float t = (float)(x - 12) / 12.0f;  // 0 _ 1
+                    visualOffsetY[y][x] = 16 - (int)(t * 12);  // 16 _ 4 (sube)
                 }
                 else {
-                    visualOffsetY[y][x] = baseOffset; 
+                    visualOffsetY[y][x] = 16;  // Mitad izquierda plana
                 }
             }
         }
         else if (i == platformCount - 1) {
-            // SUPERIOR: plana
-            int startX = mapWidth / 2 - 3;
-            int endX = mapWidth / 2 + 3;
+            // Y=2  SUPERIOR: plana (central)
+            int startX = mapWidth / 2 - 3;   // Centro - 3 tiles
+            int endX = mapWidth / 2 + 3;     // Centro + 3 tiles (total 6 tiles)
             for (int x = startX; x < endX; x++) {
                 level[y][x] = 1;
-                visualOffsetY[y][x] = baseOffset;
+                visualOffsetY[y][x] = 16;
             }
         }
         else if (i == 1) {
-            // Y=21: baja hacia derecha
+            // Y=21  IZQUIERDA: TODA baja hacia la DERECHA
             for (int x = 0; x < mapWidth - 4; x++) {
                 level[y][x] = 1;
-                float t = (float)x / (float)(mapWidth - 5);  
-                visualOffsetY[y][x] = baseOffset + (int)(t * 14);  
+                float t = (float)x / (float)(mapWidth - 5);  // 0 _ 1
+                visualOffsetY[y][x] = 16 + (int)(t * 16);  // 16 _ 32 (baja hacia derecha)
             }
         }
         else if (i == 2) {
-            // Y=17: baja hacia IZQUIERDA
+            // Y=17  DERECHA: TODA baja hacia la IZQUIERDA
             for (int x = 4; x < mapWidth; x++) {
                 level[y][x] = 1;
-                float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);
-                visualOffsetY[y][x] = baseOffset + (int)(t * 14);  
+                float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);  // 1 _ 0
+                visualOffsetY[y][x] = 16 + (int)(t * 16);  // 32 _ 16 (baja hacia izquierda)
             }
         }
         else if (i == 3) {
-            // Y=13: baja hacia DERECHA
+            // Y=13  IZQUIERDA: TODA baja hacia la DERECHA
             for (int x = 0; x < mapWidth - 4; x++) {
                 level[y][x] = 1;
                 float t = (float)x / (float)(mapWidth - 5);
-                visualOffsetY[y][x] = baseOffset + (int)(t * 14);  
+                visualOffsetY[y][x] = 16 + (int)(t * 16);
             }
         }
         else if (i == 4) {
-            // Y=9: baja hacia IZQUIERDA
+            // Y=9  DERECHA: TODA baja hacia la IZQUIERDA
             for (int x = 4; x < mapWidth; x++) {
                 level[y][x] = 1;
                 float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);
-                visualOffsetY[y][x] = baseOffset + (int)(t * 14);
+                visualOffsetY[y][x] = 16 + (int)(t * 16);
             }
         }
         else if (i == 5) {
-            // Y=5: ÃšLTIMAS bajan
+            // Y=5  IZQUIERDA: SOLO las ÚLTIMAS bajan hacia la DERECHA
             for (int x = 0; x < mapWidth - 4; x++) {
                 level[y][x] = 1;
-                if (x >= 14) {
-                    float t = (float)(x - 13) / 8.0f;
-                    visualOffsetY[y][x] = baseOffset + (int)(t * 14);
+
+                if (x >= 16) {
+                    // Últimas plataformas: bajan hacia la derecha
+                    float t = (float)(x - 12) / 12.0f;  // 0 _ 1
+                    visualOffsetY[y][x] = 16 + (int)(t * 16);  // 16 _ 32 (baja)
                 }
                 else {
-                    visualOffsetY[y][x] = baseOffset;
+                    visualOffsetY[y][x] = 16;  // Primeras: rectas
                 }
             }
         }
@@ -108,17 +112,12 @@ bool Scene::IsSolid(int x, int y) {
 
 void Scene::Draw() {
     int scaledTileSize = tileSize * tileScale;
-    int platformVisualHeight = 22;  // 
-
-    // Obtener dimensiones de la hitbox
-    int hitboxHeight = GetPlatformHitboxHeight();      // 16
-    int hitboxOffsetY = GetPlatformHitboxOffsetY();    // 16 (con el cambio)
-
+    int platformVisualHeight = 16;  // ? CAMBIAR DE 18 A 16 (8px * 2)
 
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             if (level[y][x] == 1) {
-                Rectangle source = { 0, 4 , 16, 8 };  
+                Rectangle source = { 0, 4, 16, 8 };  // Ignora 4px superiores
                 int offsetY = visualOffsetY[y][x];
 
                 Rectangle dest = {
@@ -129,34 +128,6 @@ void Scene::Draw() {
                 };
 
                 DrawTexturePro(tileTexture, source, dest, { 0,0 }, 0.0f, WHITE);
-
-                float hitboxY = y * scaledTileSize + hitboxOffsetY;
-
-                DrawRectangleLines(
-                    x * scaledTileSize,
-                    hitboxY,
-                    scaledTileSize,
-                    hitboxHeight,
-                    GREEN  // Color verde para la hitbox
-                );
-
-                // DEBUG: Dibujar una lÃ­nea en la parte superior de la hitbox
-                DrawLine(
-                    x * scaledTileSize,
-                    hitboxY,
-                    x * scaledTileSize + scaledTileSize,
-                    hitboxY,
-                    BLUE
-                );
-
-                // DEBUG: Mostrar el offset visual de este tile
-                DrawText(
-                    TextFormat("%d", offsetY),
-                    x * scaledTileSize + 5,
-                    y * scaledTileSize + 5,
-                    10,
-                    YELLOW
-                );
             }
         }
     }

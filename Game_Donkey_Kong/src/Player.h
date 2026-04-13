@@ -7,7 +7,6 @@ class Scene;
 enum class PlayerState {
     IDLE,
     WALKING,
-    WALK_END,
     JUMPING
 };
 
@@ -16,7 +15,6 @@ private:
     // Texturas
     Texture2D idleTexture;
     std::vector<Texture2D> walkTextures;
-    Texture2D walkEndTexture;
     Texture2D jumpTexture;
     Texture2D currentTexture;
 
@@ -28,7 +26,6 @@ private:
     int currentFrame;
     float frameCounter;
     float frameSpeed;
-    int walkEndCounter;
 
     Vector2 position;
     float speed;
@@ -63,5 +60,5 @@ public:
     void SetFeetPosition(float feetY);
     int GetCurrentHitboxOffsetY();
     int GetCurrentHitboxHeight();
-    float GetCollisionHeight() { return GetCurrentHitboxHeight() * scale; };
+    float GetCollisionHeight() { return GetCurrentHitboxHeight() * scale; }
 };
