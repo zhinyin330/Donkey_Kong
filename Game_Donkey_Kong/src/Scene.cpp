@@ -3,14 +3,16 @@
 
 Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
+    ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
-    // Inicializar ambos mapas
+    // Inicializar mapas
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             level[y][x] = 0;
             hitboxLevel[y][x] = 0;
+            ladderLevel[y][x] = 0;
             visualOffsetY[y][x] = baseOffset;
         }
     }
@@ -33,7 +35,6 @@ Scene::Scene() {
 
         if (i == 0) {
             // ========== SUELO (Y=22) ==========
-            // Imagen: completa
             for (int x = 0; x < mapWidth; x++) {
                 level[y][x] = 1;
                 if (x >= 12 && x <= 24) {
@@ -44,89 +45,223 @@ Scene::Scene() {
                     visualOffsetY[y][x] = baseOffset;
                 }
             }
-            // Hitbox: igual que la imagen (completa)
             for (int x = 0; x < mapWidth; x++) {
                 hitboxLevel[y][x] = 1;
             }
         }
         else if (i == platformCount - 1) {
             // ========== SUPERIOR (Y=3) ==========
-            // Imagen: original
-            int startX = mapWidth / 2 - 3;
+            int startX = mapWidth / 2 - 2;
             int endX = mapWidth / 2 + 3;
             for (int x = startX; x < endX; x++) {
                 level[y][x] = 1;
                 visualOffsetY[y][x] = baseOffset;
             }
-            // Hitbox:
-            int hitboxStartX = mapWidth / 2 - 3;
-            int hitboxEndX = mapWidth / 2 + 3;
+            int hitboxStartX = mapWidth / 2 - 1;
+            int hitboxEndX = mapWidth / 2 + 2;
             for (int x = hitboxStartX; x < hitboxEndX; x++) {
                 hitboxLevel[y][x] = 1;
             }
         }
         else if (i == 1 || i == 3 || i == 5) {
             // ========== PLATAFORMAS IZQUIERDA (Y=18, 12, 6) ==========
-            // Imagen: completa (hasta mapWidth - 4)
-            for (int x = 0; x < mapWidth - 4; x++) {
+            for (int x = 0; x < mapWidth - 3; x++) {
                 level[y][x] = 1;
                 if (i == 5 && x >= 14) {
-                    float t = (float)(x - 13) / 8.0f;
+                    float t = (float)(x - 13) / 9.0f;
                     visualOffsetY[y][x] = baseOffset + (int)(t * 14);
                 }
                 else if (i == 1 || i == 3) {
-                    float t = (float)x / (float)(mapWidth - 5);
+                    float t = (float)x / (float)(mapWidth - 4);
                     visualOffsetY[y][x] = baseOffset + (int)(t * 14);
                 }
                 else {
                     visualOffsetY[y][x] = baseOffset;
                 }
             }
-            // Hitbox: recortada (hasta mapWidth - 5)
-            for (int x = 0; x < mapWidth - 5; x++) {
+            for (int x = 0; x < mapWidth - 4; x++) {
                 hitboxLevel[y][x] = 1;
             }
         }
         else if (i == 2 || i == 4) {
             // ========== PLATAFORMAS DERECHA (Y=15, 9) ==========
-            // Imagen: completa (desde x=4)
-            for (int x = 4; x < mapWidth; x++) {
+            for (int x = 3; x < mapWidth; x++) {
                 level[y][x] = 1;
-                float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 5);
+                float t = (float)(mapWidth - 1 - x) / (float)(mapWidth - 4);
                 visualOffsetY[y][x] = baseOffset + (int)(t * 14);
             }
-            // Hitbox: recortada (desde x=5)
-            for (int x = 5; x < mapWidth; x++) {
+            for (int x = 4; x < mapWidth; x++) {
                 hitboxLevel[y][x] = 1;
             }
         }
+    }
+
+    // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=18)
+    AddLadder(21, 18, 9, false, false, true);   // Hueco en medio
+    AddLadder(21, 18, 20, false, false);         // Completa
+
+    // Tramo 2: Plataforma 1 (Y = 18) a Plataforma 2 (Y = 15)
+    AddLadder(18, 15, 4, false, false);         // 1ª completa
+    AddLadder(18, 15, 11, false, false);         // 2ª completa
+
+    // Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
+    AddLadder(15, 12, 7, false, false, true);    // Hueco en medio
+    AddLadder(15, 12, 12, false, false);         // Completa
+    AddLadder(15, 12, 20, false, false);         // Completa
+
+    // Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
+    AddLadder(12, 9, 4, false, false);          // Completa
+    AddLadder(12, 9, 8, false, false);          // Completa
+    AddLadder(12, 9, 18, false, false, true);    // Hueco en medio
+
+    // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
+    AddLadder(9, 6, 10, false, false, true);      // Hueco en medio
+    AddLadder(9, 6, 20, false, false);            // Completa
+
+    // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
+    AddLadder(6, 0, 7, false, false);
+    AddLadder(6, 0, 9, false, false);
+    AddLadder(6, 3, 14, false, false);
+}
+
+Scene::~Scene() {
+    UnloadTexture(tileTexture);
+    UnloadTexture(ladderTexture);
+}
+
+void Scene::AddLadder(int startY, int endY, int x, bool brokenStart, bool brokenEnd, bool brokenMiddle) {
+    if (x < 0 || x >= mapWidth) return;
+
+    if (startY < endY) {
+        int temp = startY;
+        startY = endY;
+        endY = temp;
+    }
+
+    if (startY >= mapHeight) startY = mapHeight - 1;
+    if (endY < 0) endY = 0;
+
+    int startOffset = brokenStart ? 1 : 0;
+    int endOffset = brokenEnd ? 1 : 0;
+
+    for (int y = endY + endOffset; y <= startY - startOffset; y++) {
+        if (y >= 0 && y < mapHeight) {
+            if (brokenMiddle) {
+                int middleY = (startY + endY) / 2;
+                if (y == middleY) {
+                    ladderLevel[y][x] = 2;  // ROTA SUPERIOR (mitad arriba)
+                    continue;
+                }
+            }
+            ladderLevel[y][x] = 1;  // COMPLETA
+        }
+    }
+
+    if (!brokenStart && startY >= 0 && startY < mapHeight) {
+        ladderLevel[startY][x] = 1;
+    }
+    if (!brokenEnd && endY >= 0 && endY < mapHeight) {
+        ladderLevel[endY][x] = 1;
     }
 }
 
 bool Scene::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
-    return hitboxLevel[y][x] == 1;  // ← Usar el array de hitbox
+    return hitboxLevel[y][x] == 1;
+}
+
+bool Scene::IsLadder(int x, int y) {
+    if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
+        return false;
+    return ladderLevel[y][x] >= 1;  // 1 o 2 son escalera
 }
 
 void Scene::Draw() {
     int scaledTileSize = tileSize * tileScale;
     int platformVisualHeight = 22;
 
+    // 1º DIBUJAR PLATAFORMAS
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
-            if (level[y][x] == 1) {  // ← Usar el array de imagen para dibujar
+            if (level[y][x] == 1) {
                 Rectangle source = { 0, 4, 16, 8 };
                 int offsetY = visualOffsetY[y][x];
-
                 Rectangle dest = {
                     (float)(x * scaledTileSize),
                     (float)(y * scaledTileSize) + offsetY,
                     (float)scaledTileSize,
                     (float)platformVisualHeight
                 };
-
                 DrawTexturePro(tileTexture, source, dest, { 0,0 }, 0.0f, WHITE);
+            }
+        }
+    }
+
+    // 2º DIBUJAR ESCALERAS
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int ladderType = ladderLevel[y][x];
+            if (ladderType > 0 && level[y][x] != 1) {
+
+                // Calcular ladderOffsetY (IGUAL QUE ANTES)
+                int ladderOffsetY = 0;
+                int bottomPlatformY = -1;
+                for (int checkY = y + 1; checkY < mapHeight; checkY++) {
+                    if (level[checkY][x] == 1) {
+                        bottomPlatformY = checkY;
+                        break;
+                    }
+                }
+                int topPlatformY = -1;
+                for (int checkY = y - 1; checkY >= 0; checkY--) {
+                    if (level[checkY][x] == 1) {
+                        topPlatformY = checkY;
+                        break;
+                    }
+                }
+                if (bottomPlatformY != -1 && topPlatformY != -1) {
+                    float t = (float)(y - bottomPlatformY) / (topPlatformY - bottomPlatformY);
+                    int bottomOffset = visualOffsetY[bottomPlatformY][x];
+                    int topOffset = visualOffsetY[topPlatformY][x];
+                    ladderOffsetY = bottomOffset + (int)((topOffset - bottomOffset) * t);
+                }
+                else if (bottomPlatformY != -1) {
+                    ladderOffsetY = visualOffsetY[bottomPlatformY][x];
+                }
+                else if (topPlatformY != -1) {
+                    ladderOffsetY = visualOffsetY[topPlatformY][x];
+                }
+
+                float globalAdjust = -6.6f;
+                float verticalStretch = 1.2f;
+                int extraWidth = 6;
+
+                Rectangle source;
+                Rectangle dest;
+
+                if (ladderType == 1) {
+                    // COMPLETA
+                    source = { 0, 0, 16, 16 };
+                    dest = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + ladderOffsetY + globalAdjust,
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch
+                    };
+                }
+                else if (ladderType == 2) {
+                    // ROTA SUPERIOR: solo mitad de arriba
+                    source = { 0, 0, 16, 8 };  // Mitad superior de la textura
+                    dest = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + ladderOffsetY + globalAdjust,
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch * 0.5f  // Mitad de altura
+                    };
+                }
+
+                DrawTexturePro(ladderTexture, source, dest, { 0,0 }, 0.0f, WHITE);
             }
         }
     }

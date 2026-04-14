@@ -8,7 +8,9 @@ enum class PlayerState {
     IDLE,
     WALKING,
     WALK_END,
-    JUMPING
+    JUMPING,
+    CLIMBING,
+    CLIMBING_END
 };
 
 class Player {
@@ -19,6 +21,8 @@ private:
     Texture2D walkEndTexture;
     Texture2D jumpTexture;
     Texture2D currentTexture;
+    std::vector<Texture2D> climbTextures;      // Ladder1, Ladder2
+    std::vector<Texture2D> climbEndTextures;   // LadderEnd1, LadderEnd2
 
     //Audio
     Sound jumpSound;
@@ -38,6 +42,12 @@ private:
     float scale;
     float moveX;
     bool facingRight;
+    float velocityX; // inercia horizontal
+    float moveY;
+    bool onLadder;
+    bool isClimbing;
+    float climbSpeed;
+    bool exitingLadder;
 
     // Hitbox base (valores para IDLE)
     int baseHitboxOffsetY;
@@ -53,7 +63,7 @@ public:
     Player();
     ~Player();
 
-    void HandleInput();
+    void HandleInput(Scene& scene);
     void Update(Scene& scene);
     void Draw();
     void UpdateAnimation();

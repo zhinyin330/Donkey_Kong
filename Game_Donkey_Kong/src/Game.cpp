@@ -27,7 +27,7 @@ void RunGameLoop()
    while (!WindowShouldClose() && !gameOver) {
 
         // UPDATE
-        player.HandleInput();
+        player.HandleInput(scene);
         player.Update(scene);
         enemy.Update();
 
