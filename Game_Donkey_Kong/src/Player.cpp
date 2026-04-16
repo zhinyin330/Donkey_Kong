@@ -77,10 +77,15 @@ Player::~Player() {
 }
 
 void Player::HandleInput(Scene& scene) {
+    
+    if (exitingLadder) {
+        return;
+    }
+    
     moveX = 0;
     isClimbing = false;
+    moveY = 0;
 
-    // Usar los valores base directamente (están disponibles en la clase)
     int offsetY = baseHitboxOffsetY;
     int height = baseHitboxHeight;
 
@@ -89,32 +94,12 @@ void Player::HandleInput(Scene& scene) {
     int feetY = (int)(position.y + (offsetY + height) * scale);
     int tileY = feetY / 32;
 
-    // Verificar si está sobre una escalera
-    onLadder = scene.IsLadder(tileX, tileY);
+    
+    // Verificar si hay escalera
+    onLadder = scene.IsLadder(tileX, tileY) || scene.IsLadder(tileX, tileY - 1);
 
-    // Si no está en los pies, verificar el centro del cuerpo
-    if (!onLadder) {
-        int bodyY = (int)(position.y + (offsetY + height / 2) * scale);
-        int bodyTileY = bodyY / 32;
-        onLadder = scene.IsLadder(tileX, bodyTileY);
-    }
-
-    // Detectar si acaba de llegar a una plataforma (fin de escalera)
-    bool reachedPlatform = false;
-    if (onLadder) {
-        // Verificar si hay plataforma JUSTO debajo o arriba
-        if (scene.IsSolid(tileX, tileY + 1) || scene.IsSolid(tileX, tileY - 1)) {
-            reachedPlatform = true;
-        }
-    }
-
-    // Si está en secuencia de salida, no procesar input
-    if (exitingLadder) {
-        return;
-    }
-
-    if (onLadder && !reachedPlatform) {
-        // Movimiento vertical en escalera
+    // SOLO entrar en modo escalera si presiona ↑/↓
+    if (onLadder && !exitingLadder) {
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
             isClimbing = true;
             moveY = -1;
@@ -125,30 +110,42 @@ void Player::HandleInput(Scene& scene) {
             moveY = 1;
             ChangeState(PlayerState::CLIMBING);
         }
-        else {
+        else if (currentState == PlayerState::CLIMBING) {
+            //  Si YA estaba en CLIMBING y suelta teclas, seguir en CLIMBING pero quieto
+            isClimbing = false;  // No hay movimiento vertical
             moveY = 0;
+            // Mantener CLIMBING (no cambiar a IDLE)
+        }
+        else {
+            // Toca escalera pero NO presiona y NO estaba en CLIMBING → IDLE normal
+            onLadder = false;  // Para que no afecte la física
         }
 
         // Movimiento horizontal para salir
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
             moveX = -1;
             facingRight = false;
+            if (currentState == PlayerState::CLIMBING) {
+                ChangeState(PlayerState::IDLE);
+            }
         }
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
             moveX = 1;
             facingRight = true;
+            if (currentState == PlayerState::CLIMBING) {
+                ChangeState(PlayerState::IDLE);
+            }
         }
     }
-    else if (onLadder && reachedPlatform) {
-        // Ha llegado a una plataforma - iniciar secuencia de salida
-        if (currentState != PlayerState::CLIMBING_END && !exitingLadder) {
-            ChangeState(PlayerState::CLIMBING_END);
+
+    // Movimiento normal (si no está en CLIMBING)
+    if (currentState != PlayerState::CLIMBING) {
+        if (IsKeyPressed(KEY_SPACE) && !isJumping) {
+            velocityY = -7.5f;
+            isJumping = true;
+            PlaySound(jumpSound);
         }
-        isClimbing = false;
-        moveY = 0;
-    }
-    else {
-        // Movimiento normal (suelo)
+
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
             moveX = -1;
             facingRight = false;
@@ -157,23 +154,17 @@ void Player::HandleInput(Scene& scene) {
             moveX = 1;
             facingRight = true;
         }
-
-        if (IsKeyPressed(KEY_SPACE) && !isJumping) {
-            velocityY = -7.5f;
-            isJumping = true;
-            PlaySound(jumpSound);
-        }
     }
 
     // Determinar estado
     if (exitingLadder) {
-        // Ya está en CLIMBING_END
-    }
-    else if (onLadder && isClimbing) {
-        ChangeState(PlayerState::CLIMBING);
+        // Mantener CLIMBING_END
     }
     else if (isJumping) {
         ChangeState(PlayerState::JUMPING);
+    }
+    else if (currentState == PlayerState::CLIMBING) {
+        // Mantener CLIMBING (ya se estableció antes)
     }
     else if (moveX != 0) {
         ChangeState(PlayerState::WALKING);
@@ -182,7 +173,7 @@ void Player::HandleInput(Scene& scene) {
         if (currentState == PlayerState::WALKING) {
             ChangeState(PlayerState::WALK_END);
         }
-        else if (currentState != PlayerState::WALK_END && currentState != PlayerState::CLIMBING) {
+        else if (currentState != PlayerState::WALK_END) {
             ChangeState(PlayerState::IDLE);
         }
     }
@@ -203,7 +194,7 @@ int Player::GetCurrentHitboxHeight() {
 }
 
 void Player::ChangeState(PlayerState newState) {
-    if (currentState != newState || exitingLadder) {
+    if (currentState != newState) {
         float feetY = GetFeetPosition();
         currentState = newState;
         currentFrame = 0;
@@ -235,6 +226,9 @@ void Player::ChangeState(PlayerState newState) {
             if (!climbEndTextures.empty()) {
                 currentTexture = climbEndTextures[0];
                 exitingLadder = true;
+                currentFrame = 0;      // Asegurar que empiece desde el primer frame
+                frameCounter = 0;      // Resetear contador
+                walkEndCounter = 0;    // Resetear contador
             }
             break;
         }
@@ -312,27 +306,105 @@ void Player::SetFeetPosition(float feetY) {
 void Player::Update(Scene& scene) {
     UpdateAnimation();
 
-    // Si está escalando (no en secuencia de salida)
-    if (onLadder && isClimbing && !exitingLadder) {
-        position.y += moveY * climbSpeed;
+    // Si está en animación de salida, solo animación
+    if (currentState == PlayerState::CLIMBING_END) {
         velocityY = 0;
         isJumping = false;
+        return;
+    }
+
+    // Si está escalando activamente
+    if (currentState == PlayerState::CLIMBING && !exitingLadder) {
+        // Movimiento vertical (solo si isClimbing = true)
+        if (isClimbing) {
+            position.y += moveY * climbSpeed;
+        }
+
+        // Movimiento horizontal
+        position.x += moveX * speed;
 
         // Límites
+        if (position.x < 0) position.x = 0;
+        if (position.x + currentTexture.width * scale > Scene::GetScreenWidth()) {
+            position.x = Scene::GetScreenWidth() - currentTexture.width * scale;
+        }
         if (position.y < 0) position.y = 0;
         if (position.y + currentTexture.height * scale > Scene::GetScreenHeight()) {
             position.y = Scene::GetScreenHeight() - currentTexture.height * scale;
         }
 
+        // Gravedad 0
+        velocityY = 0;
+        isJumping = false;
+
+        // Verificar fin de escalera con OFFSET VISUAL
+        int centerX = (int)(position.x + currentTexture.width * scale / 2);
+        int tileX = centerX / 32;
+        int feetY = (int)(position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale);
+        int tileY = feetY / 32;
+
+        // Verificar si todavía está en una escalera
+        bool stillOnLadder = scene.IsLadder(tileX, tileY) || scene.IsLadder(tileX, tileY - 1);
+
+        // Verificar plataforma ABAJO
+        if (moveY > 0) {
+            for (int checkY = tileY; checkY <= tileY + 2; checkY++) {
+                if (scene.IsSolid(tileX, checkY)) {
+                    int platformOffset = scene.GetVisualOffsetY(tileX, checkY);
+                    float platformTop = checkY * 32 + platformOffset;
+
+                    if (feetY >= platformTop - 12 && feetY <= platformTop + 12) {
+                        position.y = platformTop - (baseHitboxOffsetY + baseHitboxHeight) * scale;
+
+                        if (currentState != PlayerState::CLIMBING_END) {
+                            ChangeState(PlayerState::CLIMBING_END);
+                        }
+                        isClimbing = false;
+                        moveY = 0;
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Verificar plataforma ARRIBA
+        if (moveY < 0) {
+            int headY = (int)(position.y + baseHitboxOffsetY * scale);
+            int headTileY = headY / 32;
+
+            for (int checkY = headTileY; checkY >= headTileY - 2; checkY--) {
+                if (scene.IsSolid(tileX, checkY)) {
+                    int platformOffset = scene.GetVisualOffsetY(tileX, checkY);
+                    float platformBottom = checkY * 32 + platformOffset + scene.GetPlatformHitboxHeight();
+
+                    if (headY <= platformBottom + 12 && headY >= platformBottom - 12) {
+                        position.y = platformBottom - baseHitboxOffsetY * scale;
+
+                        if (currentState != PlayerState::CLIMBING_END) {
+                            ChangeState(PlayerState::CLIMBING_END);
+                        }
+                        isClimbing = false;
+                        moveY = 0;
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Si no está en escalera, salir
+        if (!stillOnLadder) {
+            if (currentState != PlayerState::CLIMBING_END) {
+                ChangeState(PlayerState::CLIMBING_END);
+            }
+            isClimbing = false;
+            moveY = 0;
+            return;
+        }
+
         return;
     }
 
-    // Si está en secuencia de salida, no moverse
-    if (exitingLadder) {
-        velocityY = 0;
-        isJumping = false;
-        return;
-    }
+    // ========== FÍSICA NORMAL ==========
 
     int tileSize = scene.GetTileSize();
     int currentOffsetY = GetCurrentHitboxOffsetY();

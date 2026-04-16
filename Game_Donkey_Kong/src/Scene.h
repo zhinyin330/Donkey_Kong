@@ -8,9 +8,9 @@ private:
     static const int mapWidth = 25;
     static const int mapHeight = 22;
 
-    int level[mapHeight][mapWidth]; // Para dibujar 
-    int ladderLevel[mapHeight][mapWidth];
-    int hitboxLevel[mapHeight][mapWidth];  // Para colisiones
+    int level[mapHeight][mapWidth];        // Plataformas (imagen)
+    int ladderLevel[mapHeight][mapWidth];  // Tipo de escalera (0-3)
+    int hitboxLevel[mapHeight][mapWidth];  // Colisiones de plataformas
     Texture2D tileTexture;
     Texture2D ladderTexture;
     int visualOffsetY[mapHeight][mapWidth];
@@ -29,6 +29,7 @@ public:
     void Draw();
     bool IsSolid(int x, int y);
     bool IsLadder(int x, int y);
+    int GetLadderType(int x, int y);
     int GetTileSize() { return tileSize * tileScale; }
 
     int GetVisualOffsetY(int x, int y) {

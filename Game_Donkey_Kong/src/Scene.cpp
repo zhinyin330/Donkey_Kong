@@ -7,7 +7,7 @@ Scene::Scene() {
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
-    // Inicializar mapas
+    // Inicializar mapas (UNA SOLA VEZ)
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             level[y][x] = 0;
@@ -149,39 +149,51 @@ void Scene::AddLadder(int startY, int endY, int x, bool brokenStart, bool broken
             if (brokenMiddle) {
                 int middleY = (startY + endY) / 2;
                 if (y == middleY) {
-                    ladderLevel[y][x] = 2;  // ROTA SUPERIOR (mitad arriba)
+                    ladderLevel[y][x] = 2;  // ROTA SUPERIOR (visual, no escalable)
                     continue;
                 }
             }
-            ladderLevel[y][x] = 1;  // COMPLETA
+            ladderLevel[y][x] = 1;  // COMPLETA (escalable)
         }
     }
 
+    // Extremos
     if (!brokenStart && startY >= 0 && startY < mapHeight) {
-        ladderLevel[startY][x] = 1;
+        ladderLevel[startY][x] = 3;  // ROTA INFERIOR
     }
     if (!brokenEnd && endY >= 0 && endY < mapHeight) {
-        ladderLevel[endY][x] = 1;
+        ladderLevel[endY][x] = 2;    // ROTA SUPERIOR
     }
 }
 
 bool Scene::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
+
+    // Si hay escalera en este tile, NO es sólido (la escalera tiene prioridad)
+    if (ladderLevel[y][x] >= 1)
+        return false;
+
     return hitboxLevel[y][x] == 1;
 }
 
 bool Scene::IsLadder(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
-    return ladderLevel[y][x] >= 1;  // 1 o 2 son escalera
+    return ladderLevel[y][x] >= 1;
+}
+
+int Scene::GetLadderType(int x, int y) {
+    if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
+        return 0;
+    return ladderLevel[y][x];
 }
 
 void Scene::Draw() {
     int scaledTileSize = tileSize * tileScale;
     int platformVisualHeight = 22;
 
-    // 1º DIBUJAR PLATAFORMAS
+    // Dibujar plataformas
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             if (level[y][x] == 1) {
@@ -198,13 +210,11 @@ void Scene::Draw() {
         }
     }
 
-    // 2º DIBUJAR ESCALERAS
+    // Dibujar escaleras
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
             int ladderType = ladderLevel[y][x];
             if (ladderType > 0 && level[y][x] != 1) {
-
-                // Calcular ladderOffsetY (IGUAL QUE ANTES)
                 int ladderOffsetY = 0;
                 int bottomPlatformY = -1;
                 for (int checkY = y + 1; checkY < mapHeight; checkY++) {
@@ -241,7 +251,6 @@ void Scene::Draw() {
                 Rectangle dest;
 
                 if (ladderType == 1) {
-                    // COMPLETA
                     source = { 0, 0, 16, 16 };
                     dest = {
                         (float)(x * scaledTileSize) - extraWidth,
@@ -251,13 +260,21 @@ void Scene::Draw() {
                     };
                 }
                 else if (ladderType == 2) {
-                    // ROTA SUPERIOR: solo mitad de arriba
-                    source = { 0, 0, 16, 8 };  // Mitad superior de la textura
+                    source = { 0, 0, 16, 8 };
                     dest = {
                         (float)(x * scaledTileSize) - extraWidth,
                         (float)(y * scaledTileSize) + ladderOffsetY + globalAdjust,
                         (float)scaledTileSize + extraWidth * 2,
-                        (float)scaledTileSize * verticalStretch * 0.5f  // Mitad de altura
+                        (float)scaledTileSize * verticalStretch * 0.5f
+                    };
+                }
+                else if (ladderType == 3) {
+                    source = { 0, 8, 16, 8 };
+                    dest = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + ladderOffsetY + globalAdjust + (scaledTileSize * verticalStretch * 0.5f),
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch * 0.5f
                     };
                 }
 
