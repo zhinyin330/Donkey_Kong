@@ -1,4 +1,9 @@
-// Menu.h
-#pragma once
+#ifndef MENU_H
+#define MENU_H
+
 #include "raylib.h"
-void ShowMenuScreen();
+#include "Game.h" 
+
+void DrawMenu(GameScreen* screen);
+
+#endif

@@ -12,26 +12,49 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "Menu.h"
 #include "Game.h"
+#include "Scene.h"
 
-int main ()
+int main()
 {
-	// Tell the window to use vsync and work on high DPI displays
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+    // Tell the window to use vsync and work on high DPI displays
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
-	// Create the window and OpenGL context
-	InitWindow(800, 800, "Donkey Kong");
+    // Create the window and OpenGL context
+    InitWindow(800, 704, "Donkey Kong");
+    SetTargetFPS(60);
 
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	//帮程序找到资源文件夹
-	SearchAndSetResourceDir("resources");
-	// 显示初始界面
-	ShowMenuScreen();
+    // Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
+    //帮程序找到资源文件夹
+    SearchAndSetResourceDir("resources");
+    // 当前界面
+    GameScreen currentScreen = MENU;
+    InitAudioDevice();//音乐
 
-	// 游戏主循环
-	RunGameLoop();
+    Scene scene;
 
+    // 游戏主循环
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(BLACK);
 
+        // 根据状态绘制不同界面
+        switch (currentScreen)
+        {
+        case MENU:
+            DrawMenu(&currentScreen);
+            break;
 
-	CloseWindow();
-	return 0;
+        case GAMEPLAY:
+            DrawGame(&currentScreen);
+            break;
+
+        }
+
+        EndDrawing();
+    }
+
+    CloseAudioDevice();
+    CloseWindow();
+    return 0;
 }

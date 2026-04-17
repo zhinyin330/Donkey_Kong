@@ -1,86 +1,103 @@
 ﻿#include "Menu.h"
+#include "Game.h"
 #include "resource_dir.h"  // 确保资源路径正确
+#include "raylib.h"
 
-void ShowMenuScreen()
+void DrawMenu(GameScreen* screen)
 {
-    InitAudioDevice(); // 初始化音频系统
-    Music bgm = LoadMusicStream("audio/Title_Theme.ogg");
-    PlayMusicStream(bgm); // 播放
-    // 加载菜单资源
-    
-    Font font = GetFontDefault();                        // 自定义字体
-    Font myFont1 = LoadFont("fonts/donkey-kong-nes-1981.ttf");
+    // ===== 静态资源（只加载一次）=====
+    static bool initialized = false;
 
-    bool startGame = false;
-    //图片闪烁控制变量
-    float timer = 0.0f;
-    Texture2D img1 = LoadTexture("imagtes/imatge1.png");
-    Texture2D img2 = LoadTexture("imagtes/imatge2.png");
-    float blinkDuration = 2.0f;   // 闪烁总时间
-    float switchTime = 0.2f;      // 每0.2秒切换
-    bool blinking = true;
-    bool showFirst = true;
+    static Music bgm;
+    static Font font;
+    static Font myFont1;// 自定义字体
+    static Texture2D img1, img2, enemy1;
 
-    // 设置图片显示大小和位置
-    Rectangle sourceRec = { 0, 0, (float)img1.width, (float)img1.height }; // 原图大小
-    Rectangle destRec = { 110, 180, 580, 330 };                             // 显示位置和大小
-    Vector2 origin = { 0, 0 };
-    //敌人
-    Texture2D enemy1 = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote2.png");
-    Rectangle sourceRec1 = { 0, 0, (float)enemy1.width, (float)enemy1.height }; // 原图大小
-    Rectangle destRec1 = { 310, 550, 180, 100 };
-    Vector2 origin1 = { 0, 0 };
+    static float timer = 0.0f;
+    static bool blinking = true;
+    static bool showFirst = true;
+    static bool wasActive = false; // 控制音乐
 
-    while (!startGame && !WindowShouldClose())
+    if (!initialized)
     {
-        UpdateMusicStream(bgm); // ⚠️ 每帧必须调用
+        bgm = LoadMusicStream("audio/Title_Theme.ogg");
 
-        BeginDrawing();
-        ClearBackground(BLACK);
-        timer += GetFrameTime();
+        font = GetFontDefault();
+        myFont1 = LoadFont("fonts/donkey-kong-nes-1981.ttf");
 
-        DrawTextEx(myFont1, "1UP", { 80, 10 }, 30, 2, RED);
-        DrawTextEx(myFont1, "HIGH SCORE", { 300, 10 }, 30, 2, RED);
+        img1 = LoadTexture("imagtes/imatge1.png");
+        img2 = LoadTexture("imagtes/imatge2.png");
 
-        DrawTextEx(myFont1, "000000", { 40, 35 }, 25, 2, WHITE);
-        DrawTextEx(myFont1, "000000", { 340, 35 }, 25, 2, WHITE);
+        enemy1 = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote2.png");
 
-        DrawTextEx(myFont1, "L=00", { 680, 80 }, 25, 2, BLUE);
+        initialized = true;
+    }
 
-        // 标题图片闪烁
-        if (blinking)
+    // ===== 音乐控制=====
+    if (*screen == MENU)
+    {
+        if (!wasActive)
         {
-            if ((int)(timer / switchTime) % 2 == 0)
-                showFirst = true;
-            else
-                showFirst = false;
-
-            if (timer >= blinkDuration)
-            {
-                blinking = false;
-                showFirst = true;
-            }
+            PlayMusicStream(bgm);
+            wasActive = true;
         }
 
-        if (showFirst)
-            DrawTexturePro(img1, sourceRec, destRec, origin, 0.0f, WHITE);
-        else
-            DrawTexturePro(img2, sourceRec, destRec, origin, 0.0f, WHITE);
-        // dongkeyKong
-        DrawTexturePro(enemy1, sourceRec1, destRec1, origin1, 0.0f, WHITE);
-
-        // 绘制提示文字
-        DrawTextEx(font, u8"© NINTENDO 1981", { 290, 720 }, 30, 1, YELLOW);
-
-        EndDrawing();
-
-        // 检测按键
-        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
+        UpdateMusicStream(bgm);
+    }
+    else
+    {
+        if (wasActive)
         {
-            startGame = true;  // 退出菜单，进入游戏
+            StopMusicStream(bgm);
+            wasActive = false;
         }
     }
-    UnloadMusicStream(bgm);// 🧹 清理
-    CloseAudioDevice();
-    CloseWindow();
+
+    // ===== 更新 =====
+    timer += GetFrameTime();
+
+    float switchTime = 0.2f;      // 每0.2秒切换
+    float blinkDuration = 2.0f;   // 闪烁总时间
+    if (blinking)
+    {
+        showFirst = ((int)(timer / switchTime) % 2 == 0);
+
+        if (timer >= blinkDuration)
+        {
+            blinking = false;
+            showFirst = true;
+        }
+    }
+
+    // ===== 绘制 =====
+    DrawTextEx(myFont1, "1UP", { 80, 10 }, 30, 2, RED);
+    DrawTextEx(myFont1, "HIGH SCORE", { 300, 10 }, 30, 2, RED);
+
+    DrawTextEx(myFont1, "000000", { 40, 35 }, 25, 2, WHITE);
+    DrawTextEx(myFont1, "000000", { 340, 35 }, 25, 2, WHITE);
+
+    DrawTextEx(myFont1, "L=00", { 680, 80 }, 25, 2, BLUE);
+
+    Rectangle sourceRec = { 0, 0, (float)img1.width, (float)img1.height };
+    Rectangle destRec = { 100, 120, 550, 300 };
+
+    if (showFirst)
+        DrawTexturePro(img1, sourceRec, destRec, { 0,0 }, 0.0f, WHITE);
+    else
+        DrawTexturePro(img2, sourceRec, destRec, { 0,0 }, 0.0f, WHITE);
+
+    // 敌人
+    Rectangle sourceRec1 = { 0, 0, (float)enemy1.width, (float)enemy1.height };
+    Rectangle destRec1 = { 310, 450, 170, 100 };
+
+    DrawTexturePro(enemy1, sourceRec1, destRec1, { 0,0 }, 0.0f, WHITE);
+
+    DrawTextEx(font, u8"© NINTENDO 1981", { 290, 620 }, 30, 1, YELLOW);
+
+    // 检测按键
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
+    {
+        *screen = GAMEPLAY;   //切换
+    }
+
 }
