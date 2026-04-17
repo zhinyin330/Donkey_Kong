@@ -77,11 +77,10 @@ Player::~Player() {
 }
 
 void Player::HandleInput(Scene& scene) {
-    
     if (exitingLadder) {
         return;
     }
-    
+
     moveX = 0;
     isClimbing = false;
     moveY = 0;
@@ -94,9 +93,51 @@ void Player::HandleInput(Scene& scene) {
     int feetY = (int)(position.y + (offsetY + height) * scale);
     int tileY = feetY / 32;
 
-    
-    // Verificar si hay escalera
-    onLadder = scene.IsLadder(tileX, tileY) || scene.IsLadder(tileX, tileY - 1);
+    // ✅ NUEVO: Verificar tipo de escalera en los pies
+    int ladderType = scene.GetLadderType(tileX, tileY);
+    onLadder = false;
+
+    if (ladderType == 1) {
+        onLadder = true;
+    }
+    else if (ladderType == 2) {
+        float localY = position.y + (offsetY + height) * scale - (tileY * 32);
+        if (localY >= 16) {
+            onLadder = true;
+        }
+    }
+    else if (ladderType == 3) {
+        float localY = position.y + (offsetY + height) * scale - (tileY * 32);
+        if (localY < 16) {
+            onLadder = true;
+        }
+    }
+
+    // También verificar el tile del cuerpo
+    if (!onLadder) {
+        int bodyY = (int)(position.y + (offsetY + height / 2) * scale);
+        int bodyTileY = bodyY / 32;
+        int bodyLadderType = scene.GetLadderType(tileX, bodyTileY);
+
+        if (bodyLadderType == 1) {
+            onLadder = true;
+            tileY = bodyTileY;
+        }
+        else if (bodyLadderType == 2) {
+            float localY = position.y + (offsetY + height / 2) * scale - (bodyTileY * 32);
+            if (localY >= 16) {
+                onLadder = true;
+                tileY = bodyTileY;
+            }
+        }
+        else if (bodyLadderType == 3) {
+            float localY = position.y + (offsetY + height / 2) * scale - (bodyTileY * 32);
+            if (localY < 16) {
+                onLadder = true;
+                tileY = bodyTileY;
+            }
+        }
+    }
 
     // SOLO entrar en modo escalera si presiona ↑/↓
     if (onLadder && !exitingLadder) {
@@ -111,14 +152,11 @@ void Player::HandleInput(Scene& scene) {
             ChangeState(PlayerState::CLIMBING);
         }
         else if (currentState == PlayerState::CLIMBING) {
-            //  Si YA estaba en CLIMBING y suelta teclas, seguir en CLIMBING pero quieto
-            isClimbing = false;  // No hay movimiento vertical
+            isClimbing = false;
             moveY = 0;
-            // Mantener CLIMBING (no cambiar a IDLE)
         }
         else {
-            // Toca escalera pero NO presiona y NO estaba en CLIMBING → IDLE normal
-            onLadder = false;  // Para que no afecte la física
+            onLadder = false;
         }
 
         // Movimiento horizontal para salir
@@ -164,7 +202,7 @@ void Player::HandleInput(Scene& scene) {
         ChangeState(PlayerState::JUMPING);
     }
     else if (currentState == PlayerState::CLIMBING) {
-        // Mantener CLIMBING (ya se estableció antes)
+        // Mantener CLIMBING
     }
     else if (moveX != 0) {
         ChangeState(PlayerState::WALKING);
