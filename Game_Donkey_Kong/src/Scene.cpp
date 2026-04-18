@@ -282,4 +282,54 @@ void Scene::Draw() {
             }
         }
     }
+
+    // ========== DEBUG: DIBUJAR HITBOXES (SIN NÚMEROS) ==========
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            
+            // 🟢 HITBOX DE PLATAFORMAS (VERDE)
+            if (hitboxLevel[y][x] == 1) {
+                int hitboxY = y * scaledTileSize + GetPlatformHitboxOffsetY();
+                DrawRectangleLines(
+                    x * scaledTileSize,
+                    hitboxY,
+                    scaledTileSize,
+                    GetPlatformHitboxHeight(),
+                    GREEN
+                );
+            }
+            
+            // 🔵 HITBOX DE ESCALERAS
+            int ladderType = ladderLevel[y][x];
+            if (ladderType > 0) {
+                Color hitboxColor;
+                int hitboxHeight;
+                int hitboxOffsetY;
+                
+                if (ladderType == 1) {
+                    hitboxColor = BLUE;      // Completa
+                    hitboxHeight = scaledTileSize;
+                    hitboxOffsetY = 0;
+                }
+                else if (ladderType == 2) {
+                    hitboxColor = SKYBLUE;   // Rota superior
+                    hitboxHeight = scaledTileSize / 2;
+                    hitboxOffsetY = scaledTileSize / 2;
+                }
+                else {  // ladderType == 3
+                    hitboxColor = MAGENTA;   // Rota inferior
+                    hitboxHeight = scaledTileSize / 2;
+                    hitboxOffsetY = 0;
+                }
+                
+                DrawRectangleLines(
+                    x * scaledTileSize,
+                    y * scaledTileSize + hitboxOffsetY,
+                    scaledTileSize,
+                    hitboxHeight,
+                    hitboxColor
+                );
+            }
+        }
+    }
 }
