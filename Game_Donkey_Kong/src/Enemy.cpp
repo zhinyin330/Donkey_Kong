@@ -9,7 +9,7 @@ Enemy::Enemy()
     isGoingForward(true),
     frameCounter(0.0f),
     frameSpeed(0.5f),
-    position({ 100.0f, 113.0f }),
+    position({ 100.0f, 118.0f }),
     scale(2.8f)
 {
     // 1. 加载拿桶时的大金刚动画帧
