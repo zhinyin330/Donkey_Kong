@@ -4,6 +4,7 @@
 Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
+    barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
@@ -127,7 +128,9 @@ Scene::Scene() {
 Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
+    UnloadTexture(barrelTexture);
 }
+
 
 void Scene::AddLadder(int startY, int endY, int x, bool brokenStart, bool brokenEnd, bool brokenMiddle) {
     if (x < 0 || x >= mapWidth) return;
@@ -330,6 +333,44 @@ void Scene::Draw() {
                     hitboxColor
                 );
             }
+        }
+    }
+    //桶贴图
+    int platformY = mapHeight - 16;
+    // 找最左平台（避免悬空）
+    int startX = -1;
+    for (int i = 0; i < mapWidth; i++)
+    {
+        if (level[platformY][i] == 1)
+        {
+            startX = i;
+            break;
+        }
+    }
+    if (startX == -1) return;
+    // 控制大小
+    float scale = 3.5f;
+    // 计算桶尺寸
+    float barrelW = barrelTexture.width * scale;
+    float barrelH = barrelTexture.height * scale;
+    // 间距（贴紧可以用0，稍微分开可以+5）
+    float spacingX = barrelW;
+    float spacingY = barrelH;
+
+    // 画 2x2
+    for (int row = 0; row < 2; row++)
+    {
+        for (int col = 0; col < 2; col++)
+        {
+            Vector2 pos = {
+                (float)(startX * scaledTileSize) + col * spacingX,
+                (float)(platformY * scaledTileSize)
+                + visualOffsetY[platformY][startX]
+                - barrelH
+                - row * spacingY   // 往上堆
+            };
+
+            DrawTextureEx(barrelTexture, pos, 0.0f, scale, WHITE);
         }
     }
 }

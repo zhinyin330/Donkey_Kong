@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "raylib.h"
 
 class Scene {
@@ -8,11 +8,13 @@ private:
     static const int mapWidth = 25;
     static const int mapHeight = 22;
 
+
     int level[mapHeight][mapWidth];        // Plataformas (imagen)
     int ladderLevel[mapHeight][mapWidth];  // Tipo de escalera (0-3)
     int hitboxLevel[mapHeight][mapWidth];  // Colisiones de plataformas
     Texture2D tileTexture;
     Texture2D ladderTexture;
+    Texture2D barrelTexture;  // 桶 
     int visualOffsetY[mapHeight][mapWidth];
 
     static const int platformHitboxHeight = 8;
