@@ -13,6 +13,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "Menu.h"
 #include "Game.h"
 #include "Scene.h"
+#include "Intro.h"
 
 int main()
 {
@@ -27,7 +28,7 @@ int main()
     //帮程序找到资源文件夹
     SearchAndSetResourceDir("resources");
     // 当前界面
-    GameScreen currentScreen = MENU;
+    GameScreen currentScreen = INTRO;
     InitAudioDevice();//音乐
 
     Scene scene;
@@ -41,13 +42,16 @@ int main()
         // 根据状态绘制不同界面
         switch (currentScreen)
         {
-        case MENU:
-            DrawMenu(&currentScreen);
-            break;
+            case INTRO:
+                DrawIntro(&currentScreen);
+                break;
+            case MENU:
+                DrawMenu(&currentScreen);
+                break;
 
-        case GAMEPLAY:
-            DrawGame(&currentScreen);
-            break;
+            case GAMEPLAY:
+                DrawGame(&currentScreen);
+                break;
 
         }
 

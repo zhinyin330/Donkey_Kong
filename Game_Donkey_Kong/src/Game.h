@@ -4,7 +4,8 @@
 // 游戏状态（场景管理）
 enum GameScreen
 {
-	MENU = 0,
+	INTRO = 0,
+	MENU,
 	GAMEPLAY,
 	SCENE_TEST
 };
