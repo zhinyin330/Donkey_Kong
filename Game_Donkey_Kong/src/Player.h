@@ -26,6 +26,10 @@ private:
 
     //Audio
     Sound jumpSound;
+    //walking audio
+    Sound walkSound;
+    float stepTimer;
+    float stepInterval;
 
     // Animación
     PlayerState currentState;

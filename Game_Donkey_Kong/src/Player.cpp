@@ -9,6 +9,14 @@ Player::Player() {
     jumpSound = LoadSound("audio/SFXjump.mp3");
     SetSoundVolume(jumpSound, 5.0f);
 
+    // 脚步声加载（加在这里）
+    walkSound = LoadSound("audio/Walking.mp3");
+    SetSoundVolume(walkSound, 5.0f);
+
+    //  脚步节奏初始化
+    stepTimer = 0.0f;
+    stepInterval = 0.1f; // 可以调：越小走路越快
+
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
     walkEndTexture = LoadTexture("Characters/Mario/Dk_Mario_WalkEnd.png");
@@ -67,6 +75,8 @@ Player::~Player() {
     // Liberar todas las texturas
     UnloadTexture(idleTexture);
     UnloadTexture(jumpTexture);
+
+    UnloadSound(walkSound);//audio walking
     UnloadTexture(walkEndTexture);
     for (Texture2D& tex : walkTextures) UnloadTexture(tex);
     for (Texture2D& tex : climbTextures) UnloadTexture(tex);
@@ -305,6 +315,26 @@ void Player::SetFeetPosition(float feetY) {
 
 void Player::Update(Scene& scene) {
     UpdateAnimation();
+
+    // ================= 脚步声系统 =================
+    bool isMovingOnGround =
+        (currentState == PlayerState::WALKING) &&
+        !isJumping &&
+        !onLadder;
+
+    // 节奏脚步声（推荐）
+    if (isMovingOnGround) {
+        stepTimer += GetFrameTime();
+
+        if (stepTimer >= stepInterval) {
+            PlaySound(walkSound);
+            stepTimer = 0.0f;
+        }
+    }
+    else {
+        stepTimer = 0.0f;
+    }
+    // ============================================
 
     // Si está en animación de salida, solo animación
     if (currentState == PlayerState::CLIMBING_END) {
