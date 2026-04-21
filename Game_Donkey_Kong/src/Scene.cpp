@@ -306,8 +306,8 @@ void Scene::Draw() {
     float barrelW = barrelTexture.width * scale;
     float barrelH = barrelTexture.height * scale;
     // 间距（贴紧可以用0，稍微分开可以+5）
-    float spacingX = barrelW;
-    float spacingY = barrelH;
+    float spacingX = barrelW-15;
+    float spacingY = barrelH-15;
 
     // 画 2x2
     for (int row = 0; row < 2; row++)
@@ -322,7 +322,7 @@ void Scene::Draw() {
                 - row * spacingY   // 往上堆
             };
 
-            DrawTextureEx(barrelTexture, pos, 0.0f, scale, WHITE);
+            DrawTextureEx(barrelTexture, pos, 2.0f, scale, WHITE);
         }
     }
 }

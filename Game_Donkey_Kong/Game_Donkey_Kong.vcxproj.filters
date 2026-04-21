@@ -112,6 +112,9 @@
     <None Include="resources\audio\Title_Theme.ogg">
       <Filter>Game Resource Files\audio</Filter>
     </None>
+    <None Include="resources\audio\Walking.mp3">
+      <Filter>Game Resource Files\audio</Filter>
+    </None>
     <None Include="resources\fonts\donkey-kong-nes-1981.ttf">
       <Filter>Game Resource Files\fonts</Filter>
     </None>
