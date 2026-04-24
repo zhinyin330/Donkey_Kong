@@ -15,7 +15,7 @@ Player::Player() {
 
     //  脚步节奏初始化
     stepTimer = 0.0f;
-    stepInterval = 0.1f; // 可以调：越小走路越快
+    stepInterval = 0.5f; // 可以调：越小走路越快                              
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
@@ -69,6 +69,8 @@ Player::Player() {
     frameCounter = 0;
     frameSpeed = 0.15f;
     facingRight = true;
+    wasMoving = false;                  
+    isStepPlaying = false;
 }
 
 Player::~Player() {
@@ -321,19 +323,41 @@ void Player::Update(Scene& scene) {
         (currentState == PlayerState::WALKING) &&
         !isJumping &&
         !onLadder;
+                                                                   
+    (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
+        IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));  // ← Verificador directo
+
+    if (isMovingOnGround) {
+        TraceLog(LOG_INFO, "Caminando - Timer: %.2f", stepTimer);
+    }
+
+    // Detectar cuando se ACABA de mover
+    if (wasMoving && !isMovingOnGround) {
+        stepTimer = 0.0f;
+        isStepPlaying = false;
+    }
+
 
     // 节奏脚步声（推荐）
     if (isMovingOnGround) {
         stepTimer += GetFrameTime();
 
-        if (stepTimer >= stepInterval) {
+        if (stepTimer >= stepInterval && !isStepPlaying) {
             PlaySound(walkSound);
             stepTimer = 0.0f;
+            isStepPlaying = true;
+        }
+        else if (stepTimer < stepInterval) {
+            isStepPlaying = false;
         }
     }
     else {
         stepTimer = 0.0f;
+        isStepPlaying = false;
     }
+
+    wasMoving = isMovingOnGround;                           
+
     // ============================================
 
     // Si está en animación de salida, solo animación

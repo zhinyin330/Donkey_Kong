@@ -31,6 +31,9 @@ private:
     float stepTimer;
     float stepInterval;
 
+    bool wasMoving;             
+    bool isStepPlaying;         
+
     // Animación
     PlayerState currentState;
     int currentFrame;
