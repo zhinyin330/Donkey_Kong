@@ -106,9 +106,49 @@ void Player::HandleInput(Scene& scene) {
     int feetY = (int)(position.y + (offsetY + height) * scale);
     int tileY = feetY / 32;
 
-    
-    // Verificar si hay escalera
-    onLadder = scene.IsLadder(tileX, tileY) || scene.IsLadder(tileX, tileY - 1);
+    // Solo recalcular si NO está en CLIMBING
+    if (currentState != PlayerState::CLIMBING) {
+        int ladderHitbox = scene.GetLadderHitbox(tileX, tileY);
+        onLadder = false;
+
+        if (ladderHitbox == 1) {
+            onLadder = true;
+        }
+        else if (ladderHitbox == 2) {
+            float localY = position.y + (offsetY + height) * scale - (tileY * 32);
+            if (localY >= 16) {
+                onLadder = true;
+            }
+        }
+        else if (ladderHitbox == 3) {
+            float localY = position.y + (offsetY + height) * scale - (tileY * 32);
+            if (localY < 16) {
+                onLadder = true;
+            }
+        }
+
+        if (!onLadder) {
+            int bodyY = (int)(position.y + (offsetY + height / 2) * scale);
+            int bodyTileY = bodyY / 32;
+            int bodyHitbox = scene.GetLadderHitbox(tileX, bodyTileY);
+
+            if (bodyHitbox == 1) {
+                onLadder = true;
+            }
+            else if (bodyHitbox == 2) {
+                float localY = position.y + (offsetY + height / 2) * scale - (bodyTileY * 32);
+                if (localY >= 16) {
+                    onLadder = true;
+                }
+            }
+            else if (bodyHitbox == 3) {
+                float localY = position.y + (offsetY + height / 2) * scale - (bodyTileY * 32);
+                if (localY < 16) {
+                    onLadder = true;
+                }
+            }
+        }
+    }
 
     // SOLO entrar en modo escalera si presiona ↑/↓
     if (onLadder && !exitingLadder) {
@@ -369,12 +409,10 @@ void Player::Update(Scene& scene) {
 
     // Si está escalando activamente
     if (currentState == PlayerState::CLIMBING && !exitingLadder) {
-        // Movimiento vertical (solo si isClimbing = true)
+        // Movimiento vertical
         if (isClimbing) {
             position.y += moveY * climbSpeed;
         }
-
-        // Movimiento horizontal
         position.x += moveX * speed;
 
         // Límites
@@ -387,74 +425,29 @@ void Player::Update(Scene& scene) {
             position.y = Scene::GetScreenHeight() - currentTexture.height * scale;
         }
 
-        // Gravedad 0
         velocityY = 0;
         isJumping = false;
 
-        // Verificar fin de escalera con OFFSET VISUAL
         int centerX = (int)(position.x + currentTexture.width * scale / 2);
         int tileX = centerX / 32;
         int feetY = (int)(position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale);
         int tileY = feetY / 32;
 
-        // Verificar si todavía está en una escalera
-        bool stillOnLadder = scene.IsLadder(tileX, tileY) || scene.IsLadder(tileX, tileY - 1);
+        // SOLO verificar si todavía hay hitbox de escalera
+        int currentHitbox = scene.GetLadderHitbox(tileX, tileY);
+        int bodyHitbox = scene.GetLadderHitbox(tileX, tileY - 1);
 
-        // Verificar plataforma ABAJO
-        if (moveY > 0) {
-            for (int checkY = tileY; checkY <= tileY + 2; checkY++) {
-                if (scene.IsSolid(tileX, checkY)) {
-                    int platformOffset = scene.GetVisualOffsetY(tileX, checkY);
-                    float platformTop = checkY * 32 + platformOffset;
+        bool stillOnLadder = (currentHitbox > 0) || (bodyHitbox > 0);
 
-                    if (feetY >= platformTop - 12 && feetY <= platformTop + 12) {
-                        position.y = platformTop - (baseHitboxOffsetY + baseHitboxHeight) * scale;
-
-                        if (currentState != PlayerState::CLIMBING_END) {
-                            ChangeState(PlayerState::CLIMBING_END);
-                        }
-                        isClimbing = false;
-                        moveY = 0;
-                        return;
-                    }
-                }
-            }
-        }
-
-        // Verificar plataforma ARRIBA
-        if (moveY < 0) {
-            int headY = (int)(position.y + baseHitboxOffsetY * scale);
-            int headTileY = headY / 32;
-
-            for (int checkY = headTileY; checkY >= headTileY - 2; checkY--) {
-                if (scene.IsSolid(tileX, checkY)) {
-                    int platformOffset = scene.GetVisualOffsetY(tileX, checkY);
-                    float platformBottom = checkY * 32 + platformOffset + scene.GetPlatformHitboxHeight();
-
-                    if (headY <= platformBottom + 12 && headY >= platformBottom - 12) {
-                        position.y = platformBottom - baseHitboxOffsetY * scale;
-
-                        if (currentState != PlayerState::CLIMBING_END) {
-                            ChangeState(PlayerState::CLIMBING_END);
-                        }
-                        isClimbing = false;
-                        moveY = 0;
-                        return;
-                    }
-                }
-            }
-        }
-
-        // Si no está en escalera, salir
+        // Si ya no hay hitbox, salir de la escalera
         if (!stillOnLadder) {
-            if (currentState != PlayerState::CLIMBING_END) {
-                ChangeState(PlayerState::CLIMBING_END);
-            }
+            ChangeState(PlayerState::CLIMBING_END);
             isClimbing = false;
             moveY = 0;
             return;
         }
 
+        // Sin verificación de plataformas - solo hitbox
         return;
     }
 
@@ -787,8 +780,5 @@ void Player::Draw() {
         currentHeight * scale,
         RED
     );
-
-
-
 
 }

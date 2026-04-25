@@ -14,6 +14,7 @@ Scene::Scene() {
             level[y][x] = 0;
             hitboxLevel[y][x] = 0;
             ladderLevel[y][x] = 0;
+            ladderHitbox[y][x] = 0;
             visualOffsetY[y][x] = baseOffset;
         }
     }
@@ -98,31 +99,70 @@ Scene::Scene() {
     }
 
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=18)
-    AddLadder(21, 18, 9, false, false, true);   // Hueco en medio
-    AddLadder(21, 18, 20, false, false);         // Completa
+AddLadder(21, 18, 9, 
+    {1, 2, 1, 1},    // VISUAL
+    {0, 3, 2, 3});   // HITBOX
 
-    // Tramo 2: Plataforma 1 (Y = 18) a Plataforma 2 (Y = 15)
-    AddLadder(18, 15, 4, false, false);         // 1ª completa
-    AddLadder(18, 15, 11, false, false);         // 2ª completa
+AddLadder(21, 18, 20, 
+    {1, 1, 1, 1},    // VISUAL
+    {2, 1, 1, 3});   // HITBOX
 
-    // Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
-    AddLadder(15, 12, 7, false, false, true);    // Hueco en medio
-    AddLadder(15, 12, 12, false, false);         // Completa
-    AddLadder(15, 12, 20, false, false);         // Completa
+// Tramo 2: Plataforma 1 (Y=18) a Plataforma 2 (Y=15)
+AddLadder(18, 15, 4, 
+    {1, 1, 1, 2},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
 
-    // Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
-    AddLadder(12, 9, 4, false, false);          // Completa
-    AddLadder(12, 9, 8, false, false);          // Completa
-    AddLadder(12, 9, 18, false, false, true);    // Hueco en medio
+AddLadder(18, 15, 11, 
+    {1, 1, 1, 2},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
 
-    // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
-    AddLadder(9, 6, 10, false, false, true);      // Hueco en medio
-    AddLadder(9, 6, 20, false, false);            // Completa
+// Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
+AddLadder(15, 12, 7, 
+    {1, 0, 1, 3},    // VISUAL
+    {1, 0, 1, 1});   // HITBOX
 
-    // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
-    AddLadder(6, 0, 7, false, false);
-    AddLadder(6, 0, 9, false, false);
-    AddLadder(6, 3, 14, false, false);
+AddLadder(15, 12, 12, 
+    {1, 1, 1, 1},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+AddLadder(15, 12, 20, 
+    {1, 1, 1, 2},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+// Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
+AddLadder(12, 9, 4, 
+    {1, 1, 1, 1},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+AddLadder(12, 9, 8, 
+    {1, 1, 1, 1},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+AddLadder(12, 9, 18, 
+    {1, 0, 1, 3},    // VISUAL
+    {1, 0, 1, 1});   // HITBOX
+
+// Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
+AddLadder(9, 6, 10, 
+    {1, 0, 1, 3},    // VISUAL
+    {1, 0, 1, 1});   // HITBOX
+
+AddLadder(9, 6, 20, 
+    {1, 1, 1, 2},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+// Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
+AddLadder(6, 3, 7, 
+    {1, 1, 1, 1},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+AddLadder(6, 3, 9, 
+    {1, 1, 1, 1},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
+
+AddLadder(6, 3, 14, 
+    {1, 1, 1, 1},    // VISUAL
+    {1, 1, 1, 1});   // HITBOX
 }
 
 Scene::~Scene() {
@@ -132,7 +172,10 @@ Scene::~Scene() {
 }
 
 
-void Scene::AddLadder(int startY, int endY, int x, bool brokenStart, bool brokenEnd, bool brokenMiddle) {
+void Scene::AddLadder(int startY, int endY, int x,
+    const std::vector<int>& visual,
+    const std::vector<int>& hitboxes)
+{
     if (x < 0 || x >= mapWidth) return;
 
     if (startY < endY) {
@@ -144,28 +187,27 @@ void Scene::AddLadder(int startY, int endY, int x, bool brokenStart, bool broken
     if (startY >= mapHeight) startY = mapHeight - 1;
     if (endY < 0) endY = 0;
 
-    int startOffset = brokenStart ? 1 : 0;
-    int endOffset = brokenEnd ? 1 : 0;
+    int totalTiles = startY - endY + 1;
 
-    for (int y = endY + endOffset; y <= startY - startOffset; y++) {
+    for (int i = 0; i < totalTiles; i++) {
+        int y = endY + i;
         if (y >= 0 && y < mapHeight) {
-            if (brokenMiddle) {
-                int middleY = (startY + endY) / 2;
-                if (y == middleY) {
-                    ladderLevel[y][x] = 2;  // ROTA SUPERIOR (visual, no escalable)
-                    continue;
-                }
+            // VISUAL
+            if (i < (int)visual.size()) {
+                ladderLevel[y][x] = visual[i];
             }
-            ladderLevel[y][x] = 1;  // COMPLETA (escalable)
-        }
-    }
+            else {
+                ladderLevel[y][x] = 0;
+            }
 
-    // Extremos
-    if (!brokenStart && startY >= 0 && startY < mapHeight) {
-        ladderLevel[startY][x] = 3;  // ROTA INFERIOR
-    }
-    if (!brokenEnd && endY >= 0 && endY < mapHeight) {
-        ladderLevel[endY][x] = 2;    // ROTA SUPERIOR
+            // HITBOX
+            if (i < (int)hitboxes.size()) {
+                ladderHitbox[y][x] = hitboxes[i];
+            }
+            else {
+                ladderHitbox[y][x] = 0;
+            }
+        }
     }
 }
 
@@ -173,8 +215,7 @@ bool Scene::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
 
-    // Si hay escalera en este tile, NO es sólido (la escalera tiene prioridad)
-    if (ladderLevel[y][x] >= 1)
+    if (ladderHitbox[y][x] >= 1)
         return false;
 
     return hitboxLevel[y][x] == 1;
@@ -183,13 +224,13 @@ bool Scene::IsSolid(int x, int y) {
 bool Scene::IsLadder(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
-    return ladderLevel[y][x] >= 1;
+    return ladderHitbox[y][x] >= 1;
 }
 
 int Scene::GetLadderType(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return 0;
-    return ladderLevel[y][x];
+    return ladderHitbox[y][x];
 }
 
 void Scene::Draw() {
@@ -286,6 +327,56 @@ void Scene::Draw() {
         }
     }
 
+    // ========== DEBUG: DIBUJAR HITBOXES DE ESCALERAS ==========
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int hitbox = ladderHitbox[y][x];
+
+            if (hitbox > 0) {
+                Color color;
+                int hitboxHeight;
+                int hitboxOffsetY;
+
+                switch (hitbox) {
+                case 1:  // Completo
+                    color = BLUE;
+                    hitboxHeight = scaledTileSize;
+                    hitboxOffsetY = 0;
+                    break;
+                case 2:  // Solo mitad inferior
+                    color = SKYBLUE;
+                    hitboxHeight = scaledTileSize / 2;
+                    hitboxOffsetY = scaledTileSize / 2;
+                    break;
+                case 3:  // Solo mitad superior
+                    color = MAGENTA;
+                    hitboxHeight = scaledTileSize / 2;
+                    hitboxOffsetY = 0;
+                    break;
+                default:
+                    continue;
+                }
+
+                // Dibujar rectángulo del hitbox
+                DrawRectangleLines(
+                    x * scaledTileSize,
+                    y * scaledTileSize + hitboxOffsetY,
+                    scaledTileSize,
+                    hitboxHeight,
+                    color
+                );
+
+                // Dibujar número del tipo de hitbox
+                DrawText(
+                    TextFormat("%d", hitbox),
+                    x * scaledTileSize + scaledTileSize / 2 - 5,
+                    y * scaledTileSize + scaledTileSize / 2 - 10,
+                    15,
+                    WHITE
+                );
+            }
+        }
+    }
     
     //桶贴图
     int platformY = mapHeight - 16;
