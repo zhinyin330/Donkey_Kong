@@ -101,69 +101,79 @@ Scene::Scene() {
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=18)
 AddLadder(21, 18, 9, 
     {1, 2, 1, 1},    // VISUAL
-    {0, 3, 2, 3});   // HITBOX
+    {0, 0, 2, 0});   // HITBOX
 
 AddLadder(21, 18, 20, 
     {1, 1, 1, 1},    // VISUAL
-    {2, 1, 1, 3});   // HITBOX
+    {0, 1, 1, 0});   // HITBOX
 
 // Tramo 2: Plataforma 1 (Y=18) a Plataforma 2 (Y=15)
 AddLadder(18, 15, 4, 
     {1, 1, 1, 2},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 0});   // HITBOX
 
 AddLadder(18, 15, 11, 
     {1, 1, 1, 2},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 3});   // HITBOX
 
 // Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
 AddLadder(15, 12, 7, 
-    {1, 0, 1, 3},    // VISUAL
-    {1, 0, 1, 1});   // HITBOX
+    {1, 2, 1, 3},    // VISUAL
+    {0, 0, 2, 3});   // HITBOX
 
-AddLadder(15, 12, 12, 
+AddLadder(15, 12, 13, 
     {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 3});   // HITBOX
 
 AddLadder(15, 12, 20, 
     {1, 1, 1, 2},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 3});   // HITBOX
 
 // Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
 AddLadder(12, 9, 4, 
     {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 3});   // HITBOX
 
 AddLadder(12, 9, 8, 
     {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 3});   // HITBOX
 
 AddLadder(12, 9, 18, 
-    {1, 0, 1, 3},    // VISUAL
-    {1, 0, 1, 1});   // HITBOX
+    {1, 2, 1, 3},    // VISUAL
+    {0, 0, 2, 3});   // HITBOX
 
 // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
 AddLadder(9, 6, 10, 
-    {1, 0, 1, 3},    // VISUAL
-    {1, 0, 1, 1});   // HITBOX
+    {1, 2, 1, 3},    // VISUAL
+    {0, 0, 2, 3});   // HITBOX
 
 AddLadder(9, 6, 20, 
     {1, 1, 1, 2},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {0, 1, 1, 3});   // HITBOX
 
 // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
 AddLadder(6, 3, 7, 
     {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {1, 1, 1, 3});   // HITBOX
 
 AddLadder(6, 3, 9, 
     {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {1, 1, 1, 3});   // HITBOX
 
 AddLadder(6, 3, 14, 
     {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 1});   // HITBOX
+    {2, 1, 1, 3});   // HITBOX
+
+AddLadder(0, 2, 7,
+    { 0, 0, 3, 0 },    // VISUAL
+    { 0, 0, 0, 0 });   // HITBOX
+
+AddLadder(0, 2, 9,
+    { 0, 0, 3, 0 },    // VISUAL
+    { 0, 0, 0, 0 });   // HITBOX
 }
+
+
 
 Scene::~Scene() {
     UnloadTexture(tileTexture);
@@ -215,9 +225,8 @@ bool Scene::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
 
-    if (ladderHitbox[y][x] >= 1)
-        return false;
-
+    // SIEMPRE sólido, incluso si hay escalera
+    // La escalera NO anula la plataforma
     return hitboxLevel[y][x] == 1;
 }
 
@@ -351,6 +360,12 @@ void Scene::Draw() {
                 case 3:  // Solo mitad superior
                     color = MAGENTA;
                     hitboxHeight = scaledTileSize / 2;
+                    hitboxOffsetY = 0;
+                    break;
+
+                case 4:  // Solo 1/4 superior
+                    color = PURPLE;
+                    hitboxHeight = scaledTileSize / 4;  // 8px
                     hitboxOffsetY = 0;
                     break;
                 default:

@@ -150,6 +150,8 @@ void Player::HandleInput(Scene& scene) {
         }
     }
 
+
+
     // SOLO entrar en modo escalera si presiona ↑/↓
     if (onLadder && !exitingLadder) {
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
@@ -433,21 +435,45 @@ void Player::Update(Scene& scene) {
         int feetY = (int)(position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale);
         int tileY = feetY / 32;
 
-        // SOLO verificar si todavía hay hitbox de escalera
+        // SOLO verificar hitbox de escalera
         int currentHitbox = scene.GetLadderHitbox(tileX, tileY);
         int bodyHitbox = scene.GetLadderHitbox(tileX, tileY - 1);
 
-        bool stillOnLadder = (currentHitbox > 0) || (bodyHitbox > 0);
+        bool canClimbHere = false;
 
-        // Si ya no hay hitbox, salir de la escalera
-        if (!stillOnLadder) {
+        if (currentHitbox == 1) {
+            canClimbHere = true;
+        }
+        else if (currentHitbox == 2) {
+            float localY = position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale - (tileY * 32);
+            if (localY >= 16) canClimbHere = true;
+        }
+        else if (currentHitbox == 3) {
+            float localY = position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale - (tileY * 32);
+            if (localY < 16) canClimbHere = true;
+        }
+
+        if (!canClimbHere && bodyHitbox > 0) {
+            if (bodyHitbox == 1) {
+                canClimbHere = true;
+            }
+            else if (bodyHitbox == 2) {
+                float localY = position.y + (baseHitboxOffsetY + baseHitboxHeight / 2) * scale - ((tileY - 1) * 32);
+                if (localY >= 16) canClimbHere = true;
+            }
+            else if (bodyHitbox == 3) {
+                float localY = position.y + (baseHitboxOffsetY + baseHitboxHeight / 2) * scale - ((tileY - 1) * 32);
+                if (localY < 16) canClimbHere = true;
+            }
+        }
+
+        if (!canClimbHere) {
             ChangeState(PlayerState::CLIMBING_END);
             isClimbing = false;
             moveY = 0;
             return;
         }
 
-        // Sin verificación de plataformas - solo hitbox
         return;
     }
 
