@@ -23,7 +23,7 @@ Enemy::Enemy()
     dkEmptyTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_R.png"));
 
     // 3. 加载木桶贴图
-    barrelSide = LoadTexture("Barrel/Dk_Barrel_Mov1.png");
+    barrelSide = LoadTexture("Barrel/Dk_Barrel_Mov1.png"); 
     barrelFront = LoadTexture("Barrel/Dk_Barrel_Fall1.png");
 
     // 4. 定义每一帧木桶位置偏移
