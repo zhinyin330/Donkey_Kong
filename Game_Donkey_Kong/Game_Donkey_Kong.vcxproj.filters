@@ -69,6 +69,9 @@
     <ClInclude Include="src\Menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\NewMecanica.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +93,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NewMecanica.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Player.cpp">
@@ -360,6 +366,9 @@
       <Filter>Game Resource Files\Items</Filter>
     </Image>
     <Image Include="resources\Items\Dk_Oil_Fire4.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\new_Dk_star.png">
       <Filter>Game Resource Files\Items</Filter>
     </Image>
     <Image Include="resources\UI\Dk_Kong_StartScreen.png">

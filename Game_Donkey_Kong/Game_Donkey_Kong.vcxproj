@@ -306,6 +306,7 @@
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Intro.h" />
     <ClInclude Include="src\Menu.h" />
+    <ClInclude Include="src\NewMecanica.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="src\Scene.h" />
@@ -315,6 +316,7 @@
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Intro.cpp" />
     <ClCompile Include="src\Menu.cpp" />
+    <ClCompile Include="src\NewMecanica.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Scene.cpp" />
@@ -409,6 +411,7 @@
     <Image Include="resources\Items\Dk_Oil_Fire2.png" />
     <Image Include="resources\Items\Dk_Oil_Fire3.png" />
     <Image Include="resources\Items\Dk_Oil_Fire4.png" />
+    <Image Include="resources\Items\new_Dk_star.png" />
     <Image Include="resources\UI\Dk_Kong_StartScreen.png" />
     <Image Include="resources\UI\Dk_UI_1up.png" />
     <Image Include="resources\UI\Dk_UI_BonusScore.png" />
