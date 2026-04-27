@@ -66,6 +66,10 @@ private:
 
     //Método para obtener la posición de los pies
     float GetFeetPosition();
+
+    //Star
+    int starCount;      
+    const int maxStars = 10;
 public:
     Player();
     ~Player();
@@ -81,4 +85,14 @@ public:
     int GetCurrentHitboxOffsetY();
     int GetCurrentHitboxHeight();
     float GetCollisionHeight() { return GetCurrentHitboxHeight() * scale; };
+
+    //start
+    Vector2 GetPosition() const { return position; }
+    float GetScale() const { return scale; }
+    float GetTextureWidth() const { return currentTexture.width; }
+    float GetTextureHeight() const { return currentTexture.height; }
+    void AddStar() { if (starCount < maxStars) starCount++; }
+    int GetStarCount() const { return starCount; }
+    int GetMaxStars() const { return maxStars; }
+    bool HasMaxStars() const { return starCount >= maxStars; }
 };

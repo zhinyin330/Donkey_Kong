@@ -71,6 +71,9 @@ Player::Player() {
     facingRight = true;
     wasMoving = false;                  
     isStepPlaying = false;
+
+    //Star
+    starCount = 0;
 }
 
 Player::~Player() {
@@ -806,5 +809,8 @@ void Player::Draw() {
         currentHeight * scale,
         RED
     );
+
+    DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
+        Scene::GetScreenWidth() - 200, 10, 20, YELLOW);
 
 }
