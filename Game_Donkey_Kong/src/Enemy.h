@@ -9,7 +9,7 @@ enum class EnemyState {
     BARREL_GRAB 
 };
 
-
+class Scene;
 
 class Enemy {
 private:
@@ -43,7 +43,7 @@ public:
     ~Enemy();
 
     // ===== 核心逻辑 =====
-    void Update();
+    void Update(Scene& scene);
     void Draw();
 
     // ===== 动画控制 =====

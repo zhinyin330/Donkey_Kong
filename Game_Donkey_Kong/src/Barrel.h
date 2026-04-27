@@ -1,29 +1,44 @@
 ﻿#pragma once
 #include "raylib.h"
+#include <vector>
+
+
+class Scene;
 
 enum class BarrelType {
     NORMAL,
     BLUE_BARREL
 };
 
+enum class BarrelState {
+    ROLLING,
+    FALLING
+};
+
 class Barrel {
-public:
-    BarrelType type;
-    Vector2 position;
-    float speed;
+    public:
+        // 构造函数
+        Barrel(BarrelType t, Vector2 pos);
 
-    Barrel(BarrelType t, Vector2 pos) {
-        type = t;
-        position = pos;
-        speed = 100.0f;
-    }
+        // 更新 / 渲染
+        void Update(Scene& scene);
+        void Draw();
+    private:
+        void UpdateAnimation();
 
-    void Update() {
-        position.x += speed * GetFrameTime(); // 简单向右滚
-    }
+    private:
+        BarrelType type;
+        BarrelState state;
 
-    void Draw() {
-        Color color = (type == BarrelType::NORMAL) ? BROWN : BLUE;
-        DrawCircleV(position, 10, color); //  用圆代替贴图（先跑起来）
-    }
+        Vector2 position;
+        float speed;
+        bool movingRight;
+
+        float groundOffset; // 贴地修正
+
+        // ===== 动画 =====
+        std::vector<Texture2D> frames;
+        int currentFrame;
+        float frameCounter;
+        float frameSpeed;
 };

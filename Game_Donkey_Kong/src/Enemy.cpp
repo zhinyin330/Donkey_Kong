@@ -1,4 +1,5 @@
 ﻿#include "Enemy.h"
+#include "Scene.h"
 #include "resource_dir.h"
 
 Enemy::Enemy()
@@ -10,21 +11,20 @@ Enemy::Enemy()
     frameCounter(0.0f),
     frameSpeed(0.5f),
     position({ 95.0f, 118.0f }),
-    scale(2.8f)
+    scale(2.8f),
+    currentBarrelType(BarrelType::NORMAL)
 {
-    // 1. 加载拿桶时的大金刚动画帧
-    dkWithBarrelTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"));
-    dkWithBarrelTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_M.png"));
-    dkWithBarrelTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_R.png"));
+    dkWithBarrelTextures = {
+        LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"),
+        LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_M.png"),
+        LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_R.png")
+    };
 
-    // 2. 加载空手时的大金刚动画帧
-    dkEmptyTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"));
-    dkEmptyTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Idle1.png"));
-    dkEmptyTextures.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_R.png"));
-
-    // 初始桶类型
-    currentBarrelType = BarrelType::NORMAL;
-
+    dkEmptyTextures = {
+        LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"),
+        LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Idle1.png"),
+        LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_R.png")
+    };
 }
 
 Enemy::~Enemy() {
@@ -32,7 +32,8 @@ Enemy::~Enemy() {
     for (auto& tex : dkEmptyTextures) UnloadTexture(tex);
     // ⭐ 丢桶
 }
-void Enemy::SpawnBarrel() {
+void Enemy::SpawnBarrel()
+{
     Vector2 spawnPos = {
         position.x + 120,
         position.y + 50
@@ -82,20 +83,14 @@ void Enemy::UpdateAnimation() {
     }
 }
 
-void Enemy::Update() {
+void Enemy::Update(Scene& scene)
+{
     UpdateAnimation();
 
     for (auto& b : barrels)
-        b.Update();
+        b.Update(scene);
 }
-void Enemy::SpawnBarrel() {
-    Vector2 spawnPos = {
-         position.x + 120,
-         position.y + 50
-    };
 
-    barrels.emplace_back(currentBarrelType, spawnPos);
-}
 
 
 void Enemy::Draw() {
@@ -117,13 +112,16 @@ void Enemy::Draw() {
         b.Draw();
 }
 
-void Enemy::ChangeState(EnemyState newState) {
+void Enemy::ChangeState(EnemyState newState) 
+{
     if (currentState == newState) return;
 
     currentState = newState;
+
     currentFrame = 0;
     frameCounter = 0.0f;
     animDirection = 1;
+
     hasBarrel = true;
     isGoingForward = true;
 }

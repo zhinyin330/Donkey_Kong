@@ -8,6 +8,30 @@ static Scene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
 static Enemy* gameEnemy = nullptr;
 static bool isInitialized = false;
+static bool shouldReset = false;
+
+void InitGame()
+{
+    gameScene = new Scene();
+    gamePlayer = new Player();
+    gameEnemy = new Enemy();
+
+    isInitialized = true;
+    shouldReset = false;
+}
+void CleanupGame()
+{
+    if (isInitialized)
+    {
+        delete gameScene;
+        delete gamePlayer;
+        delete gameEnemy;
+        gameScene = nullptr;
+        gamePlayer = nullptr;
+        gameEnemy = nullptr;
+        isInitialized = false;
+    }
+}
 
 void DrawGame(GameScreen* currentScreen)
 {
@@ -25,7 +49,7 @@ void DrawGame(GameScreen* currentScreen)
     // --- 2. 更新逻辑 (UPDATE) ---
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
-    gameEnemy->Update();
+    gameEnemy->Update(*gameScene);
 
     // 增加一个返回菜单的逻辑 (按下 ESC)
     if (IsKeyPressed(KEY_ESCAPE))
@@ -39,21 +63,15 @@ void DrawGame(GameScreen* currentScreen)
     gamePlayer->Draw();
     gameEnemy->Draw();
 
-    // 如果游戏结束，切换状态
-    // if (gamePlayer->IsDead()) *currentScreen = MENU;
+    // ===== RESET =====
+    if (shouldReset)
+    {
+        CleanupGame();
+    }
 }
 
-// 建议在游戏完全退出时调用的清理函数
+
 void UnloadGame()
 {
-    if (isInitialized)
-    {
-        delete gameScene;
-        delete gamePlayer;
-        delete gameEnemy;
-        gameScene = nullptr;
-        gamePlayer = nullptr;
-        gameEnemy = nullptr;
-        isInitialized = false;
-    }
+    CleanupGame();
 }
