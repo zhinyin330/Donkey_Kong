@@ -306,7 +306,7 @@
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Intro.h" />
     <ClInclude Include="src\Menu.h" />
-    <ClInclude Include="src\NewMecanica.h" />
+    <ClInclude Include="src\NewMechanic.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="src\Scene.h" />
@@ -316,7 +316,7 @@
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Intro.cpp" />
     <ClCompile Include="src\Menu.cpp" />
-    <ClCompile Include="src\NewMecanica.cpp" />
+    <ClCompile Include="src\NewMechanic.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Scene.cpp" />
