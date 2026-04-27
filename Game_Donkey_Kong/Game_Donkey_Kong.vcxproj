@@ -302,6 +302,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\resource_dir.h" />
+    <ClInclude Include="src\Barrel.h" />
     <ClInclude Include="src\Enemy.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Intro.h" />
@@ -312,6 +313,7 @@
     <ClInclude Include="src\Scene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Barrel.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Intro.cpp" />
@@ -321,6 +323,7 @@
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\prova11.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\audio\SFXjump.mp3" />
