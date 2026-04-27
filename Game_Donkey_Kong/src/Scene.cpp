@@ -2,26 +2,22 @@
 #include "resource_dir.h" 
 
 Scene::Scene() {
-    tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
-    ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
+    tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
+    ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
-    // Inicializar mapas (UNA SOLA VEZ)
-    for (int y = 0; y < mapHeight; y++) {
-        for (int x = 0; x < mapWidth; x++) {
-            level[y][x] = 0;
-            hitboxLevel[y][x] = 0;
-            ladderLevel[y][x] = 0;
-            ladderHitbox[y][x] = 0;
-            visualOffsetY[y][x] = baseOffset;
-        }
-    }
+    // Inicializar vectores con tamaño correcto
+    level.resize(mapHeight, std::vector<int>(mapWidth, 0));
+    hitboxLevel.resize(mapHeight, std::vector<int>(mapWidth, 0));
+    ladderLevel.resize(mapHeight, std::vector<int>(mapWidth, 0));
+    ladderHitbox.resize(mapHeight, std::vector<int>(mapWidth, 0));
+    visualOffsetY.resize(mapHeight, std::vector<int>(mapWidth, baseOffset));
 
     // PLATAFORMAS
     int platformHeights[] = {
-        mapHeight - 1,   // 22 - Suelo
+        mapHeight - 1,   // 21 - Suelo
         mapHeight - 4,   // 18
         mapHeight - 7,   // 15
         mapHeight - 10,  // 12
@@ -36,7 +32,7 @@ Scene::Scene() {
         int y = platformHeights[i];
 
         if (i == 0) {
-            // ========== SUELO (Y=22) ==========
+            // ========== SUELO (Y=21) ==========
             for (int x = 0; x < mapWidth; x++) {
                 level[y][x] = 1;
                 if (x >= 12 && x <= 24) {
@@ -99,88 +95,94 @@ Scene::Scene() {
     }
 
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=18)
-AddLadder(21, 18, 9, 
-    {1, 2, 1, 1},    // VISUAL
-    {0, 0, 2, 0});   // HITBOX
+    AddLadder(21, 18, 9,
+        { 1, 2, 1, 1 },    // VISUAL
+        { 0, 0, 2, 0 });   // HITBOX
 
-AddLadder(21, 18, 20, 
-    {1, 1, 1, 1},    // VISUAL
-    {0, 1, 1, 0});   // HITBOX
+    AddLadder(21, 18, 20,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 0, 1, 1, 0 });   // HITBOX
 
-// Tramo 2: Plataforma 1 (Y=18) a Plataforma 2 (Y=15)
-AddLadder(18, 15, 4, 
-    {1, 1, 1, 2},    // VISUAL
-    {0, 1, 1, 0});   // HITBOX
+    // Tramo 2: Plataforma 1 (Y=18) a Plataforma 2 (Y=15)
+    AddLadder(18, 15, 4,
+        { 1, 1, 1, 2 },    // VISUAL
+        { 0, 1, 1, 0 });   // HITBOX
 
-AddLadder(18, 15, 11, 
-    {1, 1, 1, 2},    // VISUAL
-    {0, 1, 1, 3});   // HITBOX
+    AddLadder(18, 15, 11,
+        { 1, 1, 1, 2 },    // VISUAL
+        { 0, 1, 1, 3 });   // HITBOX
 
-// Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
-AddLadder(15, 12, 7, 
-    {1, 2, 1, 3},    // VISUAL
-    {0, 0, 2, 3});   // HITBOX
+    // Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
+    AddLadder(15, 12, 7,
+        { 1, 2, 1, 3 },    // VISUAL
+        { 0, 0, 2, 3 });   // HITBOX
 
-AddLadder(15, 12, 13, 
-    {1, 1, 1, 1},    // VISUAL
-    {0, 1, 1, 3});   // HITBOX
+    AddLadder(15, 12, 13,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 0, 1, 1, 3 });   // HITBOX
 
-AddLadder(15, 12, 20, 
-    {1, 1, 1, 2},    // VISUAL
-    {0, 1, 1, 3});   // HITBOX
+    AddLadder(15, 12, 20,
+        { 1, 1, 1, 2 },    // VISUAL
+        { 0, 1, 1, 3 });   // HITBOX
 
-// Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
-AddLadder(12, 9, 4, 
-    {1, 1, 1, 1},    // VISUAL
-    {0, 1, 1, 3});   // HITBOX
+    // Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
+    AddLadder(12, 9, 4,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 0, 1, 1, 3 });   // HITBOX
 
-AddLadder(12, 9, 8, 
-    {1, 1, 1, 1},    // VISUAL
-    {0, 1, 1, 3});   // HITBOX
+    AddLadder(12, 9, 8,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 0, 1, 1, 3 });   // HITBOX
 
-AddLadder(12, 9, 18, 
-    {1, 2, 1, 3},    // VISUAL
-    {0, 0, 2, 3});   // HITBOX
+    AddLadder(12, 9, 18,
+        { 1, 2, 1, 3 },    // VISUAL
+        { 0, 0, 2, 3 });   // HITBOX
 
-// Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
-AddLadder(9, 6, 10, 
-    {1, 2, 1, 3},    // VISUAL
-    {0, 0, 2, 3});   // HITBOX
+    // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
+    AddLadder(9, 6, 10,
+        { 1, 2, 1, 3 },    // VISUAL
+        { 0, 0, 2, 3 });   // HITBOX
 
-AddLadder(9, 6, 20, 
-    {1, 1, 1, 2},    // VISUAL
-    {0, 1, 1, 3});   // HITBOX
+    AddLadder(9, 6, 20,
+        { 1, 1, 1, 2 },    // VISUAL
+        { 0, 1, 1, 3 });   // HITBOX
 
-// Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
-AddLadder(6, 3, 7, 
-    {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 3});   // HITBOX
+    // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
+    AddLadder(6, 3, 7,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 1, 1, 1, 3 });   // HITBOX
 
-AddLadder(6, 3, 9, 
-    {1, 1, 1, 1},    // VISUAL
-    {1, 1, 1, 3});   // HITBOX
+    AddLadder(6, 3, 9,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 1, 1, 1, 3 });   // HITBOX
 
-AddLadder(6, 3, 14, 
-    {1, 1, 1, 1},    // VISUAL
-    {2, 1, 1, 3});   // HITBOX
+    AddLadder(6, 3, 14,
+        { 1, 1, 1, 1 },    // VISUAL
+        { 2, 1, 1, 3 });   // HITBOX
 
-AddLadder(0, 2, 7,
-    { 0, 0, 3, 0 },    // VISUAL
-    { 0, 0, 0, 0 });   // HITBOX
+    AddLadder(0, 2, 7,
+        { 0, 0, 3, 0 },    // VISUAL
+        { 0, 0, 0, 0 });   // HITBOX
 
-AddLadder(0, 2, 9,
-    { 0, 0, 3, 0 },    // VISUAL
-    { 0, 0, 0, 0 });   // HITBOX
+    AddLadder(0, 2, 9,
+        { 0, 0, 3, 0 },    // VISUAL
+        { 0, 0, 0, 0 });   // HITBOX
+
+    // Zona de transición (arriba a la derecha)
+    transitionZone = {
+        (float)(18 * 32),  // X: tile 18
+        (float)(1 * 32),   // Y: tile 1 (parte superior)
+        32.0f * 3,          // Ancho: 3 tiles
+        32.0f * 2           // Alto: 2 tiles
+    };
+    transitionReached = false;
 }
-
-
 
 Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
 }
-
 
 void Scene::AddLadder(int startY, int endY, int x,
     const std::vector<int>& visual,
@@ -224,9 +226,6 @@ void Scene::AddLadder(int startY, int endY, int x,
 bool Scene::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
-
-    // SIEMPRE sólido, incluso si hay escalera
-    // La escalera NO anula la plataforma
     return hitboxLevel[y][x] == 1;
 }
 
@@ -240,6 +239,18 @@ int Scene::GetLadderType(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return 0;
     return ladderHitbox[y][x];
+}
+
+int Scene::GetLadderHitbox(int x, int y) {
+    if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
+        return 0;
+    return ladderHitbox[y][x];
+}
+
+int Scene::GetVisualOffsetY(int x, int y) {
+    if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
+        return platformHitboxOffsetY * tileScale;
+    return visualOffsetY[y][x];
 }
 
 void Scene::Draw() {
@@ -336,99 +347,37 @@ void Scene::Draw() {
         }
     }
 
-    // ========== DEBUG: DIBUJAR HITBOXES DE ESCALERAS ==========
-    for (int y = 0; y < mapHeight; y++) {
-        for (int x = 0; x < mapWidth; x++) {
-            int hitbox = ladderHitbox[y][x];
-
-            if (hitbox > 0) {
-                Color color;
-                int hitboxHeight;
-                int hitboxOffsetY;
-
-                switch (hitbox) {
-                case 1:  // Completo
-                    color = BLUE;
-                    hitboxHeight = scaledTileSize;
-                    hitboxOffsetY = 0;
-                    break;
-                case 2:  // Solo mitad inferior
-                    color = SKYBLUE;
-                    hitboxHeight = scaledTileSize / 2;
-                    hitboxOffsetY = scaledTileSize / 2;
-                    break;
-                case 3:  // Solo mitad superior
-                    color = MAGENTA;
-                    hitboxHeight = scaledTileSize / 2;
-                    hitboxOffsetY = 0;
-                    break;
-
-                case 4:  // Solo 1/4 superior
-                    color = PURPLE;
-                    hitboxHeight = scaledTileSize / 4;  // 8px
-                    hitboxOffsetY = 0;
-                    break;
-                default:
-                    continue;
-                }
-
-                // Dibujar rectángulo del hitbox
-                DrawRectangleLines(
-                    x * scaledTileSize,
-                    y * scaledTileSize + hitboxOffsetY,
-                    scaledTileSize,
-                    hitboxHeight,
-                    color
-                );
-
-                // Dibujar número del tipo de hitbox
-                DrawText(
-                    TextFormat("%d", hitbox),
-                    x * scaledTileSize + scaledTileSize / 2 - 5,
-                    y * scaledTileSize + scaledTileSize / 2 - 10,
-                    15,
-                    WHITE
-                );
-            }
-        }
-    }
-    
-    //桶贴图
+    // Barriles decorativos
     int platformY = mapHeight - 16;
-    // 找最左平台（避免悬空）
     int startX = -1;
-    for (int i = 0; i < mapWidth; i++)
-    {
-        if (level[platformY][i] == 1)
-        {
+    for (int i = 0; i < mapWidth; i++) {
+        if (level[platformY][i] == 1) {
             startX = i;
             break;
         }
     }
-    if (startX == -1) return;
-    // 控制大小
-    float scale = 3.5f;
-    // 计算桶尺寸
-    float barrelW = barrelTexture.width * scale;
-    float barrelH = barrelTexture.height * scale;
-    // 间距（贴紧可以用0，稍微分开可以+5）
-    float spacingX = barrelW-15;
-    float spacingY = barrelH-15;
+    if (startX != -1) {
+        float scale = 3.5f;
+        float barrelW = barrelTexture.width * scale;
+        float barrelH = barrelTexture.height * scale;
+        float spacingX = barrelW - 15;
+        float spacingY = barrelH - 15;
 
-    // 画 2x2
-    for (int row = 0; row < 2; row++)
-    {
-        for (int col = 0; col < 2; col++)
-        {
-            Vector2 pos = {
-                (float)(startX * scaledTileSize) + col * spacingX,
-                (float)(platformY * scaledTileSize)
-                + visualOffsetY[platformY][startX]
-                - barrelH
-                - row * spacingY   // 往上堆
-            };
-
-            DrawTextureEx(barrelTexture, pos, 2.0f, scale, WHITE);
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 2; col++) {
+                Vector2 pos = {
+                    (float)(startX * scaledTileSize) + col * spacingX,
+                    (float)(platformY * scaledTileSize)
+                    + visualOffsetY[platformY][startX]
+                    - barrelH
+                    - row * spacingY
+                };
+                DrawTextureEx(barrelTexture, pos, 2.0f, scale, WHITE);
+            }
         }
     }
+
+    // Dibujar zona de transición
+    DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
+    DrawText("LVL2", transitionZone.x + 20, transitionZone.y + 10, 20, GREEN);
 }

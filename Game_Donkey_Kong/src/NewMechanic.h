@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include <vector>
 
+class Player;
+
 class NewMechanic {
 private:
     struct Star {
@@ -16,12 +18,19 @@ private:
     float spawnInterval;
     float starSpeed;
 
+
 public:
     NewMechanic();
     ~NewMechanic();
 
     void Update(float deltaTime, int screenWidth);
     void Draw();
+
+    void CheckCollisionWithPlayer(Player* player);
+    void ResetStars() { stars.clear(); }
+
+    //Verificar colisión y devolver si se recogió una estrella
+    bool CheckAndCollect(Rectangle playerHitbox);
 
     // Para verificar colisión con el jugador
     bool CheckCollision(Rectangle playerHitbox);

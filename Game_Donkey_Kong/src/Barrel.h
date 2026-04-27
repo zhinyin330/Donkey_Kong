@@ -2,8 +2,7 @@
 #include "raylib.h"
 #include <vector>
 
-
-class Scene;
+class GameScene;
 
 enum class BarrelType {
     NORMAL,
@@ -21,7 +20,7 @@ class Barrel {
         Barrel(BarrelType t, Vector2 pos);
 
         // 更新 / 渲染
-        void Update(Scene& scene);
+        void Update(GameScene& scene);
         void Draw();
     private:
         void UpdateAnimation();

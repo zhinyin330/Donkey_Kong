@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include <vector>
 
-class Scene;
+class GameScene;
 
 enum class PlayerState {
     IDLE,
@@ -21,18 +21,17 @@ private:
     Texture2D walkEndTexture;
     Texture2D jumpTexture;
     Texture2D currentTexture;
-    std::vector<Texture2D> climbTextures;      // Ladder1, Ladder2
-    std::vector<Texture2D> climbEndTextures;   // LadderEnd1, LadderEnd2
+    std::vector<Texture2D> climbTextures;
+    std::vector<Texture2D> climbEndTextures;
 
-    //Audio
+    // Audio
     Sound jumpSound;
-    //walking audio
     Sound walkSound;
     float stepTimer;
     float stepInterval;
 
-    bool wasMoving;             
-    bool isStepPlaying;         
+    bool wasMoving;
+    bool isStepPlaying;
 
     // Animación
     PlayerState currentState;
@@ -49,50 +48,73 @@ private:
     float scale;
     float moveX;
     bool facingRight;
-    float velocityX; // inercia horizontal
+    float velocityX;
     float moveY;
     bool onLadder;
     bool isClimbing;
     float climbSpeed;
     bool exitingLadder;
 
-    // Hitbox base (valores para IDLE)
+    // Hitbox base
     int baseHitboxOffsetY;
     int baseHitboxHeight;
 
-    // Ajustes adicionales por estado
-    int jumpHitboxOffsetY;   // Offset extra para salto
-    int jumpHitboxHeight;    // Altura específica para salto
+    // Ajustes por estado
+    int jumpHitboxOffsetY;
+    int jumpHitboxHeight;
 
-    //Método para obtener la posición de los pies
+    // Métodos privados
     float GetFeetPosition();
+    void SetFeetPosition(float feetY);
+    int GetCurrentHitboxOffsetY();
+    int GetCurrentHitboxHeight();
 
-    //Star
-    int starCount;      
-    const int maxStars = 10;
+    // Star
+    int starCount;
+    static const int maxStars = 10;
+
+    // Modo estrella
+    bool starMode;
+    float starModeTimer;
+    static const float starModeDuration;
+    Color currentTint;
+
 public:
     Player();
     ~Player();
 
-    void HandleInput(Scene& scene);
-    void Update(Scene& scene);
+    // Usar GameScene& en lugar de Scene&
+    void HandleInput(GameScene& scene);
+    void Update(GameScene& scene);
     void Draw();
     void UpdateAnimation();
     void ChangeState(PlayerState newState);
 
-    // Obtener hitbox actual según el estado
-    void SetFeetPosition(float feetY);
-    int GetCurrentHitboxOffsetY();
-    int GetCurrentHitboxHeight();
-    float GetCollisionHeight() { return GetCurrentHitboxHeight() * scale; };
-
-    //start
+    // Getters públicos
     Vector2 GetPosition() const { return position; }
     float GetScale() const { return scale; }
     float GetTextureWidth() const { return currentTexture.width; }
     float GetTextureHeight() const { return currentTexture.height; }
+    float GetCollisionHeight() { return GetCurrentHitboxHeight() * scale; }
+
+    // Star
     void AddStar() { if (starCount < maxStars) starCount++; }
     int GetStarCount() const { return starCount; }
     int GetMaxStars() const { return maxStars; }
     bool HasMaxStars() const { return starCount >= maxStars; }
+
+    // Modo estrella
+    void ActivateStarMode();
+    void UpdateStarMode();
+    bool IsInStarMode() const { return starMode; }
+
+    // Temporal: Hitbox para colisiones
+    Rectangle GetHitbox() const {
+        return {
+            position.x,
+            position.y + baseHitboxOffsetY * scale,
+            currentTexture.width * scale,
+            baseHitboxHeight * scale
+        };
+    }
 };

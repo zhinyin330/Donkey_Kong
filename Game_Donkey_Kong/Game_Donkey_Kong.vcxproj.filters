@@ -66,6 +66,9 @@
     <ClInclude Include="src\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\Intro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -82,6 +85,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -111,6 +117,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -152,7 +161,16 @@
     <Image Include="resources\Architecture\Dk_FloorPart.png">
       <Filter>Game Resource Files\Architecture</Filter>
     </Image>
+    <Image Include="resources\Architecture\Dk_FloorPart1.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
     <Image Include="resources\Architecture\Dk_Ladder.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_Ladder1.png">
+      <Filter>Game Resource Files\Architecture</Filter>
+    </Image>
+    <Image Include="resources\Architecture\Dk_Pillar.png">
       <Filter>Game Resource Files\Architecture</Filter>
     </Image>
     <Image Include="resources\Architecture\Dk_Spring_Active.png">
@@ -344,6 +362,9 @@
     <Image Include="resources\Characters\Princess\Dk_Princess_Walk2.png">
       <Filter>Game Resource Files\Characters\Princess</Filter>
     </Image>
+    <Image Include="resources\Items\Dk_BottomButton.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
     <Image Include="resources\Items\Dk_GoldenPiston.png">
       <Filter>Game Resource Files\Items</Filter>
     </Image>
@@ -378,6 +399,9 @@
       <Filter>Game Resource Files\Items</Filter>
     </Image>
     <Image Include="resources\Items\new_Dk_star.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\new_Dk_star1.png">
       <Filter>Game Resource Files\Items</Filter>
     </Image>
     <Image Include="resources\UI\Dk_Kong_StartScreen.png">

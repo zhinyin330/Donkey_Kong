@@ -1,5 +1,5 @@
 ﻿#include "Barrel.h"
-#include "Scene.h"
+#include "GameScene.h"
 
 Barrel::Barrel(BarrelType t, Vector2 pos)
 {
@@ -45,7 +45,7 @@ void Barrel::UpdateAnimation()
     }
 }
 
-void Barrel::Update(Scene& scene)
+void Barrel::Update(GameScene& scene)
 {
     float dt = GetFrameTime();
     int tileSize = scene.GetTileSize();

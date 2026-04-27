@@ -1,5 +1,5 @@
 ﻿#include "Enemy.h"
-#include "Scene.h"
+#include "GameScene.h"
 #include "resource_dir.h"
 
 Enemy::Enemy()
@@ -83,7 +83,7 @@ void Enemy::UpdateAnimation() {
     }
 }
 
-void Enemy::Update(Scene& scene)
+void Enemy::Update(GameScene& scene)
 {
     UpdateAnimation();
 

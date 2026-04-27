@@ -305,12 +305,14 @@
     <ClInclude Include="src\Barrel.h" />
     <ClInclude Include="src\Enemy.h" />
     <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\Intro.h" />
     <ClInclude Include="src\Menu.h" />
     <ClInclude Include="src\NewMechanic.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="src\Scene.h" />
+    <ClInclude Include="src\Scene2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Barrel.cpp" />
@@ -322,6 +324,7 @@
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\Scene2.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\prova11.cpp" />
   </ItemGroup>
@@ -339,7 +342,10 @@
     <Image Include="resources\Architecture\Dk_Dirt_Fall.png" />
     <Image Include="resources\Architecture\Dk_Dirt_Idle.png" />
     <Image Include="resources\Architecture\Dk_FloorPart.png" />
+    <Image Include="resources\Architecture\Dk_FloorPart1.png" />
     <Image Include="resources\Architecture\Dk_Ladder.png" />
+    <Image Include="resources\Architecture\Dk_Ladder1.png" />
+    <Image Include="resources\Architecture\Dk_Pillar.png" />
     <Image Include="resources\Architecture\Dk_Spring_Active.png" />
     <Image Include="resources\Architecture\Dk_Spring_Idle.png" />
     <Image Include="resources\Barrel\Dk_Barrel_Blue_Fall1.png" />
@@ -403,6 +409,7 @@
     <Image Include="resources\Characters\Princess\Dk_Princess_Idle2.png" />
     <Image Include="resources\Characters\Princess\Dk_Princess_Walk1.png" />
     <Image Include="resources\Characters\Princess\Dk_Princess_Walk2.png" />
+    <Image Include="resources\Items\Dk_BottomButton.png" />
     <Image Include="resources\Items\Dk_GoldenPiston.png" />
     <Image Include="resources\Items\Dk_Hammer_Right.png" />
     <Image Include="resources\Items\Dk_Hammer_Up.png" />
@@ -415,6 +422,7 @@
     <Image Include="resources\Items\Dk_Oil_Fire3.png" />
     <Image Include="resources\Items\Dk_Oil_Fire4.png" />
     <Image Include="resources\Items\new_Dk_star.png" />
+    <Image Include="resources\Items\new_Dk_star1.png" />
     <Image Include="resources\UI\Dk_Kong_StartScreen.png" />
     <Image Include="resources\UI\Dk_UI_1up.png" />
     <Image Include="resources\UI\Dk_UI_BonusScore.png" />

@@ -3,7 +3,7 @@
 #include <vector>
 #include "GameScene.h"
 
-class Scene : public GameScene {
+class Scene2 : public GameScene {
 private:
     static const int tileSize = 16;
     static const int tileScale = 2;
@@ -14,39 +14,33 @@ private:
     std::vector<std::vector<int>> hitboxLevel;
     std::vector<std::vector<int>> ladderLevel;
     std::vector<std::vector<int>> ladderHitbox;
-    std::vector<std::vector<int>> visualOffsetY;
 
     Texture2D tileTexture;
     Texture2D ladderTexture;
-    Texture2D barrelTexture;
 
     static const int platformHitboxHeight = 8;
-    static const int platformHitboxOffsetY = 8;
+    static const int platformHitboxOffsetY = 16;
 
     void AddLadder(int startY, int endY, int x,
         const std::vector<int>& visual,
         const std::vector<int>& hitboxes);
 
-    // Zona de transición
-    Rectangle transitionZone;
-    bool transitionReached;
-
 public:
-    Scene();
-    ~Scene();
+    Scene2();
+    ~Scene2();
 
     void Draw() override;
     bool IsSolid(int x, int y) override;
     bool IsLadder(int x, int y) override;
     int GetLadderType(int x, int y) override;
     int GetLadderHitbox(int x, int y) override;
-    int GetVisualOffsetY(int x, int y) override;
+    int GetVisualOffsetY(int x, int y) override { return platformHitboxOffsetY; }
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
-    int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale; }
+    int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY; }
 
-    //Temporal
-    Rectangle GetTransitionZone() override { return transitionZone; }
-    bool IsTransitionReached() override { return transitionReached; }
-    void SetTransitionReached(bool val) override { transitionReached = val; }
+    // Métodos de transición (aunque no se usen, deben estar)
+    Rectangle GetTransitionZone() override { return { 0, 0, 0, 0 }; }
+    bool IsTransitionReached() override { return false; }
+    void SetTransitionReached(bool val) override {}
 };

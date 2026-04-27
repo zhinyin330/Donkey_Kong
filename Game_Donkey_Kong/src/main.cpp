@@ -8,11 +8,9 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 */
 
 #include "raylib.h"
-
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "Menu.h"
 #include "Game.h"
-#include "Scene.h"
 #include "Intro.h"
 
 int main()
@@ -30,8 +28,6 @@ int main()
     // 当前界面
     GameScreen currentScreen = INTRO;
     InitAudioDevice();//音乐
-
-    Scene scene;
 
     // 游戏主循环
     while (!WindowShouldClose())
@@ -53,11 +49,14 @@ int main()
                 DrawGame(&currentScreen);
                 break;
 
+            default:
+                break;
         }
 
         EndDrawing();
     }
 
+    UnloadGame();
     CloseAudioDevice();
     CloseWindow();
     return 0;

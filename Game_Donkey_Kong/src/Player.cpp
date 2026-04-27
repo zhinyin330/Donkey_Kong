@@ -1,6 +1,9 @@
 ﻿#include "Player.h"
-#include "Scene.h"
-#include "resource_dir.h" 
+#include "GameScene.h"  
+#include "resource_dir.h"
+
+//Para usarlo correctamente; Duracion del modo immune
+const float Player::starModeDuration = 10.0f;
 
 Player::Player() {
     // Cargar texturas
@@ -9,13 +12,12 @@ Player::Player() {
     jumpSound = LoadSound("audio/SFXjump.mp3");
     SetSoundVolume(jumpSound, 5.0f);
 
-    // 脚步声加载（加在这里）
+    // Pasos
     walkSound = LoadSound("audio/Walking.mp3");
     SetSoundVolume(walkSound, 5.0f);
 
-    //  脚步节奏初始化
     stepTimer = 0.0f;
-    stepInterval = 0.5f; // 可以调：越小走路越快                              
+    stepInterval = 0.5f;
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
@@ -27,7 +29,7 @@ Player::Player() {
     climbEndTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_LadderEnd1.png"));
     climbEndTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_LadderEnd2.png"));
 
-    //variables
+    // Variables
     currentTexture = idleTexture;
     speed = 5.0f;
     velocityY = 0.0f;
@@ -42,22 +44,19 @@ Player::Player() {
     moveY = 0.0f;
     exitingLadder = false;
 
-    // Configuración CRÍTICA de hitbox
+    // Configuración de hitbox
     baseHitboxOffsetY = 2;
     baseHitboxHeight = 14;
 
-    // Asegurar que los pies estén en la misma posición relativa
-    // offsetY + height debe ser IGUAL para todos los estados
-    int feetOffset = baseHitboxOffsetY + baseHitboxHeight;  // = 16
-    jumpHitboxOffsetY = 0;  // Ajusta según tu sprite de salto
-    jumpHitboxHeight = feetOffset - jumpHitboxOffsetY;  // = 13
+    int feetOffset = baseHitboxOffsetY + baseHitboxHeight;
+    jumpHitboxOffsetY = 0;
+    jumpHitboxHeight = feetOffset - jumpHitboxOffsetY;
 
-    int tileSize = 32;  // tileSize * tileScale
-    int startTileX = 2; // Columna donde aparece Mario
-    int startTileY = 21; // Suelo principal
+    int tileSize = 32;
+    int startTileX = 2;
+    int startTileY = 21;
+    int platformOffsetY = 8;
 
-    // FÓRMULA para la posición Y con hitbox rectangular
-    int platformOffsetY = 8;  // baseOffset = 4 * tileScale = 8
     position.x = (float)(startTileX * tileSize);
     position.y = (float)(startTileY * tileSize) + platformOffsetY
         - (baseHitboxOffsetY + baseHitboxHeight) * scale;
@@ -69,34 +68,34 @@ Player::Player() {
     frameCounter = 0;
     frameSpeed = 0.15f;
     facingRight = true;
-    wasMoving = false;                  
+    wasMoving = false;
     isStepPlaying = false;
 
-    //Star
+    // Star
     starCount = 0;
+
+    // Modo estrella
+    starMode = false;
+    starModeTimer = 0.0f;
+    currentTint = WHITE;
 }
 
 Player::~Player() {
-    // Liberar todas las texturas
     UnloadTexture(idleTexture);
     UnloadTexture(jumpTexture);
-
-    UnloadSound(walkSound);//audio walking
+    UnloadSound(walkSound);
     UnloadTexture(walkEndTexture);
     for (Texture2D& tex : walkTextures) UnloadTexture(tex);
     for (Texture2D& tex : climbTextures) UnloadTexture(tex);
     for (Texture2D& tex : climbEndTextures) UnloadTexture(tex);
-
-    //audio
     UnloadSound(jumpSound);
 }
 
-void Player::HandleInput(Scene& scene) {
-    
+void Player::HandleInput(GameScene& scene) {
     if (exitingLadder) {
         return;
     }
-    
+
     moveX = 0;
     isClimbing = false;
     moveY = 0;
@@ -153,9 +152,7 @@ void Player::HandleInput(Scene& scene) {
         }
     }
 
-
-
-    // SOLO entrar en modo escalera si presiona ↑/↓
+    // Entrar en modo escalera
     if (onLadder && !exitingLadder) {
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
             isClimbing = true;
@@ -168,14 +165,11 @@ void Player::HandleInput(Scene& scene) {
             ChangeState(PlayerState::CLIMBING);
         }
         else if (currentState == PlayerState::CLIMBING) {
-            //  Si YA estaba en CLIMBING y suelta teclas, seguir en CLIMBING pero quieto
-            isClimbing = false;  // No hay movimiento vertical
+            isClimbing = false;
             moveY = 0;
-            // Mantener CLIMBING (no cambiar a IDLE)
         }
         else {
-            // Toca escalera pero NO presiona y NO estaba en CLIMBING → IDLE normal
-            onLadder = false;  // Para que no afecte la física
+            onLadder = false;
         }
 
         // Movimiento horizontal para salir
@@ -195,7 +189,7 @@ void Player::HandleInput(Scene& scene) {
         }
     }
 
-    // Movimiento normal (si no está en CLIMBING)
+    // Movimiento normal
     if (currentState != PlayerState::CLIMBING) {
         if (IsKeyPressed(KEY_SPACE) && !isJumping) {
             velocityY = -7.5f;
@@ -211,7 +205,12 @@ void Player::HandleInput(Scene& scene) {
             moveX = 1;
             facingRight = true;
         }
+        if (IsKeyPressed(KEY_Z) && !starMode && starCount >= maxStars) {
+            ActivateStarMode();
+        }
     }
+
+    UpdateStarMode();
 
     // Determinar estado
     if (exitingLadder) {
@@ -221,7 +220,7 @@ void Player::HandleInput(Scene& scene) {
         ChangeState(PlayerState::JUMPING);
     }
     else if (currentState == PlayerState::CLIMBING) {
-        // Mantener CLIMBING (ya se estableció antes)
+        // Mantener CLIMBING
     }
     else if (moveX != 0) {
         ChangeState(PlayerState::WALKING);
@@ -283,9 +282,9 @@ void Player::ChangeState(PlayerState newState) {
             if (!climbEndTextures.empty()) {
                 currentTexture = climbEndTextures[0];
                 exitingLadder = true;
-                currentFrame = 0;      // Asegurar que empiece desde el primer frame
-                frameCounter = 0;      // Resetear contador
-                walkEndCounter = 0;    // Resetear contador
+                currentFrame = 0;
+                frameCounter = 0;
+                walkEndCounter = 0;
             }
             break;
         }
@@ -321,7 +320,6 @@ void Player::UpdateAnimation() {
             break;
 
         case PlayerState::CLIMBING:
-            // Ciclo de escalada
             if (isClimbing) {
                 currentFrame++;
                 if (currentFrame >= climbTextures.size()) currentFrame = 0;
@@ -330,10 +328,8 @@ void Player::UpdateAnimation() {
             break;
 
         case PlayerState::CLIMBING_END:
-            // Secuencia de salida (una sola vez)
             currentFrame++;
             if (currentFrame >= climbEndTextures.size()) {
-                // Terminó la animación de salida
                 ChangeState(PlayerState::IDLE);
                 onLadder = false;
                 isClimbing = false;
@@ -347,7 +343,6 @@ void Player::UpdateAnimation() {
     }
 }
 
-
 float Player::GetFeetPosition() {
     int currentOffsetY = GetCurrentHitboxOffsetY();
     int currentHeight = GetCurrentHitboxHeight();
@@ -360,30 +355,23 @@ void Player::SetFeetPosition(float feetY) {
     position.y = feetY - (currentOffsetY + currentHeight) * scale;
 }
 
-void Player::Update(Scene& scene) {
+void Player::Update(GameScene& scene) {
     UpdateAnimation();
+    UpdateStarMode();
 
-    // ================= 脚步声系统 =================
+    // ================= SISTEMA DE PASOS =================
     bool isMovingOnGround =
         (currentState == PlayerState::WALKING) &&
         !isJumping &&
-        !onLadder;
-                                                                   
-    (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
-        IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));  // ← Verificador directo
+        !onLadder &&
+        (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
+            IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
 
-    if (isMovingOnGround) {
-        TraceLog(LOG_INFO, "Caminando - Timer: %.2f", stepTimer);
-    }
-
-    // Detectar cuando se ACABA de mover
     if (wasMoving && !isMovingOnGround) {
         stepTimer = 0.0f;
         isStepPlaying = false;
     }
 
-
-    // 节奏脚步声（推荐）
     if (isMovingOnGround) {
         stepTimer += GetFrameTime();
 
@@ -401,9 +389,7 @@ void Player::Update(Scene& scene) {
         isStepPlaying = false;
     }
 
-    wasMoving = isMovingOnGround;                           
-
-    // ============================================
+    wasMoving = isMovingOnGround;
 
     // Si está en animación de salida, solo animación
     if (currentState == PlayerState::CLIMBING_END) {
@@ -414,20 +400,19 @@ void Player::Update(Scene& scene) {
 
     // Si está escalando activamente
     if (currentState == PlayerState::CLIMBING && !exitingLadder) {
-        // Movimiento vertical
         if (isClimbing) {
             position.y += moveY * climbSpeed;
         }
         position.x += moveX * speed;
 
-        // Límites
+        // Límites - USAR GameScene::GetScreenWidth/Height
         if (position.x < 0) position.x = 0;
-        if (position.x + currentTexture.width * scale > Scene::GetScreenWidth()) {
-            position.x = Scene::GetScreenWidth() - currentTexture.width * scale;
+        if (position.x + currentTexture.width * scale > GameScene::GetScreenWidth()) {
+            position.x = GameScene::GetScreenWidth() - currentTexture.width * scale;
         }
         if (position.y < 0) position.y = 0;
-        if (position.y + currentTexture.height * scale > Scene::GetScreenHeight()) {
-            position.y = Scene::GetScreenHeight() - currentTexture.height * scale;
+        if (position.y + currentTexture.height * scale > GameScene::GetScreenHeight()) {
+            position.y = GameScene::GetScreenHeight() - currentTexture.height * scale;
         }
 
         velocityY = 0;
@@ -438,7 +423,6 @@ void Player::Update(Scene& scene) {
         int feetY = (int)(position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale);
         int tileY = feetY / 32;
 
-        // SOLO verificar hitbox de escalera
         int currentHitbox = scene.GetLadderHitbox(tileX, tileY);
         int bodyHitbox = scene.GetLadderHitbox(tileX, tileY - 1);
 
@@ -486,14 +470,13 @@ void Player::Update(Scene& scene) {
     int currentOffsetY = GetCurrentHitboxOffsetY();
     int currentHeight = GetCurrentHitboxHeight();
 
-    int platformHitboxHeight = scene.GetPlatformHitboxHeight();    
-    int platformHitboxOffsetY = scene.GetPlatformHitboxOffsetY();  
+    int platformHitboxHeight = scene.GetPlatformHitboxHeight();
+    int platformHitboxOffsetY = scene.GetPlatformHitboxOffsetY();
 
     // ========== HORIZONTAL ==========
     float nextX = position.x + moveX * speed;
 
-    // Límites del mapa
-    int mapWidthPixels = Scene::GetScreenWidth();
+    int mapWidthPixels = GameScene::GetScreenWidth();
     if (nextX < 0) nextX = 0;
     if (nextX + currentTexture.width * scale > mapWidthPixels) {
         nextX = mapWidthPixels - currentTexture.width * scale;
@@ -516,7 +499,6 @@ void Player::Update(Scene& scene) {
     float feetLevel = hitboxBottomY;
     float headLevel = hitboxTopY;
 
-    // Determinar dirección del movimiento horizontal
     float horizontalDirection = moveX;
     if (horizontalDirection == 0) {
         horizontalDirection = (velocityX != 0) ? (velocityX > 0 ? 1.0f : -1.0f) : 0;
@@ -585,7 +567,7 @@ void Player::Update(Scene& scene) {
         }
     }
 
-    // Verificar colisión lateral incluso SIN movimiento horizontal
+    // Colisión lateral sin movimiento
     if (!horizontalCollision && moveX == 0) {
         for (int ty = topTile; ty <= bottomTile; ty++) {
             if (scene.IsSolid(currentLeftTile, ty) || scene.IsSolid(currentRightTile, ty)) {
@@ -608,32 +590,26 @@ void Player::Update(Scene& scene) {
         }
     }
 
-    // ========== PARED LATERAL AGRESIVA ==========
+    // Pared lateral agresiva
     if (!horizontalCollision) {
-        int mapWidthTiles = Scene::GetScreenWidth() / tileSize;
-        int mapHeightTiles = Scene::GetScreenHeight() / tileSize;
+        int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
+        int mapHeightTiles = GameScene::GetScreenHeight() / tileSize;
 
-        // Recorrer desde la cabeza hasta los pies
         for (int ty = topTile; ty <= bottomTile; ty++) {
             if (ty < 0 || ty >= mapHeightTiles) continue;
 
-            // ===== BORDE IZQUIERDO (plataforma a la izquierda de Mario) =====
+            // Borde izquierdo
             int leftCheckX = currentLeftTile - 1;
             if (leftCheckX >= 0) {
-                // Verificar si hay una plataforma SÓLIDA a la izquierda
                 if (scene.IsSolid(leftCheckX, ty)) {
                     int tileOffsetY = scene.GetVisualOffsetY(leftCheckX, ty);
                     float platformTop = ty * tileSize + tileOffsetY;
                     float platformBottom = platformTop + platformHitboxHeight;
 
-                    // Si la plataforma está a la altura del cuerpo de Mario
                     if (hitboxBottomY > platformTop + 2 && hitboxTopY < platformBottom - 2) {
                         float tileRight = (leftCheckX + 1) * tileSize;
 
-                        // VERIFICACIÓN MÁS ESTRICTA: Si Mario está A LA IZQUIERDA de la plataforma
-                        // pero su hitbox se solapa, empujarlo FUERTE
                         if (position.x < tileRight && position.x + currentTexture.width * scale > leftCheckX * tileSize) {
-                            // Empujar a Mario completamente fuera
                             nextX = tileRight;
                             horizontalCollision = true;
                             break;
@@ -642,7 +618,7 @@ void Player::Update(Scene& scene) {
                 }
             }
 
-            // ===== BORDE DERECHO (plataforma a la derecha de Mario) =====
+            // Borde derecho
             int rightCheckX = currentRightTile + 1;
             if (!horizontalCollision && rightCheckX < mapWidthTiles) {
                 if (scene.IsSolid(rightCheckX, ty)) {
@@ -654,9 +630,7 @@ void Player::Update(Scene& scene) {
                         float tileLeft = rightCheckX * tileSize;
                         float marioRight = position.x + currentTexture.width * scale;
 
-                        // VERIFICACIÓN MÁS ESTRICTA
                         if (marioRight > tileLeft && position.x < (rightCheckX + 1) * tileSize) {
-                            // Empujar a Mario completamente fuera
                             nextX = tileLeft - currentTexture.width * scale;
                             horizontalCollision = true;
                             break;
@@ -666,8 +640,6 @@ void Player::Update(Scene& scene) {
             }
         }
     }
-
-
 
     position.x = nextX;
 
@@ -685,9 +657,8 @@ void Player::Update(Scene& scene) {
     rightTile = (int)((position.x + currentTexture.width * scale - 1) / tileSize);
 
     // Límites verticales
-    int mapHeightPixels = Scene::GetScreenHeight();
+    int mapHeightPixels = GameScene::GetScreenHeight();
     if (nextFeetY > mapHeightPixels) {
-        // Reiniciar al caer
         position.x = 2 * tileSize;
         position.y = 21 * tileSize + 16 - (baseHitboxOffsetY + baseHitboxHeight) * scale;
         velocityY = 0;
@@ -706,10 +677,9 @@ void Player::Update(Scene& scene) {
         bool landed = false;
         float groundY = nextY;
 
-        // Calcular el ancho del mapa en tiles
-        int mapWidthTiles = Scene::GetScreenWidth() / tileSize;
+        int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
 
-        int checkLeftTile = leftTile - 1 ;
+        int checkLeftTile = leftTile - 1;
         int checkRightTile = rightTile + 1;
         if (checkLeftTile < 0) checkLeftTile = 0;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
@@ -742,7 +712,7 @@ void Player::Update(Scene& scene) {
         }
     }
 
-    // Colisión al SALTAR (golpear techo)
+    // Colisión al SALTAR (techo)
     if (velocityY < 0) {
         bool hitCeiling = false;
         float ceilingY = nextY;
@@ -750,10 +720,9 @@ void Player::Update(Scene& scene) {
         int checkLeftTile = leftTile - 1;
         int checkRightTile = rightTile + 1;
         if (checkLeftTile < 0) checkLeftTile = 0;
-        int mapWidthTiles = Scene::GetScreenWidth() / tileSize;
+        int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
 
-        // USAR checkLeftTile y checkRightTile
         for (int tx = checkLeftTile; tx <= checkRightTile && !hitCeiling; tx++) {
             for (int ty = nextHeadTileY - 1; ty <= (int)(hitboxTopY / tileSize) + 1; ty++) {
                 if (ty < 0) continue;
@@ -779,7 +748,36 @@ void Player::Update(Scene& scene) {
             position.y = nextY;
         }
     }
- }
+}
+
+void Player::ActivateStarMode() {
+    starMode = true;
+    starModeTimer = starModeDuration;
+    starCount = 0;
+    currentTint = GOLD;
+}
+
+void Player::UpdateStarMode() {
+    if (starMode) {
+        starModeTimer -= GetFrameTime();
+
+        if (starModeTimer <= 3.0f) {
+            float blink = sin(starModeTimer * 20.0f);
+            if (blink > 0) {
+                currentTint = GOLD;
+            }
+            else {
+                currentTint = WHITE;
+            }
+        }
+
+        if (starModeTimer <= 0.0f) {
+            starMode = false;
+            starModeTimer = 0.0f;
+            currentTint = WHITE;
+        }
+    }
+}
 
 void Player::Draw() {
     Rectangle source = { 0, 0, (float)currentTexture.width, (float)currentTexture.height };
@@ -795,13 +793,12 @@ void Player::Draw() {
         source.width = -source.width;
     }
 
-    DrawTexturePro(currentTexture, source, dest, origin, 0.0f, WHITE);
+    DrawTexturePro(currentTexture, source, dest, origin, 0.0f, currentTint);
 
-    // Debug: Hitbox ajustada al estado actual
+    // Debug: Hitbox
     int currentOffsetY = GetCurrentHitboxOffsetY();
     int currentHeight = GetCurrentHitboxHeight();
 
-    // Debug: Hitbox
     DrawRectangleLines(
         position.x,
         position.y + currentOffsetY * scale,
@@ -811,6 +808,5 @@ void Player::Draw() {
     );
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
-        Scene::GetScreenWidth() - 200, 10, 20, YELLOW);
-
+        GameScene::GetScreenWidth() - 200, 680, 20, YELLOW);
 }

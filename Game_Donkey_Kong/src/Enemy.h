@@ -3,13 +3,13 @@
 #include <vector>
 #include "Barrel.h" 
 
+class GameScene;
+
 // 敌人状态
 enum class EnemyState {
     IDLE,
     BARREL_GRAB 
 };
-
-class Scene;
 
 class Enemy {
 private:
@@ -31,19 +31,20 @@ private:
     // ===== 状态 =====
     EnemyState currentState;
     bool isGoingForward;     // true:去程(从左到右), false:回程(从右到左)
+
     // ===== 新增：当前桶类型
     BarrelType currentBarrelType;
     // 列表
     std::vector<Barrel> barrels;
 
-private:
     void SpawnBarrel(); // 丢桶
+
 public:
     Enemy();
     ~Enemy();
 
     // ===== 核心逻辑 =====
-    void Update(Scene& scene);
+    void Update(GameScene& scene);
     void Draw();
 
     // ===== 动画控制 =====
