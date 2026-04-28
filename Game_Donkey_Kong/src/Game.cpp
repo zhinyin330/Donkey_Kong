@@ -23,6 +23,7 @@ void InitGame()
     gameScene = new Scene();
     gamePlayer = new Player();
     gameEnemy = new Enemy();
+    gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);  // Scene 1: lanza barriles
     gameStars = new NewMechanic();
 
     isScene2 = false;
@@ -37,6 +38,8 @@ void InitGameScene2()
     gameScene = new Scene2();
     gamePlayer = new Player();
     gameEnemy = new Enemy();
+    gameEnemy->SetBehavior(EnemyBehavior::STATIONARY);     // Scene 2: decorativo
+    gameEnemy->SetPosition(317, 120);                      // Posición diferente
     gameStars = new NewMechanic();
 
     isScene2 = true;

@@ -35,7 +35,7 @@ Player::Player() {
     velocityY = 0.0f;
     gravity = 0.3f;
     isJumping = false;
-    scale = 2.5f;
+    scale = 2.3f;
     moveX = 0.0f;
     velocityX = 0.0f;
     onLadder = false;

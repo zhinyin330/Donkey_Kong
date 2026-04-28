@@ -12,7 +12,8 @@ Enemy::Enemy()
     frameSpeed(0.5f),
     position({ 95.0f, 118.0f }),
     scale(2.8f),
-    currentBarrelType(BarrelType::NORMAL)
+    currentBarrelType(BarrelType::NORMAL),
+    behavior(EnemyBehavior::THROW_BARRELS) // (^^)d
 {
     dkWithBarrelTextures = {
         LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"),
@@ -43,6 +44,33 @@ void Enemy::SpawnBarrel()
 }
 
 void Enemy::UpdateAnimation() {
+    // (^^)d
+    // Si está en modo STATIONARY, no hacer animación de lanzamiento
+    if (behavior == EnemyBehavior::STATIONARY) {
+        // Animación simple
+        frameCounter += GetFrameTime();
+        if (frameCounter >= frameSpeed * 2) {  // Más lento
+            frameCounter = 0.0f;
+            currentFrame = (currentFrame + animDirection);
+
+            int maxFrame = (int)dkWithBarrelTextures.size() - 1;
+            if (currentFrame >= maxFrame) {
+                currentFrame = maxFrame;
+                animDirection = -1;
+            }
+            if (currentFrame <= 0) {
+                currentFrame = 0;
+                animDirection = 1;
+            }
+        }
+        return;
+    }
+
+    
+    
+    
+    
+    /////////////////////////////////////////////////7
     frameCounter += GetFrameTime();
 
     if (frameCounter >= frameSpeed) {
@@ -83,15 +111,32 @@ void Enemy::UpdateAnimation() {
     }
 }
 
+//void Enemy::Update(GameScene& scene)
+//{
+//    UpdateAnimation();
+//
+//    for (auto& b : barrels)
+//        b.Update(scene);
+//}
+
+// (^^)d
 void Enemy::Update(GameScene& scene)
 {
-    UpdateAnimation();
+    switch (behavior) {
+    case EnemyBehavior::THROW_BARRELS:
+        // Scene 1: Animación normal + actualizar barriles
+        UpdateAnimation();
+        for (auto& b : barrels)
+            b.Update(scene);
+        break;
 
-    for (auto& b : barrels)
-        b.Update(scene);
+    case EnemyBehavior::STATIONARY:
+        // Scene 2: Solo animación decorativa, sin barriles
+        UpdateAnimation();
+        // No barriles (no los lanza)
+        break;
+    }
 }
-
-
 
 void Enemy::Draw() {
     if (dkWithBarrelTextures.empty()) return;
@@ -108,8 +153,13 @@ void Enemy::Draw() {
         0.0f,
         WHITE
     );
-    for (auto& b : barrels)
-        b.Draw();
+    
+    // (^^)d
+    // 不在scene1 不画THROW_BARRELS
+    if (behavior == EnemyBehavior::THROW_BARRELS) {
+        for (auto& b : barrels)
+            b.Draw();
+    }
 }
 
 void Enemy::ChangeState(EnemyState newState) 

@@ -11,6 +11,12 @@ enum class EnemyState {
     BARREL_GRAB 
 };
 
+// (^^)d
+enum class EnemyBehavior {
+    THROW_BARRELS,   // Scene 1: Lanza barriles
+    STATIONARY       // Scene 2: Solo baila, no hace nada
+};
+
 class Enemy {
 private:
     // ===== 贴图 =====
@@ -31,6 +37,7 @@ private:
     // ===== 状态 =====
     EnemyState currentState;
     bool isGoingForward;     // true:去程(从左到右), false:回程(从右到左)
+    EnemyBehavior behavior; // (^^)d
 
     // ===== 新增：当前桶类型
     BarrelType currentBarrelType;
@@ -50,6 +57,10 @@ public:
     // ===== 动画控制 =====
     void UpdateAnimation();
     void ChangeState(EnemyState newState);
+
+    // (^^)d: comportamiento
+    void SetBehavior(EnemyBehavior b) { behavior = b; }
+    EnemyBehavior GetBehavior() const { return behavior; }
     
     Vector2 GetPosition() const { return position; }
     void SetPosition(float x, float y) { position = { x, y }; }

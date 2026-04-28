@@ -19,31 +19,31 @@ Scene2::Scene2() {
         hitboxLevel[21][x] = 1;
     }
 
-    // Plataforma Y=17 (completa)
-    for (int x = 0; x < mapWidth; x++) {
-        level[17][x] = 1;
-        hitboxLevel[17][x] = 1;
+    // Plataforma Y=18 
+    for (int x = 2; x < mapWidth - 2; x++) {
+        level[18][x] = 1;
+        hitboxLevel[18][x] = 1;
     }
 
-    // Plataforma Y=13 (izquierda)
-    for (int x = 0; x < mapWidth - 4; x++) {
-        level[13][x] = 1;
-        hitboxLevel[13][x] = 1;
+    // Plataforma Y=14 
+    for (int x = 3; x < mapWidth - 3; x++) {
+        level[14][x] = 1;
+        hitboxLevel[14][x] = 1;
     }
 
-    // Plataforma Y=9 (derecha)
-    for (int x = 4; x < mapWidth; x++) {
-        level[9][x] = 1;
-        hitboxLevel[9][x] = 1;
+    // Plataforma Y=10 
+    for (int x = 4; x < mapWidth - 4; x++) {
+        level[10][x] = 1;
+        hitboxLevel[10][x] = 1;
     }
 
-    // Plataforma Y=5 (izquierda)
-    for (int x = 0; x < mapWidth - 4; x++) {
-        level[5][x] = 1;
-        hitboxLevel[5][x] = 1;
+    // Plataforma Y=6 
+    for (int x = 5; x < mapWidth - 5; x++) {
+        level[6][x] = 1;
+        hitboxLevel[6][x] = 1;
     }
 
-    // Plataforma superior Y=3 (central)
+    // Plataforma superior Y=3
     for (int x = mapWidth / 2 - 3; x < mapWidth / 2 + 3; x++) {
         level[3][x] = 1;
         hitboxLevel[3][x] = 1;
@@ -121,7 +121,7 @@ void Scene2::AddLadder(int startY, int endY, int x,
 
 void Scene2::Draw() {
     int scaledTileSize = tileSize * tileScale;
-    int offsetY = platformHitboxOffsetY;
+    int offsetY = platformHitboxOffsetY * tileScale;;
     int visualHeight = 16;
 
     // Dibujar plataformas

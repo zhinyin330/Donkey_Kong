@@ -19,7 +19,7 @@ private:
     Texture2D ladderTexture;
 
     static const int platformHitboxHeight = 8;
-    static const int platformHitboxOffsetY = 16;
+    static const int platformHitboxOffsetY = 8;
 
     void AddLadder(int startY, int endY, int x,
         const std::vector<int>& visual,
@@ -34,10 +34,11 @@ public:
     bool IsLadder(int x, int y) override;
     int GetLadderType(int x, int y) override;
     int GetLadderHitbox(int x, int y) override;
-    int GetVisualOffsetY(int x, int y) override { return platformHitboxOffsetY; }
+    int GetVisualOffsetY(int x, int y) override { return platformHitboxOffsetY * tileScale;
+    }
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
-    int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY; }
+    int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale;}
 
     // Métodos de transición (aunque no se usen, deben estar)
     Rectangle GetTransitionZone() override { return { 0, 0, 0, 0 }; }
