@@ -31,7 +31,7 @@ Player::Player() {
 
     // Variables
     currentTexture = idleTexture;
-    speed = 5.0f;
+    speed = 3.5f;
     velocityY = 0.0f;
     gravity = 0.3f;
     isJumping = false;
@@ -53,7 +53,7 @@ Player::Player() {
     jumpHitboxHeight = feetOffset - jumpHitboxOffsetY;
 
     int tileSize = 32;
-    int startTileX = 2;
+    int startTileX = 5;
     int startTileY = 21;
     int platformOffsetY = 8;
 
@@ -192,7 +192,7 @@ void Player::HandleInput(GameScene& scene) {
     // Movimiento normal
     if (currentState != PlayerState::CLIMBING) {
         if (IsKeyPressed(KEY_SPACE) && !isJumping) {
-            velocityY = -7.5f;
+            velocityY = -10.8f;
             isJumping = true;
             PlaySound(jumpSound);
         }
@@ -679,8 +679,15 @@ void Player::Update(GameScene& scene) {
 
         int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
 
-        int checkLeftTile = leftTile - 1;
-        int checkRightTile = rightTile + 1;
+        int checkLeftTile = leftTile;
+        int checkRightTile = rightTile;
+
+        // Solo ampliar búsqueda si la escena lo requiere (Scene 1)
+        if (scene.CheckAdjacentTiles()) {
+            checkLeftTile = leftTile - 1;
+            checkRightTile = rightTile + 1;
+        }
+
         if (checkLeftTile < 0) checkLeftTile = 0;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
 
@@ -717,8 +724,15 @@ void Player::Update(GameScene& scene) {
         bool hitCeiling = false;
         float ceilingY = nextY;
 
-        int checkLeftTile = leftTile - 1;
-        int checkRightTile = rightTile + 1;
+        int checkLeftTile = leftTile;
+        int checkRightTile = rightTile;
+
+        // Solo ampliar búsqueda si la escena lo requiere (Scene 1)
+        if (scene.CheckAdjacentTiles()) {
+            checkLeftTile = leftTile - 1;
+            checkRightTile = rightTile + 1;
+        }
+
         if (checkLeftTile < 0) checkLeftTile = 0;
         int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;

@@ -17,6 +17,9 @@ private:
 
     Texture2D tileTexture;
     Texture2D ladderTexture;
+    Texture2D pillarTexture;  // Textura del pilar
+    std::vector<Vector2> pillars;     // Vector de posiciones de pilares (solo visual)
+
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -24,6 +27,9 @@ private:
     void AddLadder(int startY, int endY, int x,
         const std::vector<int>& visual,
         const std::vector<int>& hitboxes);
+
+    // NUEVO: Método para añadir pilar
+    void AddPillar(int tileX, int tileY);
 
 public:
     Scene2();
@@ -39,9 +45,11 @@ public:
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
     int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale;}
+    bool CheckAdjacentTiles() override { return false; }
 
     // Métodos de transición (aunque no se usen, deben estar)
     Rectangle GetTransitionZone() override { return { 0, 0, 0, 0 }; }
     bool IsTransitionReached() override { return false; }
     void SetTransitionReached(bool val) override {}
+
 };

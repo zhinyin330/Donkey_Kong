@@ -39,7 +39,7 @@ void InitGameScene2()
     gamePlayer = new Player();
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::STATIONARY);     // Scene 2: decorativo
-    gameEnemy->SetPosition(317, 130);                      // Posición diferente
+    gameEnemy->SetPosition(340, 130);                      // Posición diferente
     gameStars = new NewMechanic();
 
     isScene2 = true;

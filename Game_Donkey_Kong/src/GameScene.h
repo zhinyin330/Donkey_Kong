@@ -15,6 +15,7 @@ public:
     virtual int GetTileSize() = 0;
     virtual int GetPlatformHitboxHeight() = 0;
     virtual int GetPlatformHitboxOffsetY() = 0;
+    virtual bool CheckAdjacentTiles() { return true; }
 
     // Métodos estáticos para tamaño de pantalla
     static int GetScreenWidth() { return 25 * 16 * 2; }   // mapWidth * tileSize * tileScale
