@@ -51,8 +51,18 @@ Scene2::Scene2() {
 
     // ========== ESCALERAS ==========
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=17)
-    AddLadder(21, 17, 9, { 1, 2, 1, 1 }, { 1, 0, 1, 0 });
-    AddLadder(21, 17, 20, { 1, 1, 1, 1 }, { 1, 1, 1, 0 });
+    AddLadder(21, 17, 2, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
+    AddLadder(21, 17, 22, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
+    AddLadder(21, 17, 11, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
+
+    // Tramo 2: Plataforma 1  a Plataforma 2 
+    AddLadder(18, 14, 3, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(18, 14, 21, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(18, 14, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(18, 14, 13, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+
+    // Tramo 3: Plataforma 1  a Plataforma 2 
+    AddLadder(14, 10, 20, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 }
 
 Scene2::~Scene2() {
@@ -145,8 +155,8 @@ void Scene2::Draw() {
         for (int x = 0; x < mapWidth; x++) {
             int ladderType = ladderLevel[y][x];
             if (ladderType > 0 && level[y][x] != 1) {
-                float globalAdjust = -6.6f;
-                float verticalStretch = 1.2f;
+                float globalAdjust = -15.0f;
+                float verticalStretch = 1.5f;
                 int extraWidth = 6;
 
                 Rectangle source;
@@ -181,6 +191,60 @@ void Scene2::Draw() {
                 }
 
                 DrawTexturePro(ladderTexture, source, dest, { 0,0 }, 0.0f, WHITE);
+            }
+        }
+    }
+    // DEBUG: Dibujar hitboxes de escaleras (tamaño real)
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int hitboxType = ladderHitbox[y][x];
+            if (hitboxType >= 1) {
+                Color ladderColor;
+                Rectangle hitboxRect;
+
+                switch (hitboxType) {
+                case 1: // Completa
+                    ladderColor = GREEN;
+                    hitboxRect = {
+                        (float)(x * scaledTileSize),
+                        (float)(y * scaledTileSize),
+                        (float)scaledTileSize,
+                        (float)scaledTileSize
+                    };
+                    break;
+
+                case 2: // Mitad inferior
+                    ladderColor = BLUE;
+                    hitboxRect = {
+                        (float)(x * scaledTileSize),
+                        (float)(y * scaledTileSize) + scaledTileSize / 2.0f,
+                        (float)scaledTileSize,
+                        (float)scaledTileSize / 2.0f
+                    };
+                    break;
+
+                case 3: // Mitad superior
+                    ladderColor = YELLOW;
+                    hitboxRect = {
+                        (float)(x * scaledTileSize),
+                        (float)(y * scaledTileSize),
+                        (float)scaledTileSize,
+                        (float)scaledTileSize / 2.0f
+                    };
+                    break;
+
+                default:
+                    ladderColor = PURPLE;
+                    hitboxRect = {
+                        (float)(x * scaledTileSize),
+                        (float)(y * scaledTileSize),
+                        (float)scaledTileSize,
+                        (float)scaledTileSize
+                    };
+                    break;
+                }
+
+                DrawRectangleLinesEx(hitboxRect, 2.0f, ladderColor);
             }
         }
     }
