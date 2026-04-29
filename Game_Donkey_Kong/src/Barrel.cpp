@@ -6,7 +6,7 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     type = t;
     position = pos;
 
-    speed = 60.0f;
+    speed = 40.0f;
     movingRight = true;
     state = BarrelState::ROLLING;
 
@@ -41,7 +41,7 @@ void Barrel::UpdateAnimation()
     if (frameCounter >= frameSpeed)
     {
         frameCounter = 0.0f;
-        currentFrame = (currentFrame + 1) % 4;
+        currentFrame = (currentFrame + 1) % frames.size();
     }
 }
 
@@ -61,45 +61,62 @@ void Barrel::Update(GameScene& scene)
     // =========================
     // 2当前 tile
     // =========================
-    int tileX = (int)(position.x / tileSize);
-    int tileY = (int)(position.y / tileSize);
+    int tileX = (int)((position.x ) / tileSize);
+    int tileY = (int)((position.y + groundOffset) / tileSize);
 
+    bool onGround = scene.IsSolid(tileX, tileY + 1);
     // =========================
     // 贴地逻辑
     // =========================
-    bool foundGround = false;
+
+    bool groundFound = false;
+    bool justLanded = false;
 
     for (int y = tileY; y < 22; y++)
     {
         if (scene.IsSolid(tileX, y))
         {
             float groundY = y * tileSize + scene.GetVisualOffsetY(tileX, y);
-            position.y = groundY - groundOffset;
-            foundGround = true;
+
+            if (position.y + groundOffset <= groundY + 6.0f)
+            {
+                position.y = groundY - groundOffset;
+
+                // ⭐ 如果是从掉落状态落地 → 必须反向
+                if (state == BarrelState::FALLING)
+                {
+                    movingRight = !movingRight;
+                }
+
+                state = BarrelState::ROLLING;
+                groundFound = true;
+            }
             break;
         }
     }
 
-
     // =========================
     // 掉落
     // =========================
-    if (!foundGround && state == BarrelState::FALLING)
+    if (!groundFound && state == BarrelState::FALLING)
     {
-        position.y += 200.0f * dt;
+        position.y += 220.0f * dt;
     }
+
 
     // =========================
     // 边缘检测（反向 + 掉层）
     // =========================
-    int nextX = movingRight ? tileX + 1 : tileX - 1;
+    int nextX = tileX + (movingRight ? 1 : -1);
+    bool hasGroundAhead = scene.IsSolid(nextX, tileY + 1);
 
-    if (!scene.IsSolid(nextX, tileY))
+    if (state == BarrelState::ROLLING && onGround && !hasGroundAhead)
     {
-        // DK经典：掉层 + 反向
         state = BarrelState::FALLING;
-        position.y += 2.0f; // 小推进避免卡边缘
-        movingRight = !movingRight;
+
+        // ⭐ 轻微推出边缘，避免卡 tile
+        position.x += (movingRight ? 1 : -1) * 5.0f;
+        position.y += 2.0f;
     }
 }
 
