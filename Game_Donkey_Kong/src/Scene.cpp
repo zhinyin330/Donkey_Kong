@@ -5,7 +5,7 @@ Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
-    blueBarrelTexture = LoadTexture("Items/Dk_OilCanister.png");  // tongtong
+
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
     // Inicializar vectores con tamaño correcto
@@ -182,7 +182,6 @@ Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
-    UnloadTexture(blueBarrelTexture);
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -377,24 +376,6 @@ void Scene::Draw() {
             }
         }
     }
-
-
-        // ... 前面所有绘制平台、楼梯、普通桶的代码保持不变 ...
-
-        // ========== 蓝色桶 - 屏幕左下角固定位置 ==========
-        float blueScale = 3.5f;
-        float blueBarrelW = blueBarrelTexture.width * blueScale;
-        float blueBarrelH = blueBarrelTexture.height * blueScale;
-
-        // 固定在屏幕左下角，留出边距
-        Vector2 blueBarrelPos = {
-            15.0f,                                    // X: 左边距20像素
-            (float)GetScreenHeight() - blueBarrelH - 20.0f  // Y: 屏幕底部减去桶高和边距
-        };
-
-        DrawTextureEx(blueBarrelTexture, blueBarrelPos, 2.0f, blueScale, BLUE);
-
-    
 
     // Dibujar zona de transición
     DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);

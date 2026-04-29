@@ -19,8 +19,6 @@ private:
     Texture2D tileTexture;
     Texture2D ladderTexture;
     Texture2D barrelTexture;
-    Texture2D blueBarrelTexture;
-
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -28,8 +26,6 @@ private:
     void AddLadder(int startY, int endY, int x,
         const std::vector<int>& visual,
         const std::vector<int>& hitboxes);
-
- 
 
     // Zona de transición
     Rectangle transitionZone;
