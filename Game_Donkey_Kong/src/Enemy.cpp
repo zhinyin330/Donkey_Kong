@@ -10,8 +10,8 @@ Enemy::Enemy()
     isGoingForward(true),
     frameCounter(0.0f),
     frameSpeed(0.5f),
-    position({ 95.0f, 118.0f }),
-    scale(2.8f),
+    position({ 95.0f, 130.0f }),
+    scale(2.5f),
     currentBarrelType(BarrelType::NORMAL),
     behavior(EnemyBehavior::THROW_BARRELS) // (^^)d
 {

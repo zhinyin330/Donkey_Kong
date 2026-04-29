@@ -2,8 +2,8 @@
 #include "resource_dir.h" 
 
 Scene::Scene() {
-    tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
-    ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
+    tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
+    ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
