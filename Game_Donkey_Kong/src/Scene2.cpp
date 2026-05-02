@@ -4,7 +4,6 @@
 Scene2::Scene2() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
-    pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
     // Inicializar vectores
     level.resize(mapHeight, std::vector<int>(mapWidth, 0));
@@ -45,7 +44,7 @@ Scene2::Scene2() {
     }
 
     // Plataforma superior Y=3
-    for (int x = mapWidth / 2 - 4; x < mapWidth / 2 + 5; x++) {
+    for (int x = mapWidth / 2 - 3; x < mapWidth / 2 + 3; x++) {
         level[3][x] = 1;
         hitboxLevel[3][x] = 1;
     }
@@ -54,34 +53,21 @@ Scene2::Scene2() {
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=17)
     AddLadder(21, 17, 2, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
     AddLadder(21, 17, 22, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
-    AddLadder(21, 17, 12, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
+    AddLadder(21, 17, 11, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
 
     // Tramo 2: Plataforma 1  a Plataforma 2 
     AddLadder(18, 14, 3, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(18, 14, 21, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(18, 14, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-    AddLadder(18, 14, 15, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(18, 14, 13, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
-    // Tramo 3: Plataforma 2  a Plataforma 3 
-    AddLadder(14, 10, 4, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    // Tramo 3: Plataforma 1  a Plataforma 2 
     AddLadder(14, 10, 20, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-    AddLadder(14, 10, 12, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-
-    // Tramo 3: Plataforma 3  a Plataforma 4
-    AddLadder(10, 6, 5, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-    AddLadder(10, 6, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-    AddLadder(10, 6, 15, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-    AddLadder(10, 6, 19, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-
-    // ========== PILARES ==========
-    AddPillar(0, 21);
-
 }
 
 Scene2::~Scene2() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
-    UnloadTexture(pillarTexture);
 }
 
 bool Scene2::IsSolid(int x, int y) {
@@ -141,20 +127,6 @@ void Scene2::AddLadder(int startY, int endY, int x,
             }
         }
     }
-}
-
-void Scene2::AddPillar(int tileX, int tileY) {
-    // Buscar desde tileY hacia abajo hasta encontrar el suelo
-    int groundY = tileY;
-    for (int y = tileY; y < mapHeight; y++) {
-        if (hitboxLevel[y][tileX] == 1) {
-            groundY = y;
-            break;
-        }
-    }
-
-    // Guardar posición X del pilar y la Y del suelo donde se apoya
-    pillars.push_back({ (float)tileX, (float)groundY });
 }
 
 void Scene2::Draw() {
@@ -222,23 +194,6 @@ void Scene2::Draw() {
             }
         }
     }
-
-    // ========== DIBUJAR PILARES ==========
-    float pillarScale = 2.0f;
-    float pillarWidth = pillarTexture.width * pillarScale;
-    float pillarHeight = pillarTexture.height * pillarScale;
-
-    for (auto& pillar : pillars) {
-        int tileX = (int)pillar.x;
-        int groundY = (int)pillar.y;
-
-        // Calcular posición: centrado en X, apoyado en la plataforma
-        float posX = tileX * scaledTileSize + (scaledTileSize - pillarWidth) / 2.0f;
-        float posY = groundY * scaledTileSize + offsetY - pillarHeight;
-
-        DrawTextureEx(pillarTexture, { posX, posY }, 0.0f, pillarScale, WHITE);
-    }
-
     // DEBUG: Dibujar hitboxes de escaleras (tamaño real)
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
