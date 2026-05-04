@@ -73,7 +73,7 @@ Scene2::Scene2() {
     AddLadder(10, 6, 19, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
     // ========== PILARES ==========
-    AddPillar(0, 21);
+    AddPillar(1, 1);
 }
 
 Scene2::~Scene2() {
