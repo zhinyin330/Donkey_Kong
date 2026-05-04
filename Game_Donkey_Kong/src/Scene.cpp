@@ -170,13 +170,8 @@ Scene::Scene() {
         { 0, 0, 3, 0 },    // VISUAL
         { 0, 0, 0, 0 });   // HITBOX
 
-    // Zona de transición (arriba a la derecha)
-    transitionZone = {
-        (float)(18 * 32),  // X: tile 18
-        (float)(1 * 32),   // Y: tile 1 (parte superior)
-        32.0f * 3,          // Ancho: 3 tiles
-        32.0f * 2           // Alto: 2 tiles
-    };
+    // Zona de transición 
+    transitionZone = { 0, 0, 0, 0 };
     transitionReached = false;
 }
 
@@ -393,7 +388,4 @@ void Scene::Draw() {
         }
     }
 
-    // Dibujar zona de transición
-    DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
-    DrawText("LVL2", transitionZone.x + 20, transitionZone.y + 10, 20, GREEN);
 }
