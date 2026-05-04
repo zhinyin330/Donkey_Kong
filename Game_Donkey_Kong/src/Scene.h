@@ -19,6 +19,7 @@ private:
     Texture2D tileTexture;
     Texture2D ladderTexture;
     Texture2D barrelTexture;
+    Texture2D oilCanisterTexture;//tongtong
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
