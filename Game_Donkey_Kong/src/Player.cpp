@@ -679,8 +679,13 @@ void Player::Update(GameScene& scene) {
 
         int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
 
-        int checkLeftTile = leftTile - 1;
-        int checkRightTile = rightTile + 1;
+        int checkLeftTile = leftTile;
+        int checkRightTile = rightTile;
+
+        if (scene.CheckAdjacentTiles()) {
+            checkLeftTile = leftTile - 1;
+            checkRightTile = rightTile + 1;
+        }
         if (checkLeftTile < 0) checkLeftTile = 0;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
 
@@ -717,8 +722,13 @@ void Player::Update(GameScene& scene) {
         bool hitCeiling = false;
         float ceilingY = nextY;
 
-        int checkLeftTile = leftTile - 1;
-        int checkRightTile = rightTile + 1;
+        int checkLeftTile = leftTile;
+        int checkRightTile = rightTile;
+
+        if (scene.CheckAdjacentTiles()) {
+            checkLeftTile = leftTile - 1;
+            checkRightTile = rightTile + 1;
+        }
         if (checkLeftTile < 0) checkLeftTile = 0;
         int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;

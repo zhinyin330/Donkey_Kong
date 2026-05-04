@@ -14,9 +14,12 @@ private:
     std::vector<std::vector<int>> hitboxLevel;
     std::vector<std::vector<int>> ladderLevel;
     std::vector<std::vector<int>> ladderHitbox;
+    std::vector<Vector2> pillars;
 
     Texture2D tileTexture;
     Texture2D ladderTexture;
+    Texture2D pillarTexture;
+
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -24,6 +27,7 @@ private:
     void AddLadder(int startY, int endY, int x,
         const std::vector<int>& visual,
         const std::vector<int>& hitboxes);
+    void AddPillar(int tileX, int tileY);
 
 public:
     Scene2();
@@ -44,4 +48,5 @@ public:
     Rectangle GetTransitionZone() override { return { 0, 0, 0, 0 }; }
     bool IsTransitionReached() override { return false; }
     void SetTransitionReached(bool val) override {}
+    bool CheckAdjacentTiles() override { return false; }
 };

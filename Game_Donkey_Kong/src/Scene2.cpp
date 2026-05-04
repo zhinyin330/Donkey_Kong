@@ -61,13 +61,25 @@ Scene2::Scene2() {
     AddLadder(18, 14, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(18, 14, 13, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
-    // Tramo 3: Plataforma 1  a Plataforma 2 
+    // Tramo 3: Plataforma 2  a Plataforma 3 
+    AddLadder(14, 10, 4, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(14, 10, 20, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(14, 10, 12, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+
+    // Tramo 4: Plataforma 3  a Plataforma 4
+    AddLadder(10, 6, 5, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(10, 6, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(10, 6, 15, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(10, 6, 19, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+
+    // ========== PILARES ==========
+    AddPillar(0, 21);
 }
 
 Scene2::~Scene2() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
+    UnloadTexture(pillarTexture);
 }
 
 bool Scene2::IsSolid(int x, int y) {
@@ -88,6 +100,10 @@ int Scene2::GetLadderType(int x, int y) {
 int Scene2::GetLadderHitbox(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return 0;
     return ladderHitbox[y][x];
+}
+
+void Scene2::AddPillar(int tileX, int tileY) {
+    pillars.push_back({ (float)tileX, (float)tileY });
 }
 
 void Scene2::AddLadder(int startY, int endY, int x,
@@ -247,5 +263,19 @@ void Scene2::Draw() {
                 DrawRectangleLinesEx(hitboxRect, 2.0f, ladderColor);
             }
         }
+    }
+
+    float pillarScale = 2.0f;
+    float pillarWidth = pillarTexture.width * pillarScale;
+    float pillarHeight = pillarTexture.height * pillarScale;
+
+    for (auto& pillar : pillars) {
+        int tileX = (int)pillar.x;
+        int tileY = (int)pillar.y;
+
+        float posX = tileX * scaledTileSize + (scaledTileSize - pillarWidth) / 2.0f;
+        float posY = tileY * scaledTileSize + offsetY - pillarHeight;
+
+        DrawTextureEx(pillarTexture, { posX, posY }, 0.0f, pillarScale, WHITE);
     }
 }

@@ -16,6 +16,7 @@ public:
     virtual int GetPlatformHitboxHeight() = 0;
     virtual int GetPlatformHitboxOffsetY() = 0;
 
+
     // Métodos estáticos para tamaño de pantalla
     static int GetScreenWidth() { return 25 * 16 * 2; }   // mapWidth * tileSize * tileScale
     static int GetScreenHeight() { return 22 * 16 * 2; }  // mapHeight * tileSize * tileScale
@@ -24,4 +25,5 @@ public:
     virtual Rectangle GetTransitionZone() { return { 0, 0, 0, 0 }; }
     virtual bool IsTransitionReached() { return false; }
     virtual void SetTransitionReached(bool val) {}
+    virtual bool CheckAdjacentTiles() { return true; }
 };
