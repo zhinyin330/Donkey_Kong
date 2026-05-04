@@ -5,6 +5,8 @@ Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
+    barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
+    oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
@@ -177,6 +179,7 @@ Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
+    UnloadTexture(oilCanisterTexture);//tongtong
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -249,6 +252,19 @@ int Scene::GetVisualOffsetY(int x, int y) {
 }
 
 void Scene::Draw() {
+    
+    // 在左下角背景绘制油罐
+// 在左下角背景绘制油罐，并向右上调整位置
+    if (oilCanisterTexture.id != 0) {
+        float oilScale = 3.0f;        // 放大到 3 倍（原先是 2.0）
+        
+        float yOffset = -20.0f;
+        float worldBottomY = mapHeight * tileSize * tileScale;
+        float yPos = worldBottomY - oilCanisterTexture.height * oilScale + yOffset;
+        DrawTextureEx(oilCanisterTexture, Vector2{ 0, yPos }, 0.0f, oilScale, WHITE);
+    }
+
+    
     int scaledTileSize = tileSize * tileScale;
     int platformVisualHeight = 22;
 
@@ -306,8 +322,8 @@ void Scene::Draw() {
                 float verticalStretch = 1.2f;
                 int extraWidth = 6;
 
-                Rectangle source;
-                Rectangle dest;
+                Rectangle source = { 0 };
+                Rectangle dest = { 0 };
 
                 if (ladderType == 1) {
                     source = { 0, 0, 16, 16 };
