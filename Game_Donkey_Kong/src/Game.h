@@ -8,8 +8,10 @@ enum GameScreen
 	INTRO = 0,
 	MENU,
 	GAMEPLAY,
+	TRANSITION,
 	SCENE_TEST
 };
+
 
 // 游戏主循环函数声明
 void DrawGame(GameScreen* currentScreen);

@@ -55,7 +55,7 @@ Scene2::Scene2() {
     }
 
     // Plataforma superior Y=3
-    for (int x = mapWidth / 2 - 3; x < mapWidth / 2 + 3; x++) {
+    for (int x = mapWidth / 2 - 4; x < mapWidth / 2 + 4; x++) {
         level[3][x] = 1;
         hitboxLevel[3][x] = 1;
     }
@@ -64,13 +64,13 @@ Scene2::Scene2() {
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=17)
     AddLadder(21, 17, 2, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
     AddLadder(21, 17, 22, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
-    AddLadder(21, 17, 11, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
+    AddLadder(21, 17, 12, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
 
     // Tramo 2: Plataforma 1  a Plataforma 2 
     AddLadder(18, 14, 3, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(18, 14, 21, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(18, 14, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
-    AddLadder(18, 14, 13, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(18, 14, 15, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
     // Tramo 3: Plataforma 2  a Plataforma 3 
     AddLadder(14, 10, 4, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
@@ -85,14 +85,14 @@ Scene2::Scene2() {
 
     // ========== PILARES ==========
     //Left
-    AddPillar(290, 125);
-    AddPillar(290, 145);
-    AddPillar(290, 175);
+    AddPillar(295, 125);
+    AddPillar(295, 145);
+    AddPillar(295, 175);
 
     //Right
-    AddPillar(450, 125);
-    AddPillar(450, 145);
-    AddPillar(450, 175);
+    AddPillar(445, 125);
+    AddPillar(445, 145);
+    AddPillar(445, 175);
 
 }
 

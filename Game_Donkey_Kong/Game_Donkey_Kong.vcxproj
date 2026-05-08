@@ -314,6 +314,7 @@
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Scene2.h" />
+    <ClInclude Include="src\Transition.h" />
     <ClInclude Include="src\oilCaniterFire.h" />
   </ItemGroup>
   <ItemGroup>
@@ -328,6 +329,7 @@
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Scene2.cpp" />
+    <ClCompile Include="src\Transition.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\oilCaniterFire.cpp" />
     <ClCompile Include="src\prova11.cpp" />
