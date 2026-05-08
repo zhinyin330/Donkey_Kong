@@ -243,6 +243,23 @@
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="build\external\raylib-master\src\config.h" />
+    <ClInclude Include="build\external\raylib-master\src\raylib.h" />
+    <ClInclude Include="build\external\raylib-master\src\raymath.h" />
+    <ClInclude Include="build\external\raylib-master\src\rcamera.h" />
+    <ClInclude Include="build\external\raylib-master\src\rgestures.h" />
+    <ClInclude Include="build\external\raylib-master\src\rlgl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="build\external\raylib-master\src\raudio.c" />
+    <ClCompile Include="build\external\raylib-master\src\rcore.c" />
+    <ClCompile Include="build\external\raylib-master\src\rglfw.c" />
+    <ClCompile Include="build\external\raylib-master\src\rmodels.c" />
+    <ClCompile Include="build\external\raylib-master\src\rshapes.c" />
+    <ClCompile Include="build\external\raylib-master\src\rtext.c" />
+    <ClCompile Include="build\external\raylib-master\src\rtextures.c" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
