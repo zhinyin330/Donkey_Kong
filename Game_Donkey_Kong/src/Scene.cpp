@@ -5,6 +5,8 @@ Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
+    barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
+    oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
@@ -106,59 +108,59 @@ Scene::Scene() {
     // Tramo 2: Plataforma 1 (Y=18) a Plataforma 2 (Y=15)
     AddLadder(18, 15, 4,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 0 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(18, 15, 11,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2});   // HITBOX
 
     // Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
     AddLadder(15, 12, 7,
         { 1, 2, 1, 3 },    // VISUAL
-        { 0, 0, 2, 3 });   // HITBOX
+        { 0, 0, 2, 2 });   // HITBOX
 
     AddLadder(15, 12, 13,
         { 1, 1, 1, 1 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(15, 12, 20,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     // Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
     AddLadder(12, 9, 4,
         { 1, 1, 1, 1 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(12, 9, 8,
         { 1, 1, 1, 1 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(12, 9, 18,
         { 1, 2, 1, 3 },    // VISUAL
-        { 0, 0, 2, 3 });   // HITBOX
+        { 0, 0, 2, 2 });   // HITBOX
 
     // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
     AddLadder(9, 6, 10,
-        { 1, 2, 1, 3 },    // VISUAL
-        { 0, 0, 2, 3 });   // HITBOX
+        { 1, 2, 1, 0 },    // VISUAL
+        { 0, 0, 2, 2 });   // HITBOX
 
     AddLadder(9, 6, 20,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
     AddLadder(6, 3, 7,
         { 1, 1, 1, 1 },    // VISUAL
-        { 1, 1, 1, 3 });   // HITBOX
+        { 1, 1, 1, 0 });   // HITBOX
 
     AddLadder(6, 3, 9,
         { 1, 1, 1, 1 },    // VISUAL
-        { 1, 1, 1, 3 });   // HITBOX
+        { 1, 1, 1, 0 });   // HITBOX
 
     AddLadder(6, 3, 14,
         { 1, 1, 1, 1 },    // VISUAL
-        { 2, 1, 1, 3 });   // HITBOX
+        { 2, 1, 1, 0 });   // HITBOX
 
     AddLadder(0, 2, 7,
         { 0, 0, 3, 0 },    // VISUAL
@@ -168,13 +170,8 @@ Scene::Scene() {
         { 0, 0, 3, 0 },    // VISUAL
         { 0, 0, 0, 0 });   // HITBOX
 
-    // Zona de transición (arriba a la derecha)
-    transitionZone = {
-        (float)(18 * 32),  // X: tile 18
-        (float)(1 * 32),   // Y: tile 1 (parte superior)
-        32.0f * 3,          // Ancho: 3 tiles
-        32.0f * 2           // Alto: 2 tiles
-    };
+    // Zona de transición 
+    transitionZone = { 0, 0, 0, 0 };
     transitionReached = false;
 }
 
@@ -182,6 +179,7 @@ Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
+    UnloadTexture(oilCanisterTexture);//tongtong
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -254,6 +252,21 @@ int Scene::GetVisualOffsetY(int x, int y) {
 }
 
 void Scene::Draw() {
+    
+    // 在左下角背景绘制油罐
+// 在左下角背景绘制油罐，并向右上调整位置
+    if (oilCanisterTexture.id != 0) {
+        float oilScale = 2.5f;        // 放大到 3 倍（原先是 2.0）
+        float xOffset = -700.0f;
+        float yOffset = -16.0f;
+        float worldBottomY = mapHeight * tileSize * tileScale;
+        float worldBottomX = mapWidth * tileSize * tileScale;
+        float yPos = worldBottomY - oilCanisterTexture.height * oilScale + yOffset;
+        float xPos = worldBottomX - oilCanisterTexture.height * oilScale + xOffset;
+        DrawTextureEx(oilCanisterTexture, Vector2{ xPos, yPos }, 0.0f, oilScale, WHITE);
+    }
+
+    
     int scaledTileSize = tileSize * tileScale;
     int platformVisualHeight = 22;
 
@@ -311,8 +324,8 @@ void Scene::Draw() {
                 float verticalStretch = 1.2f;
                 int extraWidth = 6;
 
-                Rectangle source;
-                Rectangle dest;
+                Rectangle source = { 0 };
+                Rectangle dest = { 0 };
 
                 if (ladderType == 1) {
                     source = { 0, 0, 16, 16 };
@@ -376,7 +389,76 @@ void Scene::Draw() {
             }
         }
     }
-
+    #ifdef _DEBUG
+    // 只在 Debug 模式下显示，Release 模式会自动移除
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int ladderHitboxValue = ladderHitbox[y][x];
+            if (ladderHitboxValue > 0) {
+                // 计算梯子碰撞框的世界坐标
+                int offsetY = visualOffsetY[y][x];
+                
+                Rectangle hitboxRect;
+                float globalAdjust = -6.6f;
+                float verticalStretch = 1.2f;
+                int extraWidth = 6;
+                
+                // 根据梯子类型计算碰撞框大小
+                if (ladderHitboxValue == 1) {
+                    hitboxRect = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + offsetY + globalAdjust,
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch
+                    };
+                }
+                else if (ladderHitboxValue == 2) {
+                    hitboxRect = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + offsetY + globalAdjust,
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch * 0.5f
+                    };
+                }
+                else if (ladderHitboxValue == 3) {
+                    hitboxRect = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + offsetY + globalAdjust + (scaledTileSize * verticalStretch * 0.5f),
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch * 0.5f
+                    };
+                }
+                else {
+                    // 默认碰撞框
+                    hitboxRect = {
+                        (float)(x * scaledTileSize),
+                        (float)(y * scaledTileSize) + offsetY,
+                        (float)scaledTileSize,
+                        (float)scaledTileSize
+                    };
+                }
+                
+                // 根据梯子类型使用不同颜色
+                Color debugColor;
+                switch (ladderHitboxValue) {
+                    case 1: debugColor = RED; break;      // 完整梯子
+                    case 2: debugColor = GREEN; break;    // 上半部分
+                    case 3: debugColor = BLUE; break;     // 下半部分
+                    default: debugColor = YELLOW; break;
+                }
+                
+                // 绘制半透明填充和边框
+                DrawRectangleRec(hitboxRect, Fade(debugColor, 0.3f));  // 半透明填充
+                DrawRectangleLinesEx(hitboxRect, 2.0f, debugColor);     // 边框
+                
+                // 可选：显示 Hitbox 数值
+                char text[4];
+                snprintf(text, sizeof(text), "%d", ladderHitboxValue);
+                DrawText(text, hitboxRect.x + 5, hitboxRect.y + 5, 12, WHITE);
+            }
+        }
+    }
+    #endif
     // Dibujar zona de transición
     DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
     DrawText("LVL2", transitionZone.x + 20, transitionZone.y + 10, 20, GREEN);

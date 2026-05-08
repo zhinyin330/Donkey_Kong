@@ -10,8 +10,15 @@ enum class BarrelType {
 };
 
 enum class BarrelState {
-    ROLLING,
-    FALLING
+    ROLLING,      // 水平滚动
+    FALLING,      // 普通掉落
+    VERTICAL_DROP // 指定位置纵向下落
+};
+
+struct VerticalDropTrigger
+{
+    float x;
+    float y;
 };
 
 class Barrel {
@@ -24,6 +31,9 @@ class Barrel {
         void Draw();
     private:
         void UpdateAnimation();
+        void LoadFrames();  //加载动画帧的方法
+        // 检测是否触发纵向下落
+        bool CheckVerticalDropTrigger();
 
     private:
         BarrelType type;
@@ -31,13 +41,39 @@ class Barrel {
 
         Vector2 position;
         float speed;
+
+        // 纵向下落速度
+        float verticalDropSpeed;
         bool movingRight;
 
-        float groundOffset; // 贴地修正
+        int targetPlatformY;
 
+        float groundOffset; // 地面贴合偏移
         // ===== 动画 =====
         std::vector<Texture2D> frames;
         int currentFrame;
         float frameCounter;
         float frameSpeed;
+
+        // ===== 动画分组 =====
+        //  以下4个为新增
+        std::vector<Texture2D> rollingFrames;      // 普通滚动动画帧
+        std::vector<Texture2D> fallingFrames;      // 掉落动画帧
+        std::vector<Texture2D> currentAnimationFrames;  // 当前使用的动画组
+
+        // 调试触发点
+        std::vector<VerticalDropTrigger> verticalDropTriggers;
+
+    public:
+        // 以下3个为新增
+        Vector2 GetPosition() const { return position; }
+        float GetWidth() const
+        {
+            return rollingFrames.empty() ? 0 : rollingFrames[0].width * 2.5f;
+        }
+
+        float GetHeight() const
+        {
+            return rollingFrames.empty() ? 0 : rollingFrames[0].height * 2.5f;
+        }
 };

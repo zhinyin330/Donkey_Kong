@@ -105,7 +105,21 @@ void DrawGame(GameScreen* currentScreen)
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
-
+    // ========== 新增 ==========
+    if (isScene2) {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2) {
+            Rectangle playerHitbox = {
+                gamePlayer->GetPosition().x,
+                gamePlayer->GetPosition().y + 2 * gamePlayer->GetScale(),
+                gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
+                14 * gamePlayer->GetScale()
+            };
+            scene2->CheckItemCollision(playerHitbox, gamePlayer);
+        }
+    }
+    // ========== 新增结束 ==========
+    
     // Temporal cambio de escenas
     if (IsKeyPressed(KEY_T) && !isScene2)
     {
@@ -160,16 +174,6 @@ void DrawGame(GameScreen* currentScreen)
     gamePlayer->Draw();
     gameEnemy->Draw();
     gameStars->Draw();
-
-    // temporal: mostrar info
-    if (isScene2)
-    {
-        DrawText("SCENE 2 - Nivel 2", 10, 10, 20, GREEN);
-    }
-    else
-    {
-        DrawText("SCENE 1 - Nivel 1", 10, 10, 20, YELLOW);
-    }
 
     // ===== RESET =====
     if (shouldReset)

@@ -1,9 +1,20 @@
 ﻿#include "Scene2.h"
 #include "resource_dir.h" 
+#include "Player.h" 
 
 Scene2::Scene2() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
+    // 加分物品
+    item1Texture = LoadTexture("Items/Dk_Item1.png");
+    item3Texture = LoadTexture("Items/Dk_Item3.png");
+    item1Pos = { 670.0f, 562.0f };
+    item3Pos = { 160.0f, 180.0f };
+    item1Active = true;
+    item3Active = true;
+   
+   
+    pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
     // Inicializar vectores
     level.resize(mapHeight, std::vector<int>(mapWidth, 0));
@@ -61,15 +72,69 @@ Scene2::Scene2() {
     AddLadder(18, 14, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(18, 14, 13, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
-    // Tramo 3: Plataforma 1  a Plataforma 2 
+    // Tramo 3: Plataforma 2  a Plataforma 3 
+    AddLadder(14, 10, 4, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(14, 10, 20, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(14, 10, 12, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+
+    // Tramo 4: Plataforma 3  a Plataforma 4
+    AddLadder(10, 6, 5, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(10, 6, 9, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(10, 6, 15, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+    AddLadder(10, 6, 19, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
+
+    // ========== PILARES ==========
+    //Left
+    AddPillar(290, 125);
+    AddPillar(290, 145);
+    AddPillar(290, 175);
+
+    //Right
+    AddPillar(450, 125);
+    AddPillar(450, 145);
+    AddPillar(450, 175);
+
 }
 
 Scene2::~Scene2() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
-}
+    UnloadTexture(pillarTexture);
+    //加分物品
+    UnloadTexture(item1Texture);
+    UnloadTexture(item3Texture);
+    
 
+}
+// ========== 新增：碰撞检测  加分物品 ==========
+void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
+    if (item1Active) {
+        Rectangle itemHitbox = {
+            item1Pos.x,
+            item1Pos.y,
+            item1Texture.width * 2.0f,
+            item1Texture.height * 2.0f
+        };
+        if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
+            item1Active = false;
+            player->AddStar();
+        }
+    }
+
+    if (item3Active) {
+        Rectangle itemHitbox = {
+            item3Pos.x,
+            item3Pos.y,
+            item3Texture.width * 2.0f,
+            item3Texture.height * 2.0f
+        };
+        if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
+            item3Active = false;
+            player->AddStar();
+        }
+    }
+}
+// ========== ==========
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
     return hitboxLevel[y][x] == 1;
@@ -88,6 +153,10 @@ int Scene2::GetLadderType(int x, int y) {
 int Scene2::GetLadderHitbox(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return 0;
     return ladderHitbox[y][x];
+}
+
+void Scene2::AddPillar(float pixelX, float pixelY) {
+    pillars.push_back({ pixelX, pixelY });
 }
 
 void Scene2::AddLadder(int startY, int endY, int x,
@@ -133,6 +202,13 @@ void Scene2::Draw() {
     int scaledTileSize = tileSize * tileScale;
     int offsetY = platformHitboxOffsetY * tileScale;;
     int visualHeight = 16;
+
+
+    // ========== 1. PILARES (DETRÁS DE TODO) ==========
+    float pillarScale = 2.0f;
+    for (auto& pillar : pillars) {
+        DrawTextureEx(pillarTexture, pillar, 0.0f, pillarScale, WHITE);
+    }
 
     // Dibujar plataformas
     for (int y = 0; y < mapHeight; y++) {
@@ -248,4 +324,12 @@ void Scene2::Draw() {
             }
         }
     }
+    // ========== 加分物品 ==========
+    if (item1Active) {
+        DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.0f, WHITE);
+    }
+    if (item3Active) {
+        DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.0f, WHITE);
+    }
+    // ====================
 }
