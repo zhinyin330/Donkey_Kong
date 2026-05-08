@@ -36,7 +36,7 @@ private:
     void AddLadder(int startY, int endY, int x,
         const std::vector<int>& visual,
         const std::vector<int>& hitboxes);
-    void AddPillar(int tileX, int tileY);
+    void AddPillar(float pixelX, float pixelY);
 
 public:
     Scene2();
