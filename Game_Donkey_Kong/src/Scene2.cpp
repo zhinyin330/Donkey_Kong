@@ -4,6 +4,7 @@
 Scene2::Scene2() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
+    pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
     // Inicializar vectores
     level.resize(mapHeight, std::vector<int>(mapWidth, 0));
@@ -73,7 +74,16 @@ Scene2::Scene2() {
     AddLadder(10, 6, 19, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
     // ========== PILARES ==========
-    AddPillar(1, 1);
+    //Left
+    AddPillar(290, 125);
+    AddPillar(290, 145);
+    AddPillar(290, 175);
+
+    //Right
+    AddPillar(450, 125);
+    AddPillar(450, 145);
+    AddPillar(450, 175);
+
 }
 
 Scene2::~Scene2() {
@@ -102,8 +112,8 @@ int Scene2::GetLadderHitbox(int x, int y) {
     return ladderHitbox[y][x];
 }
 
-void Scene2::AddPillar(int tileX, int tileY) {
-    pillars.push_back({ (float)tileX, (float)tileY });
+void Scene2::AddPillar(float pixelX, float pixelY) {
+    pillars.push_back({ pixelX, pixelY });
 }
 
 void Scene2::AddLadder(int startY, int endY, int x,
@@ -149,6 +159,13 @@ void Scene2::Draw() {
     int scaledTileSize = tileSize * tileScale;
     int offsetY = platformHitboxOffsetY * tileScale;;
     int visualHeight = 16;
+
+
+    // ========== 1. PILARES (DETRÁS DE TODO) ==========
+    float pillarScale = 2.0f;
+    for (auto& pillar : pillars) {
+        DrawTextureEx(pillarTexture, pillar, 0.0f, pillarScale, WHITE);
+    }
 
     // Dibujar plataformas
     for (int y = 0; y < mapHeight; y++) {
@@ -265,17 +282,4 @@ void Scene2::Draw() {
         }
     }
 
-    float pillarScale = 2.0f;
-    float pillarWidth = pillarTexture.width * pillarScale;
-    float pillarHeight = pillarTexture.height * pillarScale;
-
-    for (auto& pillar : pillars) {
-        int tileX = (int)pillar.x;
-        int tileY = (int)pillar.y;
-
-        float posX = tileX * scaledTileSize + (scaledTileSize - pillarWidth) / 2.0f;
-        float posY = tileY * scaledTileSize + offsetY - pillarHeight;
-
-        DrawTextureEx(pillarTexture, { posX, posY }, 0.0f, pillarScale, WHITE);
-    }
 }
