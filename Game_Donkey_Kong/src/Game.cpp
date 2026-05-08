@@ -175,16 +175,6 @@ void DrawGame(GameScreen* currentScreen)
     gameEnemy->Draw();
     gameStars->Draw();
 
-    // temporal: mostrar info
-    if (isScene2)
-    {
-        DrawText("SCENE 2 - Nivel 2", 10, 10, 20, GREEN);
-    }
-    else
-    {
-        DrawText("SCENE 1 - Nivel 1", 10, 10, 20, YELLOW);
-    }
-
     // ===== RESET =====
     if (shouldReset)
     {

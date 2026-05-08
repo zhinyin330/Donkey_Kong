@@ -108,59 +108,59 @@ Scene::Scene() {
     // Tramo 2: Plataforma 1 (Y=18) a Plataforma 2 (Y=15)
     AddLadder(18, 15, 4,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 0 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(18, 15, 11,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2});   // HITBOX
 
     // Tramo 3: Plataforma 2 (Y=15) a Plataforma 3 (Y=12)
     AddLadder(15, 12, 7,
         { 1, 2, 1, 3 },    // VISUAL
-        { 0, 0, 2, 3 });   // HITBOX
+        { 0, 0, 2, 2 });   // HITBOX
 
     AddLadder(15, 12, 13,
         { 1, 1, 1, 1 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(15, 12, 20,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     // Tramo 4: Plataforma 3 (Y=12) a Plataforma 4 (Y=9)
     AddLadder(12, 9, 4,
         { 1, 1, 1, 1 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(12, 9, 8,
         { 1, 1, 1, 1 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     AddLadder(12, 9, 18,
         { 1, 2, 1, 3 },    // VISUAL
-        { 0, 0, 2, 3 });   // HITBOX
+        { 0, 0, 2, 2 });   // HITBOX
 
     // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
     AddLadder(9, 6, 10,
-        { 1, 2, 1, 3 },    // VISUAL
-        { 0, 0, 2, 3 });   // HITBOX
+        { 1, 2, 1, 0 },    // VISUAL
+        { 0, 0, 2, 2 });   // HITBOX
 
     AddLadder(9, 6, 20,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 3 });   // HITBOX
+        { 0, 1, 1, 2 });   // HITBOX
 
     // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
     AddLadder(6, 3, 7,
         { 1, 1, 1, 1 },    // VISUAL
-        { 1, 1, 1, 3 });   // HITBOX
+        { 1, 1, 1, 0 });   // HITBOX
 
     AddLadder(6, 3, 9,
         { 1, 1, 1, 1 },    // VISUAL
-        { 1, 1, 1, 3 });   // HITBOX
+        { 1, 1, 1, 0 });   // HITBOX
 
     AddLadder(6, 3, 14,
         { 1, 1, 1, 1 },    // VISUAL
-        { 2, 1, 1, 3 });   // HITBOX
+        { 2, 1, 1, 0 });   // HITBOX
 
     AddLadder(0, 2, 7,
         { 0, 0, 3, 0 },    // VISUAL

@@ -324,20 +324,6 @@ void Scene2::Draw() {
             }
         }
     }
-
-    float pillarScale = 2.0f;
-    float pillarWidth = pillarTexture.width * pillarScale;
-    float pillarHeight = pillarTexture.height * pillarScale;
-
-    for (auto& pillar : pillars) {
-        int tileX = (int)pillar.x;
-        int tileY = (int)pillar.y;
-
-        float posX = tileX * scaledTileSize + (scaledTileSize - pillarWidth) / 2.0f;
-        float posY = tileY * scaledTileSize + offsetY - pillarHeight;
-
-        DrawTextureEx(pillarTexture, { posX, posY }, 0.0f, pillarScale, WHITE);
-    }
     // ========== 加分物品 ==========
     if (item1Active) {
         DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.0f, WHITE);
