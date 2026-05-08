@@ -257,11 +257,13 @@ void Scene::Draw() {
 // 在左下角背景绘制油罐，并向右上调整位置
     if (oilCanisterTexture.id != 0) {
         float oilScale = 2.5f;        // 放大到 3 倍（原先是 2.0）
-        
+        float xOffset = -700.0f;
         float yOffset = -16.0f;
         float worldBottomY = mapHeight * tileSize * tileScale;
+        float worldBottomX = mapWidth * tileSize * tileScale;
         float yPos = worldBottomY - oilCanisterTexture.height * oilScale + yOffset;
-        DrawTextureEx(oilCanisterTexture, Vector2{ 0, yPos }, 0.0f, oilScale, WHITE);
+        float xPos = worldBottomX - oilCanisterTexture.height * oilScale + xOffset;
+        DrawTextureEx(oilCanisterTexture, Vector2{ xPos, yPos }, 0.0f, oilScale, WHITE);
     }
 
     
