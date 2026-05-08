@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <vector>
 #include "GameScene.h"
+class Player; 
 
 class Scene2 : public GameScene {
 private:
@@ -20,6 +21,14 @@ private:
     Texture2D ladderTexture;
     Texture2D pillarTexture;
 
+    // 加分物品
+    Texture2D item1Texture;   // Dk_Item1
+    Texture2D item3Texture;   // Dk_Item3
+    Vector2 item1Pos;         // Item1 位置
+    Vector2 item3Pos;         // Item3 位置
+    bool item1Active;
+    bool item3Active;
+   
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -34,6 +43,7 @@ public:
     ~Scene2();
 
     void Draw() override;
+    void CheckItemCollision(Rectangle playerHitbox, Player* player);  // 新增
     bool IsSolid(int x, int y) override;
     bool IsLadder(int x, int y) override;
     int GetLadderType(int x, int y) override;

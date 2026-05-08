@@ -1,10 +1,19 @@
 ﻿#include "Scene2.h"
 #include "resource_dir.h" 
+#include "Player.h" 
 
 Scene2::Scene2() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
-
+    // 加分物品
+    item1Texture = LoadTexture("Items/Dk_Item1.png");
+    item3Texture = LoadTexture("Items/Dk_Item3.png");
+    item1Pos = { 670.0f, 562.0f };
+    item3Pos = { 160.0f, 180.0f };
+    item1Active = true;
+    item3Active = true;
+   
+   
     // Inicializar vectores
     level.resize(mapHeight, std::vector<int>(mapWidth, 0));
     hitboxLevel.resize(mapHeight, std::vector<int>(mapWidth, 0));
@@ -80,8 +89,41 @@ Scene2::~Scene2() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(pillarTexture);
-}
+    //加分物品
+    UnloadTexture(item1Texture);
+    UnloadTexture(item3Texture);
+    
 
+}
+// ========== 新增：碰撞检测  加分物品 ==========
+void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
+    if (item1Active) {
+        Rectangle itemHitbox = {
+            item1Pos.x,
+            item1Pos.y,
+            item1Texture.width * 2.0f,
+            item1Texture.height * 2.0f
+        };
+        if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
+            item1Active = false;
+            player->AddStar();
+        }
+    }
+
+    if (item3Active) {
+        Rectangle itemHitbox = {
+            item3Pos.x,
+            item3Pos.y,
+            item3Texture.width * 2.0f,
+            item3Texture.height * 2.0f
+        };
+        if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
+            item3Active = false;
+            player->AddStar();
+        }
+    }
+}
+// ========== ==========
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
     return hitboxLevel[y][x] == 1;
@@ -278,4 +320,12 @@ void Scene2::Draw() {
 
         DrawTextureEx(pillarTexture, { posX, posY }, 0.0f, pillarScale, WHITE);
     }
+    // ========== 加分物品 ==========
+    if (item1Active) {
+        DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.0f, WHITE);
+    }
+    if (item3Active) {
+        DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.0f, WHITE);
+    }
+    // ====================
 }
