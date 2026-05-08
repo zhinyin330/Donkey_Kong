@@ -304,6 +304,7 @@
     <ClInclude Include="include\resource_dir.h" />
     <ClInclude Include="src\Barrel.h" />
     <ClInclude Include="src\Enemy.h" />
+    <ClInclude Include="src\FireSprite.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\Intro.h" />
@@ -313,10 +314,12 @@
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Scene2.h" />
+    <ClInclude Include="src\oilCaniterFire.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Barrel.cpp" />
     <ClCompile Include="src\Enemy.cpp" />
+    <ClCompile Include="src\FireSprite.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Intro.cpp" />
     <ClCompile Include="src\Menu.cpp" />
@@ -326,6 +329,7 @@
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Scene2.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\oilCaniterFire.cpp" />
     <ClCompile Include="src\prova11.cpp" />
   </ItemGroup>
   <ItemGroup>
