@@ -1,9 +1,29 @@
 ﻿#include "Intro.h"
 
+// 全局静态变量（放在函数外面）
+static Music startupMusic;
+static bool musicPlayed = false;
+
 void DrawIntro(GameScreen* screen)
 {
     ClearBackground(BLACK);
+    // 第一次进入时加载并播放音乐
+    if (!musicPlayed)
+    {
+        startupMusic = LoadMusicStream("audio/Startup.mp3");
+        SetMusicVolume(startupMusic, 0.8f);
+        PlayMusicStream(startupMusic);
+        musicPlayed = true;
+    }
 
+    // 更新音乐流（让音乐播放）
+    UpdateMusicStream(startupMusic);
+
+
+    ClearBackground(BLACK);
+
+
+    ClearBackground(BLACK);
     // ===== 标题 =====
     DrawText("DONKEY KONG PROJECT", 200, 150, 30, YELLOW);
 
@@ -23,4 +43,9 @@ void DrawIntro(GameScreen* screen)
     {
         *screen = MENU;
     }
+}
+void UnloadIntroMusic()
+{
+    static Music startupMusic;
+    UnloadMusicStream(startupMusic);
 }

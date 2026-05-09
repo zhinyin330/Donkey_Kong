@@ -338,6 +338,7 @@
     <None Include="resources\audio\SFXjump.mp3" />
     <None Include="resources\audio\Title_Theme.ogg" />
     <None Include="resources\audio\Walking.mp3" />
+    <None Include="resources\audio\scene.ogg" />
     <None Include="resources\audio\scenedos.ogg" />
     <None Include="resources\fonts\donkey-kong-nes-1981.ttf" />
     <None Include="src\icon.ico" />

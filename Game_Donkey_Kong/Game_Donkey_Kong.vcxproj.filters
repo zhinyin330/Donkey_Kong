@@ -157,6 +157,9 @@
     <None Include="resources\audio\Walking.mp3">
       <Filter>Game Resource Files\audio</Filter>
     </None>
+    <None Include="resources\audio\scene.ogg">
+      <Filter>Game Resource Files\audio</Filter>
+    </None>
     <None Include="resources\audio\scenedos.ogg">
       <Filter>Game Resource Files\audio</Filter>
     </None>
