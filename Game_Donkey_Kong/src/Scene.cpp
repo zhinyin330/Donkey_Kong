@@ -2,6 +2,10 @@
 #include "resource_dir.h" 
 
 Scene::Scene() {
+    // 加载背景音乐
+    backgroundMusic = LoadMusicStream("audio/scene.ogg");
+    SetMusicVolume(backgroundMusic, 0.5f);
+
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
@@ -260,8 +264,10 @@ int Scene::GetVisualOffsetY(int x, int y) {
 }
 
 void Scene::Draw() {
-    
-    // 在左下角背景绘制油罐
+    UpdateMusicStream(backgroundMusic);
+    if (!IsMusicStreamPlaying(backgroundMusic)) {
+        PlayMusicStream(backgroundMusic);
+    }
 // 在左下角背景绘制油罐，并向右上调整位置
     if (oilCanisterTexture.id != 0) {
         float oilScale = 2.5f;        // 放大到 3 倍（原先是 2.0）
