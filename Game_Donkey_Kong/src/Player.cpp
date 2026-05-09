@@ -17,7 +17,7 @@ Player::Player() {
     SetSoundVolume(walkSound, 5.0f);
 
     stepTimer = 0.0f;
-    stepInterval = 0.5f;
+    stepInterval = 0.20f;  
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
@@ -70,6 +70,8 @@ Player::Player() {
     facingRight = true;
     wasMoving = false;
     isStepPlaying = false;
+    wasMovingLeft = false;
+    wasMovingRight = false;
 
     // Star
     starCount = 0;
@@ -362,36 +364,22 @@ void Player::Update(GameScene& scene) {
     UpdateStarMode();
 
     // ================= SISTEMA DE PASOS =================
-    bool isMovingOnGround =
-        (currentState == PlayerState::WALKING) &&
-        !isJumping &&
-        !onLadder &&
-        (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
-            IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
+    bool isMoving = (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
 
-    if (wasMoving && !isMovingOnGround) {
-        stepTimer = 0.0f;
-        isStepPlaying = false;
-    }
-
-    if (isMovingOnGround) {
+    if (isMoving && !isJumping && !onLadder)
+    {
         stepTimer += GetFrameTime();
-
-        if (stepTimer >= stepInterval && !isStepPlaying) {
+        if (stepTimer >= stepInterval)
+        {
             PlaySound(walkSound);
             stepTimer = 0.0f;
-            isStepPlaying = true;
-        }
-        else if (stepTimer < stepInterval) {
-            isStepPlaying = false;
         }
     }
-    else {
-        stepTimer = 0.0f;
-        isStepPlaying = false;
+    else
+    {
+        stepTimer = stepInterval;  // 重置计时器，确保下次移动立即触发
     }
-
-    wasMoving = isMovingOnGround;
+   
 
     // Si está en animación de salida, solo animación
     if (currentState == PlayerState::CLIMBING_END) {
