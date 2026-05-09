@@ -336,6 +336,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\audio\SFXjump.mp3" />
+    <None Include="resources\audio\Startup.mp3" />
     <None Include="resources\audio\Title_Theme.ogg" />
     <None Include="resources\audio\Walking.mp3" />
     <None Include="resources\audio\scene.ogg" />
