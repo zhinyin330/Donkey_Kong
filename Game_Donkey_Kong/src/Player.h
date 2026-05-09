@@ -35,6 +35,8 @@ private:
     bool wasMoving;
     bool isStepPlaying;
 
+    float climbStepInterval; // ÅÀÌÝ×Ó¼ä¸ô
+
     // Animación
     PlayerState currentState;
     int currentFrame;

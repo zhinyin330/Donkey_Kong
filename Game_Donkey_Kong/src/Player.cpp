@@ -18,6 +18,7 @@ Player::Player() {
 
     stepTimer = 0.0f;
     stepInterval = 0.20f;  
+    climbStepInterval = 0.4f;//梯子声音间隔
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
@@ -364,9 +365,12 @@ void Player::Update(GameScene& scene) {
     UpdateStarMode();
 
     // ================= SISTEMA DE PASOS =================
-    bool isMoving = (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
+   
+    bool isMovingOnGround = (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
+    bool isMovingOnLadder = (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN));
 
-    if (isMoving && !isJumping && !onLadder)
+    // 在地上移动
+    if (isMovingOnGround && !isJumping && !onLadder)
     {
         stepTimer += GetFrameTime();
         if (stepTimer >= stepInterval)
@@ -375,11 +379,20 @@ void Player::Update(GameScene& scene) {
             stepTimer = 0.0f;
         }
     }
+    // 在梯子上移动
+    else if (isMovingOnLadder && onLadder)
+    {
+        stepTimer += GetFrameTime();
+        if (stepTimer >= climbStepInterval)  // 使用更慢的间隔
+        {
+            PlaySound(walkSound);
+            stepTimer = 0.0f;
+        }
+    }
     else
     {
-        stepTimer = stepInterval;  // 重置计时器，确保下次移动立即触发
+        stepTimer = stepInterval;
     }
-   
 
     // Si está en animación de salida, solo animación
     if (currentState == PlayerState::CLIMBING_END) {
