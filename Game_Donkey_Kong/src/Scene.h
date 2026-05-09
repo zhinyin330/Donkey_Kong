@@ -32,6 +32,11 @@ private:
     Rectangle transitionZone;
     bool transitionReached;
 
+    //princesa
+    Texture2D princessTexture;
+    Vector2 princessPosition;
+    float princessScale;
+
 public:
     Scene();
     ~Scene();
@@ -45,6 +50,8 @@ public:
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
     int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale; }
+    Vector2 GetPrincessPosition() override { return princessPosition; }
+    float GetPrincessScale() override { return princessScale; }
 
     //Temporal
     Rectangle GetTransitionZone() override { return transitionZone; }

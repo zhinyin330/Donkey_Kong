@@ -6,6 +6,7 @@
 #include "Enemy.h"
 #include "NewMechanic.h"
 #include "GameScene.h"
+#include "Transition.h"
 
 static GameScene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
@@ -14,6 +15,7 @@ static NewMechanic* gameStars = nullptr;
 static bool isInitialized = false;
 static bool shouldReset = false;
 static bool isScene2 = false;  // Para saber qué escena está activa
+static Transition* gameTransition = nullptr;
 
 void InitGame()
 {
@@ -25,10 +27,12 @@ void InitGame()
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);  // Scene 1: lanza barriles
     gameStars = new NewMechanic();
+    gameTransition = new Transition();
 
     isScene2 = false;
     isInitialized = true;
     shouldReset = false;
+
 }
 
 void InitGameScene2()
@@ -39,12 +43,13 @@ void InitGameScene2()
     gamePlayer = new Player();
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::STATIONARY);     // Scene 2: decorativo
-    gameEnemy->SetPosition(317, 130);                      // Posición diferente
+    gameEnemy->SetPosition(325, 130);                      // Posición diferente
     gameStars = new NewMechanic();
 
     isScene2 = true;
     isInitialized = true;
     shouldReset = false;
+    gameTransition = new Transition();
 }
 
 void CleanupGame()
@@ -76,6 +81,11 @@ void CleanupGame()
             gameStars = nullptr;
         }
 
+        if (gameTransition != nullptr) {
+            delete gameTransition;
+            gameTransition = nullptr;
+        }
+
         isInitialized = false;
         isScene2 = false;
     }
@@ -92,6 +102,7 @@ void DrawGame(GameScreen* currentScreen)
         if (gamePlayer == nullptr) gamePlayer = new Player();
         if (gameEnemy == nullptr) gameEnemy = new Enemy();
         if (gameStars == nullptr) gameStars = new NewMechanic();
+        if (gameTransition == nullptr) gameTransition = new Transition();
 
         isScene2 = false;
         isInitialized = true;
@@ -118,6 +129,30 @@ void DrawGame(GameScreen* currentScreen)
             scene2->CheckItemCollision(playerHitbox, gamePlayer);
         }
     }
+
+    // ==========================================
+   // TRANSICIÓN A SCENE2
+   // ==========================================
+    if (!isScene2 && gameScene->IsTransitionReached()) {
+        if (gameTransition != nullptr && !gameTransition->IsFinished()) {
+            gameTransition->Update();
+
+            // Dibujar la escena detenida de fondo
+            gameScene->Draw();
+            gamePlayer->Draw();
+            gameEnemy->Draw();
+
+            // Dibujar la transición encima
+            gameTransition->Draw();
+
+            if (gameTransition->IsFinished()) {
+                InitGameScene2();
+            }
+            return;
+        }
+    }
+
+
     // ========== 新增结束 ==========
     
     // Temporal cambio de escenas
@@ -128,36 +163,36 @@ void DrawGame(GameScreen* currentScreen)
         return;
     }
 
-    if (!isScene2)
-    {
-        Vector2 playerPos = gamePlayer->GetPosition();
-        float playerWidth = gamePlayer->GetTextureWidth() * gamePlayer->GetScale();
-        float playerHeight = gamePlayer->GetTextureHeight() * gamePlayer->GetScale();
+    if (!isScene2) {
+        Vector2 princessPos = gameScene->GetPrincessPosition();
+        float princessScale = gameScene->GetPrincessScale();
 
-        Rectangle playerRect = {
-            playerPos.x,
-            playerPos.y,
-            playerWidth,
-            playerHeight
-        };
+        if (princessScale > 0) {  // Solo si la escena tiene princesa
+            Rectangle princessRect = {
+                princessPos.x,
+                princessPos.y,
+                gamePlayer->GetTextureWidth() * princessScale,   // Usamos tamaño aprox
+                gamePlayer->GetTextureHeight() * princessScale
+            };
 
-        Rectangle transitionZone = gameScene->GetTransitionZone();
+            Rectangle playerRect = {
+                gamePlayer->GetPosition().x,
+                gamePlayer->GetPosition().y,
+                gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
+                gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
+            };
 
-        // Verificar colisión con zona de transición
-        if (CheckCollisionRecs(playerRect, transitionZone))
-        {
-            gameScene->SetTransitionReached(true);
-        }
-
-        // Si ya se alcanzó la transición, cambiar a Scene2
-        if (gameScene->IsTransitionReached())
-        {
-            TraceLog(LOG_INFO, "¡Cambiando a Scene2!");
-            InitGameScene2();
-            return;  // Salir para evitar dibujar con escena antigua
+            if (CheckCollisionRecs(playerRect, princessRect)) {
+                TraceLog(LOG_INFO, "¡Princesa rescatada! Iniciando transicion");
+                gameScene->SetTransitionReached(true);  
+                if (gameTransition != nullptr) {
+                    gameTransition->Start(2, gamePlayer->GetStarCount() * 100, gamePlayer->GetStarCount());
+                }
+                return;
+            }
         }
     }
-    // hasta aqui
+
     
     
     // 增加一个返回菜单的逻辑 (按下 ESC)

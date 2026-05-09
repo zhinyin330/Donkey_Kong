@@ -41,11 +41,13 @@ int main()
             case INTRO:
                 DrawIntro(&currentScreen);
                 break;
+
             case MENU:
                 DrawMenu(&currentScreen);
                 break;
 
             case GAMEPLAY:
+            case TRANSITION:
                 DrawGame(&currentScreen);
                 break;
 

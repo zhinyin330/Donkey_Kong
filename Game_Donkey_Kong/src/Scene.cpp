@@ -5,7 +5,6 @@ Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
-    barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
@@ -16,6 +15,14 @@ Scene::Scene() {
     ladderLevel.resize(mapHeight, std::vector<int>(mapWidth, 0));
     ladderHitbox.resize(mapHeight, std::vector<int>(mapWidth, 0));
     visualOffsetY.resize(mapHeight, std::vector<int>(mapWidth, baseOffset));
+
+    // ========== PRINCESA ==========
+    princessTexture = LoadTexture("Characters/Princess/Dk_Princess_Idle1.png");
+    princessScale = 2.2f;
+    float princessX = 10 * 32;  // Columna 13 (dentro de la plataforma superior: 10-15)
+    int platformY = 3;
+    float princessY = platformY * 32 - princessTexture.height * princessScale + 24;
+    princessPosition = { princessX, princessY };
 
     // PLATAFORMAS
     int platformHeights[] = {
@@ -147,7 +154,7 @@ Scene::Scene() {
 
     AddLadder(9, 6, 20,
         { 1, 1, 1, 2 },    // VISUAL
-        { 0, 1, 1, 2 });   // HITBOX
+        { 3, 1, 1, 2 });   // HITBOX
 
     // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)
     AddLadder(6, 3, 7,
@@ -180,6 +187,7 @@ Scene::~Scene() {
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
     UnloadTexture(oilCanisterTexture);//tongtong
+    UnloadTexture(princessTexture);  
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -389,6 +397,17 @@ void Scene::Draw() {
             }
         }
     }
+
+    DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
+
+    DrawRectangleLines(
+        princessPosition.x,
+        princessPosition.y,
+        princessTexture.width* princessScale,
+        princessTexture.height* princessScale,
+        PINK
+    );
+
     #ifdef _DEBUG
     // 只在 Debug 模式下显示，Release 模式会自动移除
     for (int y = 0; y < mapHeight; y++) {
@@ -459,7 +478,4 @@ void Scene::Draw() {
         }
     }
     #endif
-    // Dibujar zona de transición
-    DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
-    DrawText("LVL2", transitionZone.x + 20, transitionZone.y + 10, 20, GREEN);
 }
