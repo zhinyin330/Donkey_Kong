@@ -21,6 +21,9 @@ private:
     Texture2D ladderTexture;
     Texture2D pillarTexture;
 
+    // 背景音乐
+    Music backgroundMusic;
+
     // 加分物品
     Texture2D item1Texture;   // Dk_Item1
     Texture2D item3Texture;   // Dk_Item3
@@ -59,4 +62,6 @@ public:
     bool IsTransitionReached() override { return false; }
     void SetTransitionReached(bool val) override {}
     bool CheckAdjacentTiles() override { return false; }
+
+    void UpdateMusic();
 };

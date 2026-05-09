@@ -3,6 +3,10 @@
 #include "Player.h" 
 
 Scene2::Scene2() {
+    // 加载背景音乐
+    backgroundMusic = LoadMusicStream("audio/scenedos.ogg");
+    PlayMusicStream(backgroundMusic);
+
     tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
     // 加分物品
@@ -97,6 +101,9 @@ Scene2::Scene2() {
 }
 
 Scene2::~Scene2() {
+
+    UnloadMusicStream(backgroundMusic);
+
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(pillarTexture);
@@ -332,4 +339,7 @@ void Scene2::Draw() {
         DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.0f, WHITE);
     }
     // ====================
+}
+void Scene2::UpdateMusic() {
+    UpdateMusicStream(backgroundMusic);
 }

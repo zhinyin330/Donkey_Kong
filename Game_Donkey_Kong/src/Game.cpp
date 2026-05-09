@@ -17,6 +17,7 @@ static bool shouldReset = false;
 static bool isScene2 = false;  // Para saber qué escena está activa
 static Transition* gameTransition = nullptr;
 
+
 void InitGame()
 {
     // Limpiar antes de inicializar
@@ -111,6 +112,13 @@ void DrawGame(GameScreen* currentScreen)
     // --- 2. 更新逻辑 (UPDATE) ---
     float deltaTime = GetFrameTime();
 
+// 更新场景2的音乐
+if (isScene2 && gameScene != nullptr) {
+    Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+    if (scene2) {
+        scene2->UpdateMusic();
+    }
+}
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
     gameEnemy->Update(*gameScene);
