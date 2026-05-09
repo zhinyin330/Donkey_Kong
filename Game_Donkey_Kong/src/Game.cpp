@@ -210,6 +210,18 @@ void DrawGame(GameScreen* currentScreen)
     gameEnemy->Draw();
     gameStars->Draw();
 
+    // ========== 显示得分（左上角）==========
+    if (gamePlayer != nullptr) {
+        int score = gamePlayer->GetScore();
+        char scoreText[32];
+        sprintf(scoreText, "SCORE: %04d", score);
+
+        // 绘制得分背景（半透明黑色）
+        DrawRectangle(10, 10, 120, 30, Fade(BLACK, 0.7f));
+        // 绘制得分文字（白色）
+        DrawText(scoreText, 15, 15, 20, WHITE);
+    }
+   
     // ===== RESET =====
     if (shouldReset)
     {

@@ -79,6 +79,8 @@ private:
     static const float starModeDuration;
     Color currentTint;
 
+    //得分
+    int score;
 public:
     Player();
     ~Player();
@@ -107,6 +109,11 @@ public:
     void ActivateStarMode();
     void UpdateStarMode();
     bool IsInStarMode() const { return starMode; }
+
+    //得分
+    void AddScore(int points);  
+    int GetScore() const { return score; }  
+    void ResetScore(); 
 
     // Temporal: Hitbox para colisiones
     Rectangle GetHitbox() const {

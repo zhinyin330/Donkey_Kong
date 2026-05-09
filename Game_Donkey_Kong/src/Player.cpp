@@ -73,6 +73,8 @@ Player::Player() {
 
     // Star
     starCount = 0;
+    //score
+    score = 0;
 
     // Modo estrella
     starMode = false;
@@ -819,4 +821,15 @@ void Player::Draw() {
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
         GameScene::GetScreenWidth() - 200, 680, 20, YELLOW);
+}
+// ========== 得分系统 ==========
+void Player::AddScore(int points)
+{
+    score += points;
+    TraceLog(LOG_INFO, "Score +%d! Total: %d", points, score);
+}
+
+void Player::ResetScore()
+{
+    score = 0;
 }

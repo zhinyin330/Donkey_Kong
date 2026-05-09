@@ -116,8 +116,8 @@ void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
             item1Texture.height * 2.0f
         };
         if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
-            item1Active = false;
-            player->AddStar();
+            item1Active = false;          
+            player->AddScore(300);  //Item1 加300分
         }
     }
 
@@ -130,7 +130,7 @@ void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
         };
         if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
             item3Active = false;
-            player->AddStar();
+            player->AddScore(400);  // Item3 加400分
         }
     }
 }
