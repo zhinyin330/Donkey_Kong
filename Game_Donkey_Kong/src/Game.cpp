@@ -14,7 +14,7 @@ static Enemy* gameEnemy = nullptr;
 static NewMechanic* gameStars = nullptr;
 static bool isInitialized = false;
 static bool shouldReset = false;
-static bool isScene2 = false;  // Para saber qué escena está activa
+static bool isScene2 = false; 
 static Transition* gameTransition = nullptr;
 static int currentLevel = 1;
 static int totalScore = 0;
@@ -23,7 +23,6 @@ static int totalStars = 0;
 
 void InitGame()
 {
-    // Limpiar antes de inicializar
     CleanupGame();
 
     gameScene = new Scene();
@@ -51,8 +50,8 @@ void InitGameScene2()
     gameScene = new Scene2();
     gamePlayer = new Player();
     gameEnemy = new Enemy();
-    gameEnemy->SetBehavior(EnemyBehavior::STATIONARY);     // Scene 2: decorativo
-    gameEnemy->SetPosition(325, 130);                      // Posición diferente
+    gameEnemy->SetBehavior(EnemyBehavior::DECORATIVE_CYCLE);     // Scene 2: decorativo
+    gameEnemy->SetPosition(340, 130);                      // Posición diferente
     gameStars = new NewMechanic();
 
     // Restaurar estrellas acumuladas
@@ -108,10 +107,6 @@ void CleanupGame()
 
 void DrawGame(GameScreen* currentScreen)
 {
-    // 更新当前场景的音乐
-    if (gameScene != nullptr) {
-        gameScene->UpdateMusic();
-    }
     // --- 1. 延迟初始化 (只在第一次进入游戏时执行) ---
     if (!isInitialized)
     {
@@ -129,93 +124,87 @@ void DrawGame(GameScreen* currentScreen)
     // --- 2. 更新逻辑 (UPDATE) ---
     float deltaTime = GetFrameTime();
 
-// 更新场景2的音乐
-if (isScene2 && gameScene != nullptr) {
-    Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
-    if (scene2) {
-        scene2->UpdateMusic();
+    // 更新场景2的音乐
+    if (isScene2) {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2) scene2->UpdateMusic();
     }
-}
+
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
-    // ========== 新增 ==========
+
+    // Colisiones Scene2 (items + botones)
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
-            Rectangle playerHitbox = {
+            // Hitbox de pies para items (más preciso)
+            Rectangle feetHitbox = {
                 gamePlayer->GetPosition().x,
                 gamePlayer->GetPosition().y + 2 * gamePlayer->GetScale(),
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 14 * gamePlayer->GetScale()
             };
-            scene2->CheckItemCollision(playerHitbox, gamePlayer);
+            scene2->CheckItemCollision(feetHitbox, gamePlayer);
+
+            // Hitbox completo para botones (necesita cubrir todo Mario)
+            Rectangle fullHitbox = {
+                gamePlayer->GetPosition().x,
+                gamePlayer->GetPosition().y,
+                gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
+                gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
+            };
+            scene2->CheckButtonCollision(fullHitbox);
         }
     }
 
-    // ==========================================
-   // TRANSICIÓN A SCENE2
-   // ==========================================
+    // -- - 3. TRANSICIÓN-- -
   
-    if (gameScene->IsTransitionReached()) {
+    if(gameScene->IsTransitionReached()) {
         if (gameTransition != nullptr && !gameTransition->IsFinished()) {
             gameTransition->Update();
 
             gameScene->Draw();
             gamePlayer->Draw();
-            if (isScene2) gameEnemy->Draw();
-
+            gameEnemy->Draw();
             gameTransition->Draw();
 
             if (gameTransition->IsFinished()) {
-                if (!isScene2) {
-                    InitGameScene2();  // Ir a Scene 2
-                }
-                else {
-                    InitGame();        // Volver a Scene 1
-                }
+                if (!isScene2) InitGameScene2();
+                else InitGame();
             }
             return;
         }
     }
 
-    // ========== 新增结束 ==========
-    
-    // Temporal cambio de escenas
-    if (IsKeyPressed(KEY_T) && !isScene2)
-    {
-        TraceLog(LOG_INFO, "Transición forzada a Scene2");
+    // --- 4. Tecla T (debug) ---
+    if (IsKeyPressed(KEY_T) && !isScene2) {
         InitGameScene2();
         return;
     }
 
+    // --- 5. Colisión princesa Scene 1 ---
     if (!isScene2) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
 
         if (princessScale > 0) {
             Rectangle princessRect = {
-                princessPos.x,
-                princessPos.y,
+                princessPos.x, princessPos.y,
                 gamePlayer->GetTextureWidth() * princessScale,
                 gamePlayer->GetTextureHeight() * princessScale
             };
-
             Rectangle playerRect = {
-                gamePlayer->GetPosition().x,
-                gamePlayer->GetPosition().y,
+                gamePlayer->GetPosition().x, gamePlayer->GetPosition().y,
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
             };
 
             if (CheckCollisionRecs(playerRect, princessRect)) {
-                // Guardar estrellas y puntuación actuales
                 totalStars = gamePlayer->GetStarCount();
                 totalScore += gamePlayer->GetStarCount() * 100;
-
-                // Activar transición a Scene 2
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
                     gameTransition->Start(currentLevel, totalScore, totalStars);
@@ -225,33 +214,27 @@ if (isScene2 && gameScene != nullptr) {
         }
     }
 
-    // Colisión con princesa (Scene 2 → Scene 1)
+    // --- 6. Colisión princesa Scene 2 ---
     if (isScene2) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
 
         if (princessScale > 0) {
             Rectangle princessRect = {
-                princessPos.x,
-                princessPos.y,
+                princessPos.x, princessPos.y,
                 gamePlayer->GetTextureWidth() * princessScale,
                 gamePlayer->GetTextureHeight() * princessScale
             };
-
             Rectangle playerRect = {
-                gamePlayer->GetPosition().x,
-                gamePlayer->GetPosition().y,
+                gamePlayer->GetPosition().x, gamePlayer->GetPosition().y,
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
             };
 
             if (CheckCollisionRecs(playerRect, princessRect)) {
-                // Guardar estrellas y puntuación actuales
                 totalStars = gamePlayer->GetStarCount();
                 totalScore += gamePlayer->GetStarCount() * 100;
-                currentLevel++;  // Subir nivel
-
-                // Activar transición a Scene 1
+                currentLevel++;
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
                     gameTransition->Start(currentLevel, totalScore, totalStars);
@@ -260,7 +243,6 @@ if (isScene2 && gameScene != nullptr) {
             }
         }
     }
-
     
     
     // 增加一个返回菜单的逻辑 (按下 ESC)

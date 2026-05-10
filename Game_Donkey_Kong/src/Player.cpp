@@ -644,6 +644,40 @@ void Player::Update(GameScene& scene) {
         }
     }
 
+    // ========== NUEVO: Colisión lateral con plataformas manuales (Scene2) ==========
+    if (!horizontalCollision && scene.HasNewPlatforms()) {
+        Rectangle playerRect = {
+            nextX,
+            position.y + currentOffsetY * scale,
+            currentTexture.width * scale,
+            currentHeight * scale
+        };
+
+        float newPlatY;
+        // Usar CheckNewPlatformCollision para detectar paredes laterales
+        Rectangle sideHitboxLeft = {
+            nextX,
+            position.y + currentOffsetY * scale,
+            1,
+            currentHeight * scale
+        };
+        Rectangle sideHitboxRight = {
+            nextX + currentTexture.width * scale - 1,
+            position.y + currentOffsetY * scale,
+            1,
+            currentHeight * scale
+        };
+
+        if (scene.CheckNewPlatformCollision(sideHitboxLeft, newPlatY)) {
+            nextX = (float)((int)(nextX / 32) + 1) * 32;  // Empujar a la derecha
+            horizontalCollision = true;
+        }
+        else if (scene.CheckNewPlatformCollision(sideHitboxRight, newPlatY)) {
+            nextX = (float)((int)((nextX + currentTexture.width * scale) / 32)) * 32 - currentTexture.width * scale;  // Empujar a la izquierda
+            horizontalCollision = true;
+        }
+    }
+
     position.x = nextX;
 
     // ========== VERTICAL ==========
@@ -703,6 +737,23 @@ void Player::Update(GameScene& scene) {
                         landed = true;
                         break;
                     }
+                }
+            }
+        }
+
+        //scene 2
+        if (!landed) {
+            float newPlatY;
+            Rectangle feetHitbox = {
+                position.x,
+                nextY + (currentOffsetY + currentHeight) * scale - 4,
+                currentTexture.width * scale,
+                4
+            };
+            if (scene.CheckNewPlatformCollision(feetHitbox, newPlatY)) {
+                if (nextFeetY >= newPlatY && hitboxBottomY <= newPlatY + 5) {
+                    groundY = newPlatY - (currentOffsetY + currentHeight) * scale;
+                    landed = true;
                 }
             }
         }

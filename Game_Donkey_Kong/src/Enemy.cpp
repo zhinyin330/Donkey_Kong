@@ -13,7 +13,8 @@ Enemy::Enemy()
     position({ 95.0f, 130.0f }),
     scale(2.5f),
     currentBarrelType(BarrelType::NORMAL),
-    behavior(EnemyBehavior::THROW_BARRELS) // (^^)d
+    behavior(EnemyBehavior::THROW_BARRELS),
+    currentTexture({ 0 })
 {
     dkWithBarrelTextures = {
         LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"),
@@ -26,6 +27,11 @@ Enemy::Enemy()
         LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Idle1.png"),
         LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_R.png")
     };
+
+    //ciclo decorativo
+    idleTexture = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Idle1.png");
+    emote1Texture = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote1.png");
+    emote2Texture = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote2.png");
 }
 
 Enemy::~Enemy() {
@@ -65,10 +71,6 @@ void Enemy::UpdateAnimation() {
         }
         return;
     }
-
-    
-    
-    
     
     /////////////////////////////////////////////////7
     frameCounter += GetFrameTime();
@@ -111,15 +113,30 @@ void Enemy::UpdateAnimation() {
     }
 }
 
-//void Enemy::Update(GameScene& scene)
-//{
-//    UpdateAnimation();
-//
-//    for (auto& b : barrels)
-//        b.Update(scene);
-//}
+void Enemy::UpdateDecorativeCycle() {
+    frameCounter += GetFrameTime();
 
-// (^^)d
+    if (frameCounter < 3.0f) {
+        // 3 segundos: Idle1
+        currentFrame = 0;
+        currentTexture = idleTexture;
+    }
+    else if (frameCounter < 4.0f) {
+        // 1 segundo: Emote1
+        currentFrame = 1;
+        currentTexture = emote1Texture;
+    }
+    else if (frameCounter < 5.0f) {
+        // 1 segundo: Emote2
+        currentFrame = 2;
+        currentTexture = emote2Texture;
+    }
+    else {
+        // Reiniciar ciclo
+        frameCounter = 0.0f;
+    }
+}
+
 void Enemy::Update(GameScene& scene)
 {
     switch (behavior) {
@@ -135,10 +152,22 @@ void Enemy::Update(GameScene& scene)
         UpdateAnimation();
         // No barriles (no los lanza)
         break;
+
+    case EnemyBehavior::DECORATIVE_CYCLE:
+        UpdateDecorativeCycle();  
+        break;
     }
 }
 
 void Enemy::Draw() {
+
+    if (behavior == EnemyBehavior::DECORATIVE_CYCLE) {
+        if (currentTexture.id != 0) {
+            DrawTextureEx(currentTexture, position, 0.0f, scale, WHITE);
+        }
+        return;
+    }
+
     if (dkWithBarrelTextures.empty()) return;
 
     const Texture2D& dkTex = hasBarrel

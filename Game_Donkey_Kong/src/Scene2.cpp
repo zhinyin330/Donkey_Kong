@@ -9,13 +9,14 @@ Scene2::Scene2() {
 
     tileTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
-    // 加分物品
+
     item1Texture = LoadTexture("Items/Dk_Item1.png");
     item3Texture = LoadTexture("Items/Dk_Item3.png");
     item1Pos = { 670.0f, 562.0f };
     item3Pos = { 160.0f, 180.0f };
     item1Active = true;
     item3Active = true;
+    newPlatformsVisible = false;
    
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
@@ -59,7 +60,7 @@ Scene2::Scene2() {
     }
 
     // Plataforma superior Y=3
-    for (int x = mapWidth / 2 - 4; x < mapWidth / 2 + 4; x++) {
+    for (int x = mapWidth / 2 - 3; x < mapWidth / 2 + 4; x++) {
         level[3][x] = 1;
         hitboxLevel[3][x] = 1;
     }
@@ -89,20 +90,20 @@ Scene2::Scene2() {
 
     // ========== PILARES ==========
     //Left
-    AddPillar(295, 125);
-    AddPillar(295, 145);
-    AddPillar(295, 175);
+    AddPillar(307, 125);
+    AddPillar(307, 145);
+    AddPillar(307, 175);
 
     //Right
-    AddPillar(445, 125);
-    AddPillar(445, 145);
-    AddPillar(445, 175);
+    AddPillar(465, 125);
+    AddPillar(465, 145);
+    AddPillar(465, 175);
 
     //princesa
     princessTexture = LoadTexture("Characters/Princess/Dk_Princess_Idle1.png");
     princessScale = 2.2f;
     // Colocar en la plataforma superior (Y=3), centrado
-    float princessX = 10 * 32;
+    float princessX = 383;
     int platformY = 3;
     float princessY = platformY * 32 - princessTexture.height * princessScale + 24;
     princessPosition = { princessX, princessY };
@@ -116,7 +117,7 @@ Scene2::Scene2() {
     float buttonW = buttonTexture.width * buttonScale;
     float buttonY = 21 * 32 + platformHitboxOffsetY * tileScale - buttonTexture.height * buttonScale;
 
-    buttons.push_back({ 255, 586 });    // Botón 1
+    buttons.push_back({ 255, 586 });   // Botón 1
     buttons.push_back({ 260, 456 });   // Botón 2
     buttons.push_back({ 255, 328 });   // Botón 3
     buttons.push_back({ 260, 200 });   // Botón 4
@@ -156,13 +157,68 @@ void Scene2::CheckButtonCollision(Rectangle playerHitbox) {
                 buttonTexture.height * buttonScale
             };
 
-            // Solo detectar si el jugador está cayendo (pies tocando el botón desde arriba)
             if (CheckCollisionRecs(playerHitbox, buttonRect)) {
-                buttonsActive[i] = false;
-                // Opcional: dar puntos
-                // player->AddScore(100);
+                float playerFeetY = playerHitbox.y + playerHitbox.height;
+                float buttonTopY = buttonRect.y;
+
+                // Rango más amplio para botones superiores (10 píxeles)
+                if (playerFeetY >= buttonTopY - 2 && playerFeetY <= buttonTopY + 12) {
+                    buttonsActive[i] = false;
+                }
             }
         }
+    }
+    CheckPlatformsStatus();
+}
+
+void Scene2::CheckPlatformsStatus() {
+    bool allButtonsPressed = true;
+    for (int i = 0; i < 8; i++) {
+        if (buttonsActive[i]) {
+            allButtonsPressed = false;
+            break;
+        }
+    }
+
+    if (allButtonsPressed) {
+        for (int x = 9; x <= 15; x++) {
+            hitboxLevel[18][x] = 0;
+            level[18][x] = 0;
+        }
+        for (int x = 9; x <= 15; x++) {
+            hitboxLevel[14][x] = 0;
+            level[14][x] = 0;
+        }
+        for (int x = 9; x <= 15; x++) {
+            hitboxLevel[10][x] = 0;
+            level[10][x] = 0;
+        }
+        for (int x = 9; x <= 15; x++) {
+            hitboxLevel[6][x] = 0;
+            level[6][x] = 0;
+        }
+
+        for (int y = 18; y <= 20; y++) { ladderLevel[y][12] = 0; ladderHitbox[y][12] = 0; }
+        for (int y = 15; y <= 17; y++) { ladderLevel[y][9] = 0; ladderHitbox[y][9] = 0; }
+        for (int y = 15; y <= 17; y++) { ladderLevel[y][15] = 0; ladderHitbox[y][15] = 0; }
+        for (int y = 11; y <= 13; y++) { ladderLevel[y][12] = 0; ladderHitbox[y][12] = 0; }
+        for (int y = 7; y <= 9; y++) { ladderLevel[y][9] = 0; ladderHitbox[y][9] = 0; }
+        for (int y = 7; y <= 9; y++) { ladderLevel[y][15] = 0; ladderHitbox[y][15] = 0; }
+
+        pillars.clear();
+
+        newPlatformsVisible = true;
+        newPlatforms.clear();
+
+        // X: 10*32=320, ancho: 5*32=160
+        float platX = 305;
+        float platW = 490 - 300;
+        float platH = 16;  
+        float baseY = 21 * 32 + 16;  // Borde superior del suelo
+        newPlatforms.push_back({ platX, baseY - platH, platW, platH });       // Y=20
+        newPlatforms.push_back({ platX, baseY - platH * 2 - 2, platW, platH }); // Y=19
+        newPlatforms.push_back({ platX, baseY - platH * 3 - 4, platW, platH }); // Y=18
+        newPlatforms.push_back({ platX, baseY - platH * 4 - 6, platW, platH }); // Y=17
     }
 }
 
@@ -193,7 +249,26 @@ void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
         }
     }
 }
-// ========== ==========
+
+bool Scene2::CheckNewPlatformCollision(Rectangle playerHitbox, float& groundY) {
+    if (!newPlatformsVisible) return false;
+
+    for (auto& plat : newPlatforms) {
+        Rectangle platFull = {
+            plat.x,
+            plat.y,
+            plat.width,
+            plat.height
+        };
+
+        if (CheckCollisionRecs(playerHitbox, platFull)) {
+            groundY = plat.y;  // Parte superior para apoyarse
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
     return hitboxLevel[y][x] == 1;
@@ -256,6 +331,8 @@ void Scene2::AddLadder(int startY, int endY, int x,
         }
     }
 }
+
+
 
 void Scene2::Draw() {
     int scaledTileSize = tileSize * tileScale;
@@ -337,60 +414,6 @@ void Scene2::Draw() {
             }
         }
     }
-    // DEBUG: Dibujar hitboxes de escaleras (tamaño real)
-    for (int y = 0; y < mapHeight; y++) {
-        for (int x = 0; x < mapWidth; x++) {
-            int hitboxType = ladderHitbox[y][x];
-            if (hitboxType >= 1) {
-                Color ladderColor;
-                Rectangle hitboxRect;
-
-                switch (hitboxType) {
-                case 1: // Completa
-                    ladderColor = GREEN;
-                    hitboxRect = {
-                        (float)(x * scaledTileSize),
-                        (float)(y * scaledTileSize),
-                        (float)scaledTileSize,
-                        (float)scaledTileSize
-                    };
-                    break;
-
-                case 2: // Mitad inferior
-                    ladderColor = BLUE;
-                    hitboxRect = {
-                        (float)(x * scaledTileSize),
-                        (float)(y * scaledTileSize) + scaledTileSize / 2.0f,
-                        (float)scaledTileSize,
-                        (float)scaledTileSize / 2.0f
-                    };
-                    break;
-
-                case 3: // Mitad superior
-                    ladderColor = YELLOW;
-                    hitboxRect = {
-                        (float)(x * scaledTileSize),
-                        (float)(y * scaledTileSize),
-                        (float)scaledTileSize,
-                        (float)scaledTileSize / 2.0f
-                    };
-                    break;
-
-                default:
-                    ladderColor = PURPLE;
-                    hitboxRect = {
-                        (float)(x * scaledTileSize),
-                        (float)(y * scaledTileSize),
-                        (float)scaledTileSize,
-                        (float)scaledTileSize
-                    };
-                    break;
-                }
-
-                DrawRectangleLinesEx(hitboxRect, 2.0f, ladderColor);
-            }
-        }
-    }
 
     DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
 
@@ -402,6 +425,18 @@ void Scene2::Draw() {
         DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.0f, WHITE);
     }
     // ====================
+
+    // New plataformas
+    if (newPlatformsVisible) {
+        for (auto& plat : newPlatforms) {
+            Rectangle source = { 0, 4, 16, 8 };
+            // Dibujar tile repetido a lo ancho de la plataforma
+            for (float x = plat.x; x < plat.x + plat.width; x += 32) {
+                Rectangle dest = { x, plat.y, 32, plat.height };
+                DrawTexturePro(tileTexture, source, dest, { 0,0 }, 0.0f, WHITE);
+            }
+        }
+    }
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);

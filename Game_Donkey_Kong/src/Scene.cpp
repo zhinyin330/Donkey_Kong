@@ -147,17 +147,17 @@ Scene::Scene() {
         { 1, 1, 1, 1 },    // VISUAL
         { 0, 1, 1, 2 });   // HITBOX
 
-    AddLadder(12, 9, 18,
-        { 1, 2, 1, 3 },    // VISUAL
+    AddLadder(12, 9, 17,
+        { 1, 2, 1, 1 },    // VISUAL
         { 0, 0, 2, 2 });   // HITBOX
 
     // Tramo 5: Plataforma 4 (Y=9) a Plataforma 5 (Y=6)
     AddLadder(9, 6, 10,
-        { 1, 2, 1, 0 },    // VISUAL
+        { 1, 2, 1, 1 },    // VISUAL
         { 0, 0, 2, 2 });   // HITBOX
 
     AddLadder(9, 6, 20,
-        { 1, 1, 1, 2 },    // VISUAL
+        { 1, 1, 1, 1 },    // VISUAL
         { 3, 1, 1, 2 });   // HITBOX
 
     // Tramo 6: Plataforma 5 (Y=6) a Superior (Y=3)

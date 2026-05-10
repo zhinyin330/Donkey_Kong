@@ -17,6 +17,7 @@ private:
     std::vector<std::vector<int>> ladderHitbox;
     std::vector<Vector2> pillars;
     std::vector<Vector2> buttons;
+    std::vector<Rectangle> newPlatforms;
 
     Texture2D tileTexture;
     Texture2D ladderTexture;
@@ -53,6 +54,10 @@ private:
     int GetCurrentLevel() override { return currentLevel; }
     void SetCurrentLevel(int level) override { currentLevel = level; }
 
+    // Guardar los índices de las plataformas en level original
+    void CheckPlatformsStatus();
+    bool newPlatformsVisible;
+
 public:
     Scene2();
     ~Scene2();
@@ -71,6 +76,8 @@ public:
     Vector2 GetPrincessPosition() override { return princessPosition; }
     float GetPrincessScale() override { return princessScale; }
     void CheckButtonCollision(Rectangle playerHitbox);
+    bool CheckNewPlatformCollision(Rectangle playerFeetHitbox, float& groundY) override;
+    bool HasNewPlatforms() override { return newPlatformsVisible; }
 
     // Métodos de transición (aunque no se usen, deben estar)
     bool transitionReached = false;

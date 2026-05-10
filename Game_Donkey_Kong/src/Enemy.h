@@ -14,14 +14,19 @@ enum class EnemyState {
 // (^^)d
 enum class EnemyBehavior {
     THROW_BARRELS,   // Scene 1: Lanza barriles
-    STATIONARY       // Scene 2: Solo baila, no hace nada
+    STATIONARY,       // Scene 2: Solo baila, no hace nada
+    DECORATIVE_CYCLE  // Scene 2
 };
 
 class Enemy {
 private:
     // ===== 贴图 =====
+    Texture2D currentTexture;
     std::vector<Texture2D> dkWithBarrelTextures;  // 拿桶时的大金刚图片
     std::vector<Texture2D> dkEmptyTextures;       // 空手时的大金刚图片
+    Texture2D idleTexture;
+    Texture2D emote1Texture;
+    Texture2D emote2Texture;
 
     // ===== 动画 =====
     int currentFrame;
@@ -45,6 +50,7 @@ private:
     std::vector<Barrel> barrels;
 
     void SpawnBarrel(); // 丢桶
+    void UpdateDecorativeCycle();
 
 public:
     Enemy();
