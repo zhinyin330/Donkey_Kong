@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include "GameScene.h"  
 #include "resource_dir.h"
+#include <string> 
 
 //Para usarlo correctamente; Duracion del modo immune
 const float Player::starModeDuration = 10.0f;
@@ -29,6 +30,18 @@ Player::Player() {
 
     climbEndTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_LadderEnd1.png"));
     climbEndTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_LadderEnd2.png"));
+
+    //加载锤子动画
+    hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Up.png"));
+    hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Right.png"));
+
+    // 初始化变量
+    hasHammer = false;
+    isSwingingHammer = false;
+    swingHammerTimer = 0.0f;
+    swingHammerDuration = 0.3f;
+    swingFrame = 0;
+    hammerOffset = { 25, 0 };  // 锤子在玩家右边
 
     // Variables
     currentTexture = idleTexture;
@@ -83,6 +96,13 @@ Player::Player() {
     starMode = false;
     starModeTimer = 0.0f;
     currentTint = WHITE;
+
+    // 锤子系统初始化
+    hasHammer = false;
+    isSwingingHammer = false;
+    swingHammerTimer = 0.0f;
+    swingHammerDuration = 0.3f;
+    swingFrame = 0;
 }
 
 Player::~Player() {
@@ -94,10 +114,18 @@ Player::~Player() {
     for (Texture2D& tex : climbTextures) UnloadTexture(tex);
     for (Texture2D& tex : climbEndTextures) UnloadTexture(tex);
     UnloadSound(jumpSound);
+    for (Texture2D& tex : hammerSwingTextures) UnloadTexture(tex); //卸载锤子纹理
 }
 
 void Player::HandleInput(GameScene& scene) {
-    if (exitingLadder) {
+    // K键挥锤 
+    if (IsKeyPressed(KEY_K) && hasHammer && !isSwingingHammer && currentState != PlayerState::HAMMER_SWING) {
+        StartSwingHammer();
+        return;
+    }
+
+    //  如果正在挥锤，不处理移动、跳跃等其他输入
+    if (isSwingingHammer || currentState == PlayerState::HAMMER_SWING) {
         return;
     }
 
@@ -292,6 +320,10 @@ void Player::ChangeState(PlayerState newState) {
                 walkEndCounter = 0;
             }
             break;
+            // 设置挥锤的第一帧动画
+        case PlayerState::HAMMER_SWING:
+            exitingLadder = false;
+            break;
         }
 
         if (!isJumping || currentState == PlayerState::JUMPING) {
@@ -301,6 +333,11 @@ void Player::ChangeState(PlayerState newState) {
 }
 
 void Player::UpdateAnimation() {
+
+    // 如果正在挥锤，不更新普通动画
+    if (currentState == PlayerState::HAMMER_SWING) {
+        return;
+    }
     frameCounter += GetFrameTime();
 
     if (frameCounter >= frameSpeed) {
@@ -361,8 +398,13 @@ void Player::SetFeetPosition(float feetY) {
 }
 
 void Player::Update(GameScene& scene) {
+    UpdateHammerSwing(GetFrameTime());// 先更新挥锤动画
     UpdateAnimation();
     UpdateStarMode();
+
+    UpdateAnimation();
+    UpdateStarMode();
+    UpdateFloatingTexts();  // 更新浮动文字
 
     // ================= SISTEMA DE PASOS =================
    
@@ -395,7 +437,7 @@ void Player::Update(GameScene& scene) {
     }
 
     // Si está en animación de salida, solo animación
-    if (currentState == PlayerState::CLIMBING_END) {
+    if (currentState == PlayerState::CLIMBING_END || currentState == PlayerState::HAMMER_SWING) {
         velocityY = 0;
         isJumping = false;
         return;
@@ -857,7 +899,33 @@ void Player::Draw() {
         source.width = -source.width;
     }
 
+    // ... 您原有的绘制马里奥的代码 ...
     DrawTexturePro(currentTexture, source, dest, origin, 0.0f, currentTint);
+
+    // ========== 绘制锤子 ==========
+    if (isSwingingHammer && !hammerSwingTextures.empty()) {
+        Vector2 hammerPos;
+        int texIndex = swingFrame;
+        if (texIndex >= (int)hammerSwingTextures.size()) {
+            texIndex = hammerSwingTextures.size() - 1;
+        }
+
+        if (facingRight) {
+            hammerPos = { position.x + 30, position.y };
+            DrawTextureEx(hammerSwingTextures[texIndex], hammerPos, 0.0f, scale, WHITE);
+        }
+        else {
+            hammerPos = { position.x - 30, position.y };
+            // 正确翻转图片
+            Rectangle src = { 0, 0, (float)hammerSwingTextures[texIndex].width, (float)hammerSwingTextures[texIndex].height };
+            Rectangle dst = { hammerPos.x, hammerPos.y, hammerSwingTextures[texIndex].width * scale, hammerSwingTextures[texIndex].height * scale };
+            src.width = -src.width;  // 水平翻转
+            DrawTexturePro(hammerSwingTextures[texIndex], src, dst, { 0, 0 }, 0.0f, WHITE);
+        }
+
+        DrawCircle(hammerPos.x, hammerPos.y, 5, RED);
+    }
+    // ========== 锤子绘制结束 ==========
 
     // Debug: Hitbox
     int currentOffsetY = GetCurrentHitboxOffsetY();
@@ -873,15 +941,122 @@ void Player::Draw() {
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
         GameScene::GetScreenWidth() - 200, 680, 20, YELLOW);
+    
+    // 显示锤子提示
+    if (hasHammer) {
+        DrawText("HAMMER: K", GameScene::GetScreenWidth() - 200, 650, 20, ORANGE);
+    }
+
+    DrawFloatingTexts();   // 绘制浮动文字 
 }
-// ========== 得分系统 ==========
+    //得分系统 
 void Player::AddScore(int points)
 {
     score += points;
     TraceLog(LOG_INFO, "Score +%d! Total: %d", points, score);
+
+    // 添加浮动文字 
+    Vector2 textPos = GetFeetWorldPos();
+    textPos.y -= 30.0f;  // 显示在玩家上方
+    AddFloatingText(textPos, "+", points);
 }
 
 void Player::ResetScore()
 {
     score = 0;
+}
+
+void Player::AddFloatingText(Vector2 worldPos, const std::string& text, int points)
+{
+    std::string displayText = text + std::to_string(points);
+    floatingTexts.emplace_back(worldPos, displayText, 0.8f);
+}
+
+void Player::UpdateFloatingTexts()
+{
+    float dt = GetFrameTime();
+    for (auto it = floatingTexts.begin(); it != floatingTexts.end(); )
+    {
+        it->lifetime -= dt;
+        it->alpha = it->lifetime / 0.8f;
+        if (it->alpha < 0) it->alpha = 0;
+        it->floatOffset -= 40.0f * dt;
+        if (it->lifetime <= 0)
+            it = floatingTexts.erase(it);
+        else
+            ++it;
+    }
+}
+
+void Player::DrawFloatingTexts()
+{
+    for (const auto& ft : floatingTexts)
+    {
+        Color textColor = { 255, 255, 255, (unsigned char)(ft.alpha * 255) };  // ← 改成白色
+        Vector2 drawPos = { ft.position.x, ft.position.y + ft.floatOffset };
+        int fontSize = 24;
+        int textWidth = MeasureText(ft.text.c_str(), fontSize);
+     
+        // 白色主文字
+        DrawText(ft.text.c_str(), (int)drawPos.x - textWidth / 2, (int)drawPos.y - 1, fontSize, textColor);
+    }
+}
+
+//锤子系统方法实现 
+void Player::StartSwingHammer() {
+    if (!hasHammer) return;  // 没有锤子就不能挥
+
+    isSwingingHammer = true;
+    swingHammerTimer = swingHammerDuration;  // 设置挥锤时间为0.3秒
+    swingFrame = 0;
+    ChangeState(PlayerState::HAMMER_SWING);  // 切换到挥锤状态
+}
+
+void Player::UpdateHammerSwing(float deltaTime) {
+    if (!isSwingingHammer) return;
+
+    swingHammerTimer -= deltaTime;  // 减少计时器
+
+
+    // 计算动画帧（只记录帧数，不修改纹理）
+    float frameTime = swingHammerDuration / hammerSwingTextures.size();
+    int newFrame = (int)((swingHammerDuration - swingHammerTimer) / frameTime);
+    if (newFrame >= (int)hammerSwingTextures.size()) {
+        newFrame = hammerSwingTextures.size() - 1;
+    }
+
+    swingFrame = newFrame;  // 只记录当前帧
+
+    if (swingHammerTimer <= 0) {
+        isSwingingHammer = false;
+        swingFrame = 0;
+        if (currentState == PlayerState::HAMMER_SWING) {
+            ChangeState(PlayerState::IDLE);
+        }
+    }
+}
+
+Rectangle Player::GetAttackHitbox() const {
+    // 攻击范围：玩家前方40像素，高度和玩家一样
+    float attackRange = 40.0f;
+    float attackHeight = currentTexture.height * scale;
+
+    if (facingRight) {
+        // 面向右时，攻击范围在玩家右边
+        return {
+            position.x + currentTexture.width * scale,  // 从玩家右侧开始
+            position.y,                                   // 和玩家同高
+            attackRange,                                  // 宽度40
+            attackHeight                                  // 高度和玩家一样
+        };
+    }
+    else {
+        // 面向左时，攻击范围在玩家左边
+        return {
+            position.x - attackRange,  // 从玩家左侧开始
+            position.y,
+            attackRange,
+            attackHeight
+        };
+    }
 }

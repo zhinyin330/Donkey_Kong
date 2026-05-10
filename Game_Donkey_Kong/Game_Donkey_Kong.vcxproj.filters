@@ -151,6 +151,9 @@
     <None Include="resources\audio\SFXjump.mp3">
       <Filter>Game Resource Files\audio</Filter>
     </None>
+    <None Include="resources\audio\Start.mp3">
+      <Filter>Game Resource Files\audio</Filter>
+    </None>
     <None Include="resources\audio\Startup.mp3">
       <Filter>Game Resource Files\audio</Filter>
     </None>

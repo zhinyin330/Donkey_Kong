@@ -23,3 +23,4 @@ void CleanupGame();
 void UnloadGame();
 void SwitchToScene2();
 void ResetGame();
+void SetHammerPosition(float x, float y);

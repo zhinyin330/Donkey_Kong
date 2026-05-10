@@ -14,11 +14,17 @@ static Enemy* gameEnemy = nullptr;
 static NewMechanic* gameStars = nullptr;
 static bool isInitialized = false;
 static bool shouldReset = false;
-static bool isScene2 = false; 
+static bool isScene2 = false;
 static Transition* gameTransition = nullptr;
 static int currentLevel = 1;
 static int totalScore = 0;
 static int totalStars = 0;
+// 锤子变量 - 显式初始化
+static Texture2D hammerTexture = { 0 };
+static Vector2 hammerPosition = { 400, 300 };
+static bool hammerActive = true;
+static bool hammerCollected = false;
+static float hammerScale = 2.3f;
 
 
 void InitGame()
@@ -28,11 +34,10 @@ void InitGame()
     gameScene = new Scene();
     gamePlayer = new Player();
     gameEnemy = new Enemy();
-    gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);  // Scene 1: lanza barriles
+    gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);
     gameStars = new NewMechanic();
     gameTransition = new Transition();
 
-    // Restaurar estrellas acumuladas
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
     }
@@ -41,6 +46,10 @@ void InitGame()
     isInitialized = true;
     shouldReset = false;
 
+    hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
+    hammerActive = true;
+    hammerCollected = false;
+    hammerPosition = { 600.0f, 540.0f };
 }
 
 void InitGameScene2()
@@ -50,11 +59,10 @@ void InitGameScene2()
     gameScene = new Scene2();
     gamePlayer = new Player();
     gameEnemy = new Enemy();
-    gameEnemy->SetBehavior(EnemyBehavior::DECORATIVE_CYCLE);     // Scene 2: decorativo
-    gameEnemy->SetPosition(340, 130);                      // Posición diferente
+    gameEnemy->SetBehavior(EnemyBehavior::DECORATIVE_CYCLE);
+    gameEnemy->SetPosition(340, 130);
     gameStars = new NewMechanic();
 
-    // Restaurar estrellas acumuladas
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
     }
@@ -63,41 +71,22 @@ void InitGameScene2()
     isInitialized = true;
     shouldReset = false;
     gameTransition = new Transition();
+
+    hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
+    hammerActive = true;
+    hammerCollected = false;
+    hammerPosition = { 400.0f, 300.0f };
 }
 
 void CleanupGame()
 {
     if (isInitialized)
     {
-
-        if (gameScene != nullptr)
-        {
-            delete gameScene;
-            gameScene = nullptr;
-        }
-
-        if (gamePlayer != nullptr)
-        {
-            delete gamePlayer;
-            gamePlayer = nullptr;
-        }
-
-        if (gameEnemy != nullptr)
-        {
-            delete gameEnemy;
-            gameEnemy = nullptr;
-        }
-
-        if (gameStars != nullptr)
-        {
-            delete gameStars;
-            gameStars = nullptr;
-        }
-
-        if (gameTransition != nullptr) {
-            delete gameTransition;
-            gameTransition = nullptr;
-        }
+        if (gameScene != nullptr) { delete gameScene; gameScene = nullptr; }
+        if (gamePlayer != nullptr) { delete gamePlayer; gamePlayer = nullptr; }
+        if (gameEnemy != nullptr) { delete gameEnemy; gameEnemy = nullptr; }
+        if (gameStars != nullptr) { delete gameStars; gameStars = nullptr; }
+        if (gameTransition != nullptr) { delete gameTransition; gameTransition = nullptr; }
 
         isInitialized = false;
         isScene2 = false;
@@ -107,10 +96,9 @@ void CleanupGame()
 
 void DrawGame(GameScreen* currentScreen)
 {
-    // --- 1. 延迟初始化 (只在第一次进入游戏时执行) ---
+    // --- 1. Inicialización ---
     if (!isInitialized)
     {
-        // 如果你的类有构造函数，在这里 new 出来
         if (gameScene == nullptr) gameScene = new Scene();
         if (gamePlayer == nullptr) gamePlayer = new Player();
         if (gameEnemy == nullptr) gameEnemy = new Enemy();
@@ -121,10 +109,9 @@ void DrawGame(GameScreen* currentScreen)
         isInitialized = true;
     }
 
-    // --- 2. 更新逻辑 (UPDATE) ---
+    // --- 2. UPDATE ---
     float deltaTime = GetFrameTime();
 
-    // 更新场景2的音乐
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) scene2->UpdateMusic();
@@ -136,11 +123,26 @@ void DrawGame(GameScreen* currentScreen)
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
 
+    // Martillo
+    if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
+        Rectangle hammerHitbox = {
+            hammerPosition.x,
+            hammerPosition.y,
+            hammerTexture.width * hammerScale,
+            hammerTexture.height * hammerScale
+        };
+        Rectangle playerHitbox = gamePlayer->GetHitbox();
+        if (CheckCollisionRecs(playerHitbox, hammerHitbox)) {
+            hammerCollected = true;
+            hammerActive = false;
+            gamePlayer->SetHasHammer(true);
+        }
+    }
+
     // Colisiones Scene2 (items + botones)
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
-            // Hitbox de pies para items (más preciso)
             Rectangle feetHitbox = {
                 gamePlayer->GetPosition().x,
                 gamePlayer->GetPosition().y + 2 * gamePlayer->GetScale(),
@@ -149,7 +151,6 @@ void DrawGame(GameScreen* currentScreen)
             };
             scene2->CheckItemCollision(feetHitbox, gamePlayer);
 
-            // Hitbox completo para botones (necesita cubrir todo Mario)
             Rectangle fullHitbox = {
                 gamePlayer->GetPosition().x,
                 gamePlayer->GetPosition().y,
@@ -160,12 +161,10 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // -- - 3. TRANSICIÓN-- -
-  
-    if(gameScene->IsTransitionReached()) {
+    // --- 3. TRANSICIÓN ---
+    if (gameScene->IsTransitionReached()) {
         if (gameTransition != nullptr && !gameTransition->IsFinished()) {
             gameTransition->Update();
-
             gameScene->Draw();
             gamePlayer->Draw();
             gameEnemy->Draw();
@@ -179,13 +178,13 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 4. Tecla T (debug) ---
+    // --- 4. Tecla T ---
     if (IsKeyPressed(KEY_T) && !isScene2) {
         InitGameScene2();
         return;
     }
 
-    // --- 5. Colisión princesa Scene 1 ---
+    // --- 5. Princesa Scene 1 ---
     if (!isScene2) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
@@ -201,7 +200,6 @@ void DrawGame(GameScreen* currentScreen)
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
             };
-
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
                 totalScore += gamePlayer->GetStarCount() * 100;
@@ -214,7 +212,7 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 6. Colisión princesa Scene 2 ---
+    // --- 6. Princesa Scene 2 ---
     if (isScene2) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
@@ -230,7 +228,6 @@ void DrawGame(GameScreen* currentScreen)
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
             };
-
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
                 totalScore += gamePlayer->GetStarCount() * 100;
@@ -243,38 +240,30 @@ void DrawGame(GameScreen* currentScreen)
             }
         }
     }
-    
-    
-    // 增加一个返回菜单的逻辑 (按下 ESC)
-    if (IsKeyPressed(KEY_ESCAPE))
-    {
+
+    // --- 7. ESC ---
+    if (IsKeyPressed(KEY_ESCAPE)) {
         *currentScreen = MENU;
-        // 如果希望下次进游戏重新开始，可以把 isInitialized 设为 false 并 delete 对象
         CleanupGame();
         return;
     }
 
-    // --- 3. 绘制逻辑 (DRAW) ---
+    // --- 8. DRAW ---
     gameScene->Draw();
     gamePlayer->Draw();
     gameEnemy->Draw();
     gameStars->Draw();
 
-    // ========== 显示得分（左上角）==========
-    if (gamePlayer != nullptr) {
-        int score = gamePlayer->GetScore();
-        char scoreText[32];
-        sprintf(scoreText, "SCORE: %04d", score);
-
-        // 绘制得分背景（半透明黑色）
-        DrawRectangle(10, 10, 120, 30, Fade(BLACK, 0.7f));
-        // 绘制得分文字（白色）
-        DrawText(scoreText, 15, 15, 20, WHITE);
+    if (hammerActive && !hammerCollected) {
+        DrawTextureEx(hammerTexture, hammerPosition, 0.0f, hammerScale, WHITE);
     }
-   
-    // ===== RESET =====
-    if (shouldReset)
-    {
+
+    if (gamePlayer != nullptr) {
+        DrawRectangle(10, 10, 120, 30, Fade(BLACK, 0.7f));
+        DrawText(TextFormat("SCORE: %04d", gamePlayer->GetScore()), 15, 15, 20, WHITE);
+    }
+
+    if (shouldReset) {
         CleanupGame();
         shouldReset = false;
     }
@@ -283,28 +272,18 @@ void DrawGame(GameScreen* currentScreen)
 void UnloadGame()
 {
     CleanupGame();
-    if (isInitialized)
-    {
-        delete gameScene;
-        delete gamePlayer;
-        delete gameEnemy;
-        delete gameStars;
-        gameScene = nullptr;
-        gamePlayer = nullptr;
-        gameEnemy = nullptr;
-        gameStars = nullptr;
-        isInitialized = false;
-    }
 }
 
-// Función auxiliar para cambiar de escena manualmente
 void SwitchToScene2()
 {
     InitGameScene2();
 }
 
-// Función para reiniciar el juego
 void ResetGame()
 {
     shouldReset = true;
+}
+
+void SetHammerPosition(float x, float y) {
+    hammerPosition = { x, y };
 }
