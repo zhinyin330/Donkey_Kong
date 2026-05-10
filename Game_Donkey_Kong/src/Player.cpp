@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include "GameScene.h"  
 #include "resource_dir.h"
+#include <string> 
 
 //Para usarlo correctamente; Duracion del modo immune
 const float Player::starModeDuration = 10.0f;
@@ -363,6 +364,10 @@ void Player::SetFeetPosition(float feetY) {
 void Player::Update(GameScene& scene) {
     UpdateAnimation();
     UpdateStarMode();
+
+    UpdateAnimation();
+    UpdateStarMode();
+    UpdateFloatingTexts();  // 更新浮动文字
 
     // ================= SISTEMA DE PASOS =================
    
@@ -822,15 +827,62 @@ void Player::Draw() {
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
         GameScene::GetScreenWidth() - 200, 680, 20, YELLOW);
+
+    DrawFloatingTexts();   // 绘制浮动文字 
 }
-// ========== 得分系统 ==========
+    //得分系统 
 void Player::AddScore(int points)
 {
     score += points;
     TraceLog(LOG_INFO, "Score +%d! Total: %d", points, score);
+
+    // 添加浮动文字 
+    Vector2 textPos = GetFeetWorldPos();
+    textPos.y -= 30.0f;  // 显示在玩家上方
+    AddFloatingText(textPos, "+", points);
 }
 
 void Player::ResetScore()
 {
     score = 0;
+}
+
+void Player::AddFloatingText(Vector2 worldPos, const std::string& text, int points)
+{
+    std::string displayText = text + std::to_string(points);
+    floatingTexts.emplace_back(worldPos, displayText, 0.8f);
+}
+
+void Player::UpdateFloatingTexts()
+{
+    float dt = GetFrameTime();
+    for (auto it = floatingTexts.begin(); it != floatingTexts.end(); )
+    {
+        it->lifetime -= dt;
+        it->alpha = it->lifetime / 0.8f;
+        if (it->alpha < 0) it->alpha = 0;
+        it->floatOffset -= 40.0f * dt;
+        if (it->lifetime <= 0)
+            it = floatingTexts.erase(it);
+        else
+            ++it;
+    }
+}
+
+void Player::DrawFloatingTexts()
+{
+    for (const auto& ft : floatingTexts)
+    {
+        Color textColor = { 255, 255, 255, (unsigned char)(ft.alpha * 255) };  // ← 改成白色
+        Vector2 drawPos = { ft.position.x, ft.position.y + ft.floatOffset };
+        int fontSize = 24;
+        int textWidth = MeasureText(ft.text.c_str(), fontSize);
+
+        
+
+        // 白色主文字
+        DrawText(ft.text.c_str(), (int)drawPos.x - textWidth / 2, (int)drawPos.y - 1, fontSize, textColor);
+
+       
+    }
 }
