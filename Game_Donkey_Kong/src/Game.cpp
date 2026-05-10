@@ -16,6 +16,9 @@ static bool isInitialized = false;
 static bool shouldReset = false;
 static bool isScene2 = false;  // Para saber qué escena está activa
 static Transition* gameTransition = nullptr;
+static int currentLevel = 1;
+static int totalScore = 0;
+static int totalStars = 0;
 
 
 void InitGame()
@@ -29,6 +32,11 @@ void InitGame()
     gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);  // Scene 1: lanza barriles
     gameStars = new NewMechanic();
     gameTransition = new Transition();
+
+    // Restaurar estrellas acumuladas
+    for (int i = 0; i < totalStars; i++) {
+        gamePlayer->AddStar();
+    }
 
     isScene2 = false;
     isInitialized = true;
@@ -46,6 +54,11 @@ void InitGameScene2()
     gameEnemy->SetBehavior(EnemyBehavior::STATIONARY);     // Scene 2: decorativo
     gameEnemy->SetPosition(325, 130);                      // Posición diferente
     gameStars = new NewMechanic();
+
+    // Restaurar estrellas acumuladas
+    for (int i = 0; i < totalStars; i++) {
+        gamePlayer->AddStar();
+    }
 
     isScene2 = true;
     isInitialized = true;
@@ -141,25 +154,28 @@ if (isScene2 && gameScene != nullptr) {
     // ==========================================
    // TRANSICIÓN A SCENE2
    // ==========================================
-    if (!isScene2 && gameScene->IsTransitionReached()) {
+  
+    if (gameScene->IsTransitionReached()) {
         if (gameTransition != nullptr && !gameTransition->IsFinished()) {
             gameTransition->Update();
 
-            // Dibujar la escena detenida de fondo
             gameScene->Draw();
             gamePlayer->Draw();
-            gameEnemy->Draw();
+            if (isScene2) gameEnemy->Draw();
 
-            // Dibujar la transición encima
             gameTransition->Draw();
 
             if (gameTransition->IsFinished()) {
-                InitGameScene2();
+                if (!isScene2) {
+                    InitGameScene2();  // Ir a Scene 2
+                }
+                else {
+                    InitGame();        // Volver a Scene 1
+                }
             }
             return;
         }
     }
-
 
     // ========== 新增结束 ==========
     
@@ -175,11 +191,11 @@ if (isScene2 && gameScene != nullptr) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
 
-        if (princessScale > 0) {  // Solo si la escena tiene princesa
+        if (princessScale > 0) {
             Rectangle princessRect = {
                 princessPos.x,
                 princessPos.y,
-                gamePlayer->GetTextureWidth() * princessScale,   // Usamos tamaño aprox
+                gamePlayer->GetTextureWidth() * princessScale,
                 gamePlayer->GetTextureHeight() * princessScale
             };
 
@@ -191,10 +207,50 @@ if (isScene2 && gameScene != nullptr) {
             };
 
             if (CheckCollisionRecs(playerRect, princessRect)) {
-                TraceLog(LOG_INFO, "¡Princesa rescatada! Iniciando transicion");
-                gameScene->SetTransitionReached(true);  
+                // Guardar estrellas y puntuación actuales
+                totalStars = gamePlayer->GetStarCount();
+                totalScore += gamePlayer->GetStarCount() * 100;
+
+                // Activar transición a Scene 2
+                gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
-                    gameTransition->Start(2, gamePlayer->GetStarCount() * 100, gamePlayer->GetStarCount());
+                    gameTransition->Start(currentLevel, totalScore, totalStars);
+                }
+                return;
+            }
+        }
+    }
+
+    // Colisión con princesa (Scene 2 → Scene 1)
+    if (isScene2) {
+        Vector2 princessPos = gameScene->GetPrincessPosition();
+        float princessScale = gameScene->GetPrincessScale();
+
+        if (princessScale > 0) {
+            Rectangle princessRect = {
+                princessPos.x,
+                princessPos.y,
+                gamePlayer->GetTextureWidth() * princessScale,
+                gamePlayer->GetTextureHeight() * princessScale
+            };
+
+            Rectangle playerRect = {
+                gamePlayer->GetPosition().x,
+                gamePlayer->GetPosition().y,
+                gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
+                gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
+            };
+
+            if (CheckCollisionRecs(playerRect, princessRect)) {
+                // Guardar estrellas y puntuación actuales
+                totalStars = gamePlayer->GetStarCount();
+                totalScore += gamePlayer->GetStarCount() * 100;
+                currentLevel++;  // Subir nivel
+
+                // Activar transición a Scene 1
+                gameScene->SetTransitionReached(true);
+                if (gameTransition != nullptr) {
+                    gameTransition->Start(currentLevel, totalScore, totalStars);
                 }
                 return;
             }

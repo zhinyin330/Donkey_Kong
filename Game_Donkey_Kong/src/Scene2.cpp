@@ -98,6 +98,36 @@ Scene2::Scene2() {
     AddPillar(445, 145);
     AddPillar(445, 175);
 
+    //princesa
+    princessTexture = LoadTexture("Characters/Princess/Dk_Princess_Idle1.png");
+    princessScale = 2.2f;
+    // Colocar en la plataforma superior (Y=3), centrado
+    float princessX = 10 * 32;
+    int platformY = 3;
+    float princessY = platformY * 32 - princessTexture.height * princessScale + 24;
+    princessPosition = { princessX, princessY };
+
+    // ========== BOTONES DEL SUELO ==========
+    buttonTexture = LoadTexture("items/Dk_BottomButton.png");
+
+    // 8 botones distribuidos en el suelo (Y=21)
+    // El suelo va de X=0 a X=24, los botones ocupan ~1 tile cada uno
+    float buttonScale = 1.9f;
+    float buttonW = buttonTexture.width * buttonScale;
+    float buttonY = 21 * 32 + platformHitboxOffsetY * tileScale - buttonTexture.height * buttonScale;
+
+    buttons.push_back({ 255, 586 });    // Botón 1
+    buttons.push_back({ 260, 456 });   // Botón 2
+    buttons.push_back({ 255, 328 });   // Botón 3
+    buttons.push_back({ 260, 200 });   // Botón 4
+    buttons.push_back({ 508, 586 });   // Botón 5
+    buttons.push_back({ 513, 456 });   // Botón 6
+    buttons.push_back({ 508, 328 });   // Botón 7
+    buttons.push_back({ 513, 200 });   // Botón 8
+
+    for (int i = 0; i < 8; i++) {
+        buttonsActive.push_back(true);
+    }
 }
 
 Scene2::~Scene2() {
@@ -107,13 +137,35 @@ Scene2::~Scene2() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(pillarTexture);
-    //加分物品
+    UnloadTexture(princessTexture);
     UnloadTexture(item1Texture);
     UnloadTexture(item3Texture);
+    UnloadTexture(buttonTexture);
     
 
 }
-// ========== 新增：碰撞检测  加分物品 ==========
+
+void Scene2::CheckButtonCollision(Rectangle playerHitbox) {
+    float buttonScale = 2.0f;
+    for (int i = 0; i < (int)buttons.size(); i++) {
+        if (buttonsActive[i]) {
+            Rectangle buttonRect = {
+                buttons[i].x,
+                buttons[i].y,
+                buttonTexture.width * buttonScale,
+                buttonTexture.height * buttonScale
+            };
+
+            // Solo detectar si el jugador está cayendo (pies tocando el botón desde arriba)
+            if (CheckCollisionRecs(playerHitbox, buttonRect)) {
+                buttonsActive[i] = false;
+                // Opcional: dar puntos
+                // player->AddScore(100);
+            }
+        }
+    }
+}
+
 void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
     if (item1Active) {
         Rectangle itemHitbox = {
@@ -233,6 +285,14 @@ void Scene2::Draw() {
         }
     }
 
+    // ========== BOTONES DEL SUELO ==========
+    float buttonScale = 2.0f;
+    for (int i = 0; i < (int)buttons.size(); i++) {
+        if (buttonsActive[i]) {
+            DrawTextureEx(buttonTexture, buttons[i], 0.0f, buttonScale, WHITE);
+        }
+    }
+
     // Dibujar escaleras
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
@@ -331,6 +391,9 @@ void Scene2::Draw() {
             }
         }
     }
+
+    DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
+
     // ========== 加分物品 ==========
     if (item1Active) {
         DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.0f, WHITE);

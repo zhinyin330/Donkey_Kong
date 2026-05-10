@@ -37,6 +37,11 @@ private:
     Vector2 princessPosition;
     float princessScale;
 
+    //level
+    int currentLevel = 1;
+    int GetCurrentLevel() override { return currentLevel; }
+    void SetCurrentLevel(int level) override { currentLevel = level; }
+
 public:
     Scene();
     ~Scene();

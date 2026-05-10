@@ -194,7 +194,7 @@ void Player::HandleInput(GameScene& scene) {
     // Movimiento normal
     if (currentState != PlayerState::CLIMBING) {
         if (IsKeyPressed(KEY_SPACE) && !isJumping) {
-            velocityY = -7.5f;
+            velocityY = -9.5f;
             isJumping = true;
             PlaySound(jumpSound);
         }

@@ -17,7 +17,8 @@ public:
     virtual int GetPlatformHitboxOffsetY() = 0;
     virtual Vector2 GetPrincessPosition() { return { -100, -100 }; }  // Fuera de pantalla por defecto
     virtual float GetPrincessScale() { return 0; }
-
+    virtual int GetCurrentLevel() { return 1; }
+    virtual void SetCurrentLevel(int level) {}
 
 
     // Métodos estáticos para tamaño de pantalla
