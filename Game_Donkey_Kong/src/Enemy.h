@@ -76,5 +76,6 @@ public:
     float GetTextureWidth() const { return currentTexture.width; }
     float GetTextureHeight() const { return currentTexture.height; }
 
-    
+    const std::vector<Barrel>& GetBarrels() const { return barrels; }
+    std::vector<Barrel>& GetBarrels() { return barrels; }  // 返回引用以便修改
 };

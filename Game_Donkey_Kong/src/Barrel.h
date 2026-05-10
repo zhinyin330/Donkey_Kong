@@ -29,15 +29,19 @@ class Barrel {
         // 更新 / 渲染
         void Update(GameScene& scene);
         void Draw();
+
+        void Hit();           // 桶被锤子打中时调用
+        bool IsHit() const { return isHit; }  // 检查桶是否已被打中
+        BarrelType GetType() const { return type; }
     private:
         void UpdateAnimation();
         void LoadFrames();  //加载动画帧的方法
         // 检测是否触发纵向下落
         bool CheckVerticalDropTrigger();
 
-    private:
-        BarrelType type;
-        BarrelState state;
+private:
+    BarrelType type;
+    BarrelState state;
 
         Vector2 position;
         float speed;
@@ -54,6 +58,8 @@ class Barrel {
         int currentFrame;
         float frameCounter;
         float frameSpeed;
+
+        bool isHit = false;  // 标记桶是否被锤子打中（打中后不再移动，用于加分后消失）
 
         // ===== 动画分组 =====
         //  以下4个为新增

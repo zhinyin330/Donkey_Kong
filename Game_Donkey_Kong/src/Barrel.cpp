@@ -268,3 +268,10 @@ void Barrel::Draw()
         );
     }
 }
+void Barrel::Hit()
+{
+    if (!isHit) {
+        isHit = true;
+        TraceLog(LOG_INFO, "桶被锤子打中！");
+    }
+}

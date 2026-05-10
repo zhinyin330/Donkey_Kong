@@ -143,8 +143,12 @@ void Enemy::Update(GameScene& scene)
     case EnemyBehavior::THROW_BARRELS:
         // Scene 1: Animación normal + actualizar barriles
         UpdateAnimation();
-        for (auto& b : barrels)
-            b.Update(scene);
+        // 只更新没有被锤子打中的桶（被打中的桶应消失，不再移动）
+        for (auto& b : barrels) {
+            if (!b.IsHit()) {
+                b.Update(scene);
+            }
+        }
         break;
 
     case EnemyBehavior::STATIONARY:
@@ -186,8 +190,12 @@ void Enemy::Draw() {
     // (^^)d
     // 不在scene1 不画THROW_BARRELS
     if (behavior == EnemyBehavior::THROW_BARRELS) {
-        for (auto& b : barrels)
-            b.Draw();
+        // 只绘制没有被锤子打中的桶
+        for (auto& b : barrels) {
+            if (!b.IsHit()) {
+                b.Draw();
+            }
+        }
     }
 }
 

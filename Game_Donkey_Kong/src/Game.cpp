@@ -162,6 +162,38 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
+    // ========== 锤子打到桶加分 ==========
+   // 锤子打到桶加分（根据桶类型加不同分数）
+    if (gamePlayer != nullptr && gamePlayer->IsSwingingHammer() && gameEnemy != nullptr) {
+        Rectangle attackHitbox = gamePlayer->GetAttackHitbox();
+        for (auto& barrel : gameEnemy->GetBarrels()) {
+            if (!barrel.IsHit()) {
+                Rectangle barrelHitbox = {
+                    barrel.GetPosition().x,
+                    barrel.GetPosition().y,
+                    barrel.GetWidth(),
+                    barrel.GetHeight()
+                };
+                if (CheckCollisionRecs(attackHitbox, barrelHitbox)) {
+                    barrel.Hit();
+
+                    // ========== 根据桶类型加不同分数 ==========
+                    int addPoints = 0;
+                    if (barrel.GetType() == BarrelType::NORMAL) {
+                        addPoints = 100;      // 普通桶：100分
+                    }
+                    else if (barrel.GetType() == BarrelType::BLUE_BARREL) {
+                        addPoints = 500;      // 蓝色桶：500分
+                    }
+                    gamePlayer->AddScore(addPoints);
+                    TraceLog(LOG_INFO, "锤子打中%s！+%d分",
+                        (barrel.GetType() == BarrelType::NORMAL) ? "普通桶" : "蓝色桶",
+                        addPoints);
+                }
+            }
+        }
+    }
+
     // Colisiones Scene2 (items + botones)
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);

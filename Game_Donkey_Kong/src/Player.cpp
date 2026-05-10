@@ -920,7 +920,6 @@ void Player::Draw() {
             DrawTexturePro(hammerSwingTextures[texIndex], src, dst, { 0, 0 }, 0.0f, WHITE);
         }
 
-        DrawCircle(hammerPos.x, hammerPos.y, 5, RED);
     }
     // ========== 锤子绘制结束 ==========
 
