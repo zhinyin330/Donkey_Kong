@@ -139,6 +139,10 @@ Scene2::Scene2() {
     for (int i = 0; i < 8; i++) {
         buttonsActive.push_back(true);
     }
+    // 初始化按钮分数记录数组（全部设为 false，表示还没给过分数）
+        for (int i = 0; i < 8; i++) {
+            buttonsScored.push_back(false);
+        }
 }
 
 Scene2::~Scene2() {
@@ -156,8 +160,7 @@ Scene2::~Scene2() {
         UnloadTexture(tex);
     }
 }
-
-void Scene2::CheckButtonCollision(Rectangle playerHitbox) {
+void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
     float buttonScale = 2.0f;
     for (int i = 0; i < (int)buttons.size(); i++) {
         if (buttonsActive[i]) {
@@ -174,6 +177,12 @@ void Scene2::CheckButtonCollision(Rectangle playerHitbox) {
 
                 // Rango más amplio para botones superiores (10 píxeles)
                 if (playerFeetY >= buttonTopY - 2 && playerFeetY <= buttonTopY + 12) {
+               
+                    if (!buttonsScored[i] && player != nullptr) {
+                        buttonsScored[i] = true;      // 标记这个按钮已经给过分数了
+                        player->AddScore(100);         // 加100分
+                        TraceLog(LOG_INFO, "按钮 %d 被踩！+100分", i);  // 控制台输出调试信息
+                    }
                     buttonsActive[i] = false;
                 }
             }

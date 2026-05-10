@@ -36,6 +36,7 @@ private:
     bool item1Active;
     bool item3Active;
     std::vector<bool> buttonsActive;
+    std::vector<bool> buttonsScored;
 
     // princesa
     Texture2D princessTexture;
@@ -87,7 +88,7 @@ public:
     int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale; }
     Vector2 GetPrincessPosition() override { return princessPosition; }
     float GetPrincessScale() override { return princessScale; }
-    void CheckButtonCollision(Rectangle playerHitbox);
+    void CheckButtonCollision(Rectangle playerHitbox, Player* player);
     bool CheckNewPlatformCollision(Rectangle playerFeetHitbox, float& groundY) override;
     bool HasNewPlatforms() override { return newPlatformsVisible; }
     std::vector<Rectangle> GetNewPlatforms() override { return newPlatforms; }

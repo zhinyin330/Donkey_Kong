@@ -180,7 +180,7 @@ void DrawGame(GameScreen* currentScreen)
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
             };
-            scene2->CheckButtonCollision(fullHitbox);
+            scene2->CheckButtonCollision(fullHitbox, gamePlayer);
         }
     }
 
