@@ -10,7 +10,7 @@ void DrawIntro(GameScreen* screen)
     // 第一次进入时加载并播放音乐
     if (!musicPlayed)
     {
-        startupMusic = LoadMusicStream("audio/Startup.mp3");
+        startupMusic = LoadMusicStream("audio/Start.mp3");
         SetMusicVolume(startupMusic, 0.8f);
         PlayMusicStream(startupMusic);
         musicPlayed = true;
