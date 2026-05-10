@@ -17,7 +17,8 @@ Player::Player() {
     SetSoundVolume(walkSound, 5.0f);
 
     stepTimer = 0.0f;
-    stepInterval = 0.5f;
+    stepInterval = 0.20f;  
+    climbStepInterval = 0.4f;//梯子声音间隔
 
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk1.png"));
     walkTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Walk2.png"));
@@ -70,6 +71,8 @@ Player::Player() {
     facingRight = true;
     wasMoving = false;
     isStepPlaying = false;
+    wasMovingLeft = false;
+    wasMovingRight = false;
 
     // Star
     starCount = 0;
@@ -362,36 +365,34 @@ void Player::Update(GameScene& scene) {
     UpdateStarMode();
 
     // ================= SISTEMA DE PASOS =================
-    bool isMovingOnGround =
-        (currentState == PlayerState::WALKING) &&
-        !isJumping &&
-        !onLadder &&
-        (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
-            IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
+   
+    bool isMovingOnGround = (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT));
+    bool isMovingOnLadder = (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN));
 
-    if (wasMoving && !isMovingOnGround) {
-        stepTimer = 0.0f;
-        isStepPlaying = false;
-    }
-
-    if (isMovingOnGround) {
+    // 在地上移动
+    if (isMovingOnGround && !isJumping && !onLadder)
+    {
         stepTimer += GetFrameTime();
-
-        if (stepTimer >= stepInterval && !isStepPlaying) {
+        if (stepTimer >= stepInterval)
+        {
             PlaySound(walkSound);
             stepTimer = 0.0f;
-            isStepPlaying = true;
-        }
-        else if (stepTimer < stepInterval) {
-            isStepPlaying = false;
         }
     }
-    else {
-        stepTimer = 0.0f;
-        isStepPlaying = false;
+    // 在梯子上移动
+    else if (isMovingOnLadder && onLadder)
+    {
+        stepTimer += GetFrameTime();
+        if (stepTimer >= climbStepInterval)  // 使用更慢的间隔
+        {
+            PlaySound(walkSound);
+            stepTimer = 0.0f;
+        }
     }
-
-    wasMoving = isMovingOnGround;
+    else
+    {
+        stepTimer = stepInterval;
+    }
 
     // Si está en animación de salida, solo animación
     if (currentState == PlayerState::CLIMBING_END) {

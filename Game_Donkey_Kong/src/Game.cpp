@@ -108,6 +108,10 @@ void CleanupGame()
 
 void DrawGame(GameScreen* currentScreen)
 {
+    // 更新当前场景的音乐
+    if (gameScene != nullptr) {
+        gameScene->UpdateMusic();
+    }
     // --- 1. 延迟初始化 (只在第一次进入游戏时执行) ---
     if (!isInitialized)
     {

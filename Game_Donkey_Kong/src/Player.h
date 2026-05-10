@@ -29,9 +29,13 @@ private:
     Sound walkSound;
     float stepTimer;
     float stepInterval;
+    bool wasMovingLeft;
+    bool wasMovingRight;
 
     bool wasMoving;
     bool isStepPlaying;
+
+    float climbStepInterval; // ÅÀÌÝ×Ó¼ä¸ô
 
     // Animación
     PlayerState currentState;

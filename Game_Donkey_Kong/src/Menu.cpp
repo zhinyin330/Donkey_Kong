@@ -21,6 +21,7 @@ void DrawMenu(GameScreen* screen)
     if (!initialized)
     {
         bgm = LoadMusicStream("audio/Title_Theme.ogg");
+        SetMusicVolume(bgm, 0.5f);
 
         font = GetFontDefault();
         myFont1 = LoadFont("fonts/donkey-kong-nes-1981.ttf");
