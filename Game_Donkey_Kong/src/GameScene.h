@@ -19,6 +19,7 @@ public:
     virtual float GetPrincessScale() { return 0; }
     virtual bool CheckNewPlatformCollision(Rectangle playerFeetHitbox, float& groundY) { return false; }
     virtual bool HasNewPlatforms() { return false; }
+    virtual std::vector<Rectangle> GetNewPlatforms() { return {}; }
 
     virtual int GetCurrentLevel() { return 1; }
     virtual void SetCurrentLevel(int level) {}

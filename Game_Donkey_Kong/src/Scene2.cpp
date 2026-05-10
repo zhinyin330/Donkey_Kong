@@ -16,8 +16,18 @@ Scene2::Scene2() {
     item3Pos = { 160.0f, 180.0f };
     item1Active = true;
     item3Active = true;
+
     newPlatformsVisible = false;
-   
+    dkFalling = false;
+    dkFallTimer = 0.0f;
+    dkFallFrame = 0;
+    dkFallSpeed = 0.0f;
+    dkLanded = false;
+    dkOnPlatform = false;
+    dkBounceTimer = 0.0f;
+    dkBounceFrame = 0;
+    dkSequenceDone = false;
+    sequenceTriggered = false;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
@@ -142,8 +152,9 @@ Scene2::~Scene2() {
     UnloadTexture(item1Texture);
     UnloadTexture(item3Texture);
     UnloadTexture(buttonTexture);
-    
-
+    for (auto& tex : dkFallFrames) {
+        UnloadTexture(tex);
+    }
 }
 
 void Scene2::CheckButtonCollision(Rectangle playerHitbox) {
@@ -172,6 +183,8 @@ void Scene2::CheckButtonCollision(Rectangle playerHitbox) {
 }
 
 void Scene2::CheckPlatformsStatus() {
+    if (sequenceTriggered) return;
+
     bool allButtonsPressed = true;
     for (int i = 0; i < 8; i++) {
         if (buttonsActive[i]) {
@@ -181,6 +194,7 @@ void Scene2::CheckPlatformsStatus() {
     }
 
     if (allButtonsPressed) {
+        sequenceTriggered = true;
         for (int x = 9; x <= 15; x++) {
             hitboxLevel[18][x] = 0;
             level[18][x] = 0;
@@ -219,6 +233,22 @@ void Scene2::CheckPlatformsStatus() {
         newPlatforms.push_back({ platX, baseY - platH * 2 - 2, platW, platH }); // Y=19
         newPlatforms.push_back({ platX, baseY - platH * 3 - 4, platW, platH }); // Y=18
         newPlatforms.push_back({ platX, baseY - platH * 4 - 6, platW, platH }); // Y=17
+
+        if (!dkFalling && !dkLanded && !dkOnPlatform) {
+            dkFalling = true;
+            dkFallTimer = 0.0f;
+            dkFallFrame = 0;
+            dkFallSpeed = 0.0f;
+            dkLanded = false;
+            dkStartPosition = { 340, 130 };  // Posición inicial de DK en Scene2
+
+            // Cargar texturas de caída
+            dkFallFrames.clear();
+            dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall1.png"));
+            dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall2.png"));
+            dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall3.png"));
+            dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall4.png"));
+        }
     }
 }
 
@@ -269,6 +299,109 @@ bool Scene2::CheckNewPlatformCollision(Rectangle playerHitbox, float& groundY) {
     return false;
 }
 
+Texture2D Scene2::GetDkCurrentTexture() {
+    if (dkFallFrame < (int)dkFallFrames.size()) {
+        return dkFallFrames[dkFallFrame];
+    }
+    return { 0 };
+}
+
+void Scene2::UpdateDkFall(float deltaTime) {
+    // Si ya aterrizó, no hacer nada
+    if (dkLanded || dkOnPlatform) return;
+
+    // Si no está cayendo, no hacer nada
+    if (!dkFalling) return;
+
+    // Mientras cae: solo Fall1 (frame 0)
+    dkFallFrame = 0;
+
+    // Gravedad
+    dkFallSpeed += 300.0f * deltaTime;
+    dkStartPosition.y += dkFallSpeed * deltaTime;
+
+    // Verificar si llegó a las nuevas plataformas
+    if (newPlatformsVisible && !newPlatforms.empty()) {
+        float dkHeight = 0;
+        if (!dkFallFrames.empty()) {
+            dkHeight = dkFallFrames[0].height * 2.8f;
+        }
+        else {
+            dkHeight = 32 * 2.8f;
+        }
+
+        float dkFeetY = dkStartPosition.y + dkHeight;
+
+        // Buscar la plataforma más cercana debajo de DK
+        for (auto& plat : newPlatforms) {
+            float platTopY = plat.y;
+            // DK está cruzando la plataforma hacia abajo
+            if (dkFeetY >= platTopY && dkStartPosition.y < platTopY + 10) {
+                dkStartPosition.y = platTopY - dkHeight;
+                dkFalling = false;      // Dejar de caer
+                dkLanded = true;        // Aterrizó
+                dkOnPlatform = true;    // Está en plataforma
+                dkFallSpeed = 0.0f;     // Resetear velocidad
+                dkBounceTimer = 0.0f;
+                dkBounceFrame = 0;
+
+                // Activar secuencia
+                if (!dkSequenceDone) {
+                    dkSequenceDone = true;
+                    TriggerDkLandSequence();
+                }
+                return;
+            }
+        }
+    }
+
+    // Seguridad: si cae demasiado, parar en Y=600
+    if (dkStartPosition.y > 600) {
+        dkStartPosition.y = 600;
+        dkFalling = false;
+        dkLanded = true;
+        dkOnPlatform = true;
+        dkFallSpeed = 0.0f;
+        dkBounceTimer = 0.0f;
+        dkBounceFrame = 0;
+    }
+}
+
+void Scene2::UpdateDkBounce(float deltaTime) {
+    if (!dkOnPlatform) return;
+
+    dkBounceTimer += deltaTime;
+    if (dkBounceTimer >= 0.5f) {  // Cambiar frame cada 0.5s
+        dkBounceTimer = 0.0f;
+        dkBounceFrame++;
+        if (dkBounceFrame > 2) dkBounceFrame = 0;  // 0=F2, 1=F3, 2=F4, vuelve a F2
+    }
+}
+
+void Scene2::TriggerDkLandSequence() {
+    TraceLog(LOG_INFO, "=== TriggerDkLandSequence INICIO ===");
+
+    // 1. Desaparecer plataforma superior (Y=3)
+    for (int x = mapWidth / 2 - 3; x < mapWidth / 2 + 4; x++) {
+        hitboxLevel[3][x] = 0;
+        level[3][x] = 0;
+    }
+    TraceLog(LOG_INFO, "Y=3 borrada. level[3][10]=%d", level[3][10]);
+
+    // 2. Reaparecer tramo central de Y=6
+    for (int x = 9; x <= 15; x++) {
+        level[6][x] = 1;
+        hitboxLevel[6][x] = 1;
+    }
+    TraceLog(LOG_INFO, "Y=6 restaurada. level[6][12]=%d", level[6][12]);
+
+    // 3. Mover princesa
+    float princessX = 367;
+    float princessY = 6 * 32 + platformHitboxOffsetY * tileScale - princessTexture.height * princessScale;
+    princessPosition = { princessX, princessY };
+    TraceLog(LOG_INFO, "Princesa: X=%.1f Y=%.1f", princessX, princessY);
+    TraceLog(LOG_INFO, "=== TriggerDkLandSequence FIN ===");
+}
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
     return hitboxLevel[y][x] == 1;
@@ -332,7 +465,21 @@ void Scene2::AddLadder(int startY, int endY, int x,
     }
 }
 
-
+void Scene2::DrawDkFalling() {
+    if (dkFalling && !dkLanded) {
+        // Cayendo: solo Fall1 (frame 0)
+        if (!dkFallFrames.empty()) {
+            DrawTextureEx(dkFallFrames[0], dkStartPosition, 0.0f, 2.8f, WHITE);
+        }
+    }
+    else if (dkOnPlatform) {
+        // En plataforma: bucle Fall2(1), Fall3(2), Fall4(3)
+        int frameIndex = dkBounceFrame + 1;  // 1, 2, 3
+        if (frameIndex < (int)dkFallFrames.size()) {
+            DrawTextureEx(dkFallFrames[frameIndex], dkStartPosition, 0.0f, 2.8f, WHITE);
+        }
+    }
+}
 
 void Scene2::Draw() {
     int scaledTileSize = tileSize * tileScale;
@@ -417,6 +564,8 @@ void Scene2::Draw() {
 
     DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
 
+    DrawDkFalling();
+
     // ========== 加分物品 ==========
     if (item1Active) {
         DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.0f, WHITE);
@@ -435,6 +584,18 @@ void Scene2::Draw() {
                 Rectangle dest = { x, plat.y, 32, plat.height };
                 DrawTexturePro(tileTexture, source, dest, { 0,0 }, 0.0f, WHITE);
             }
+        }
+    }
+
+    for (int x = 9; x <= 15; x++) {
+        if (level[6][x] == 1) {
+            DrawRectangleLines(
+                x * scaledTileSize,
+                6 * scaledTileSize + offsetY,
+                scaledTileSize,
+                visualHeight,
+                RED
+            );
         }
     }
 }

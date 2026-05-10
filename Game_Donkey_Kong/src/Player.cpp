@@ -688,35 +688,32 @@ void Player::Update(GameScene& scene) {
 
     // ========== NUEVO: Colisión lateral con plataformas manuales (Scene2) ==========
     if (!horizontalCollision && scene.HasNewPlatforms()) {
-        Rectangle playerRect = {
-            nextX,
-            position.y + currentOffsetY * scale,
-            currentTexture.width * scale,
-            currentHeight * scale
-        };
-
         float newPlatY;
-        // Usar CheckNewPlatformCollision para detectar paredes laterales
-        Rectangle sideHitboxLeft = {
-            nextX,
-            position.y + currentOffsetY * scale,
-            1,
-            currentHeight * scale
-        };
-        Rectangle sideHitboxRight = {
-            nextX + currentTexture.width * scale - 1,
-            position.y + currentOffsetY * scale,
-            1,
-            currentHeight * scale
-        };
 
-        if (scene.CheckNewPlatformCollision(sideHitboxLeft, newPlatY)) {
-            nextX = (float)((int)(nextX / 32) + 1) * 32;  // Empujar a la derecha
-            horizontalCollision = true;
-        }
-        else if (scene.CheckNewPlatformCollision(sideHitboxRight, newPlatY)) {
-            nextX = (float)((int)((nextX + currentTexture.width * scale) / 32)) * 32 - currentTexture.width * scale;  // Empujar a la izquierda
-            horizontalCollision = true;
+        // Solo comprobar colisión lateral si Mario está a la altura de las plataformas
+        for (auto& plat : scene.GetNewPlatforms()) {
+            // ¿Está Mario a la altura de esta plataforma?
+            float playerTop = position.y + currentOffsetY * scale;
+            float playerBottom = position.y + (currentOffsetY + currentHeight) * scale;
+            float platTop = plat.y;
+            float platBottom = plat.y + plat.height;
+
+            if (playerBottom > platTop + 4 && playerTop < platBottom - 4) {
+                // Colisión por la izquierda de la plataforma
+                if (nextX + currentTexture.width * scale > plat.x &&
+                    position.x + currentTexture.width * scale <= plat.x + 4) {
+                    nextX = plat.x - currentTexture.width * scale;
+                    horizontalCollision = true;
+                    break;
+                }
+                // Colisión por la derecha de la plataforma
+                if (nextX < plat.x + plat.width &&
+                    position.x >= plat.x + plat.width - 4) {
+                    nextX = plat.x + plat.width;
+                    horizontalCollision = true;
+                    break;
+                }
+            }
         }
     }
 

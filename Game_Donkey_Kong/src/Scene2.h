@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include <vector>
 #include "GameScene.h"
-class Player; 
+class Player;
 
 class Scene2 : public GameScene {
 private:
@@ -18,6 +18,7 @@ private:
     std::vector<Vector2> pillars;
     std::vector<Vector2> buttons;
     std::vector<Rectangle> newPlatforms;
+    std::vector<Texture2D> dkFallFrames;  // ← Solo esto, quitamos el array
 
     Texture2D tileTexture;
     Texture2D ladderTexture;
@@ -28,18 +29,29 @@ private:
     Music backgroundMusic;
 
     // 加分物品
-    Texture2D item1Texture;   // Dk_Item1
-    Texture2D item3Texture;   // Dk_Item3
-    Vector2 item1Pos;         // Item1 位置
-    Vector2 item3Pos;         // Item3 位置
+    Texture2D item1Texture;
+    Texture2D item3Texture;
+    Vector2 item1Pos;
+    Vector2 item3Pos;
     bool item1Active;
     bool item3Active;
     std::vector<bool> buttonsActive;
-   
+
     // princesa
     Texture2D princessTexture;
     Vector2 princessPosition;
     float princessScale;
+
+    //donkey died
+    bool dkFalling;
+    float dkFallTimer;
+    int dkFallFrame;
+    float dkFallSpeed;
+    Vector2 dkStartPosition;
+    bool dkLanded;
+    bool dkOnPlatform;
+    float dkBounceTimer;
+    int dkBounceFrame;
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -54,32 +66,44 @@ private:
     int GetCurrentLevel() override { return currentLevel; }
     void SetCurrentLevel(int level) override { currentLevel = level; }
 
-    // Guardar los índices de las plataformas en level original
     void CheckPlatformsStatus();
     bool newPlatformsVisible;
+    bool dkSequenceDone;
+    bool sequenceTriggered;
 
 public:
     Scene2();
     ~Scene2();
 
     void Draw() override;
-    void CheckItemCollision(Rectangle playerHitbox, Player* player);  // 新增
+    void CheckItemCollision(Rectangle playerHitbox, Player* player);
     bool IsSolid(int x, int y) override;
     bool IsLadder(int x, int y) override;
     int GetLadderType(int x, int y) override;
     int GetLadderHitbox(int x, int y) override;
-    int GetVisualOffsetY(int x, int y) override { return platformHitboxOffsetY * tileScale;
-    }
+    int GetVisualOffsetY(int x, int y) override { return platformHitboxOffsetY * tileScale; }
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
-    int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale;}
+    int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale; }
     Vector2 GetPrincessPosition() override { return princessPosition; }
     float GetPrincessScale() override { return princessScale; }
     void CheckButtonCollision(Rectangle playerHitbox);
     bool CheckNewPlatformCollision(Rectangle playerFeetHitbox, float& groundY) override;
     bool HasNewPlatforms() override { return newPlatformsVisible; }
+    std::vector<Rectangle> GetNewPlatforms() override { return newPlatforms; }
+    bool IsDkFalling() { return dkFalling; }
+    bool IsDkLanded() { return dkLanded; }
+    bool IsDkOnPlatform() { return dkOnPlatform; }
+    Vector2 GetDkPosition() { return dkStartPosition; }
+    float GetDkScale() { return 2.8f; }
+    Texture2D GetDkCurrentTexture();
+    void UpdateDkFall(float deltaTime);
+    void UpdateDkBounce(float deltaTime);
+    void DrawDkFalling();
+    void TriggerDkLandSequence();
 
-    // Métodos de transición (aunque no se usen, deben estar)
+
+    // Métodos de transición
     bool transitionReached = false;
     Rectangle GetTransitionZone() override { return { 0, 0, 0, 0 }; }
     bool IsTransitionReached() override { return transitionReached; }

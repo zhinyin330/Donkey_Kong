@@ -28,7 +28,6 @@ private:
     Texture2D emote1Texture;
     Texture2D emote2Texture;
 
-    Texture2D currentTexture;
     // ===== 动画 =====
     int currentFrame;
     int animDirection;  

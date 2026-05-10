@@ -117,11 +117,34 @@ void DrawGame(GameScreen* currentScreen)
         if (scene2) scene2->UpdateMusic();
     }
 
+    // ========== CAÍDA DE DK (Scene2) ==========
+    if (isScene2) {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2) {
+            scene2->UpdateDkFall(deltaTime);
+
+            if (scene2->IsDkFalling() && !scene2->IsDkLanded()) {
+                // Pausa: DK cayendo
+                gameScene->Draw();
+                gamePlayer->Draw();
+                gameStars->Draw();
+                scene2->DrawDkFalling();
+                return;
+            }
+
+            if (scene2->IsDkOnPlatform()) {
+                scene2->UpdateDkBounce(deltaTime);
+            }
+        }
+    }
+
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
+
+    
 
     // Martillo
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
@@ -251,7 +274,19 @@ void DrawGame(GameScreen* currentScreen)
     // --- 8. DRAW ---
     gameScene->Draw();
     gamePlayer->Draw();
-    gameEnemy->Draw();
+
+    // DK: solo dibujar enemy antiguo si NO está en Scene2 con DK caído/aterrizado
+    bool drawOldDk = true;
+    if (isScene2) {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2 && (scene2->IsDkFalling() || scene2->IsDkLanded() || scene2->IsDkOnPlatform())) {
+            drawOldDk = false;  // No dibujar el antiguo, el nuevo lo maneja Scene2
+        }
+    }
+    if (drawOldDk) {
+        gameEnemy->Draw();
+    }
+
     gameStars->Draw();
 
     if (hammerActive && !hammerCollected) {
