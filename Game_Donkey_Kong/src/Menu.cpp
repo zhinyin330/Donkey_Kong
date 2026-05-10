@@ -99,6 +99,8 @@ void DrawMenu(GameScreen* screen)
     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
     {
         *screen = GAMEPLAY;   //切换
+        InitGame();
+       
     }
 
 }

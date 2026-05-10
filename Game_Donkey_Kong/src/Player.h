@@ -11,7 +11,8 @@ enum class PlayerState {
     WALK_END,
     JUMPING,
     CLIMBING,
-    CLIMBING_END
+    CLIMBING_END,
+    HAMMER_SWING  //挥锤状态
 };
 
 // ========== 新增：浮动文字结构 ==========
@@ -36,6 +37,15 @@ private:
     Texture2D currentTexture;
     std::vector<Texture2D> climbTextures;
     std::vector<Texture2D> climbEndTextures;
+
+    //锤子
+    std::vector<Texture2D> hammerSwingTextures;  // 挥锤动画
+    bool hasHammer;
+    bool isSwingingHammer;
+    float swingHammerTimer;
+    float swingHammerDuration;
+    int swingFrame;
+    Vector2 hammerOffset;  // 锤子相对于玩家的偏移
 
     // Audio
     Sound jumpSound;
@@ -154,5 +164,13 @@ public:
             baseHitboxHeight * scale
         };
     }
-   
+    //锤子系统方法
+ // ========== 在这里添加锤子动画纹理加载 ==========
+    void SetHasHammer(bool has) { hasHammer = has; }
+    bool HasHammer() const { return hasHammer; }
+    void StartSwingHammer();
+    bool IsSwingingHammer() const { return isSwingingHammer; }
+    void UpdateHammerSwing(float deltaTime);
+    Rectangle GetAttackHitbox() const;
+    // ========== 锤子纹理加载结束 ==========
 };

@@ -23,6 +23,7 @@ private:
     std::vector<Texture2D> dkWithBarrelTextures;  // 拿桶时的大金刚图片
     std::vector<Texture2D> dkEmptyTextures;       // 空手时的大金刚图片
 
+    Texture2D currentTexture;
     // ===== 动画 =====
     int currentFrame;
     int animDirection;  
@@ -64,4 +65,11 @@ public:
     
     Vector2 GetPosition() const { return position; }
     void SetPosition(float x, float y) { position = { x, y }; }
+
+    //获取位置和尺寸的方法}
+    float GetScale() const { return scale; }
+    float GetTextureWidth() const { return currentTexture.width; }
+    float GetTextureHeight() const { return currentTexture.height; }
+
+    
 };

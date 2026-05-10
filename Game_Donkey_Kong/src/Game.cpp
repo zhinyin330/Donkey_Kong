@@ -19,10 +19,17 @@ static Transition* gameTransition = nullptr;
 static int currentLevel = 1;
 static int totalScore = 0;
 static int totalStars = 0;
+// 锤子变量 - 显式初始化
+static Texture2D hammerTexture = { 0 };
+static Vector2 hammerPosition = { 400, 300 };
+static bool hammerActive = true;
+static bool hammerCollected = false;
+static float hammerScale = 2.3f;
 
 
 void InitGame()
 {
+
     // Limpiar antes de inicializar
     CleanupGame();
 
@@ -42,6 +49,13 @@ void InitGame()
     isInitialized = true;
     shouldReset = false;
 
+   
+    // 初始化锤子
+    hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
+    hammerActive = true;
+    hammerCollected = false;
+    hammerPosition = { 600.0f, 540.0f };
+    
 }
 
 void InitGameScene2()
@@ -64,6 +78,12 @@ void InitGameScene2()
     isInitialized = true;
     shouldReset = false;
     gameTransition = new Transition();
+
+    // 初始化锤子
+    hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
+    hammerActive = true;
+    hammerCollected = false;
+    hammerPosition = { 400.0f, 300.0f };
 }
 
 void CleanupGame()
@@ -141,6 +161,46 @@ if (isScene2 && gameScene != nullptr) {
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
+
+    // 检查是否碰到锤子
+    if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
+        Rectangle hammerHitbox = {
+            hammerPosition.x,
+            hammerPosition.y,
+            hammerTexture.width * hammerScale,
+            hammerTexture.height * hammerScale
+        };
+
+        Rectangle playerHitbox = gamePlayer->GetHitbox();
+
+        if (CheckCollisionRecs(playerHitbox, hammerHitbox)) {
+            hammerCollected = true;
+            hammerActive = false;
+            gamePlayer->SetHasHammer(true);  // 玩家获得锤子
+            TraceLog(LOG_INFO, "Hammer collected!");
+        }
+    }
+
+    // 检查挥锤攻击
+    if (gamePlayer->IsSwingingHammer()) {
+        Rectangle attackHitbox = gamePlayer->GetAttackHitbox();
+
+        // 调试：显示攻击范围
+        DrawRectangleLines(attackHitbox.x, attackHitbox.y, attackHitbox.width, attackHitbox.height, PURPLE);
+
+        // 检查是否击中敌人
+        Rectangle enemyHitbox = {
+            gameEnemy->GetPosition().x,
+            gameEnemy->GetPosition().y,
+            gameEnemy->GetTextureWidth() * gameEnemy->GetScale(),
+            gameEnemy->GetTextureHeight() * gameEnemy->GetScale()
+        };
+
+        if (CheckCollisionRecs(attackHitbox, enemyHitbox)) {
+            gamePlayer->AddScore(500);
+            TraceLog(LOG_INFO, "Enemy hit by hammer! +100 score");
+        }
+    }
     // ========== 新增 ==========
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
@@ -278,6 +338,22 @@ if (isScene2 && gameScene != nullptr) {
     gameEnemy->Draw();
     gameStars->Draw();
 
+    
+    // 绘制锤子
+    if (hammerActive && !hammerCollected) {
+        DrawTextureEx(hammerTexture, hammerPosition, 0.0f, hammerScale, WHITE);
+
+      
+        // 调试：显示锤子碰撞箱
+        Rectangle hammerHitbox = {
+            hammerPosition.x,
+            hammerPosition.y,
+            hammerTexture.width * hammerScale,
+            hammerTexture.height * hammerScale
+        };
+        DrawRectangleLines(hammerHitbox.x, hammerHitbox.y, hammerHitbox.width, hammerHitbox.height, GREEN);
+    }
+
     // ========== 显示得分（左上角）==========
     if (gamePlayer != nullptr) {
         int score = gamePlayer->GetScore();
@@ -325,4 +401,9 @@ void SwitchToScene2()
 void ResetGame()
 {
     shouldReset = true;
+}
+
+// 方便调整锤子位置
+void SetHammerPosition(float x, float y) {
+    hammerPosition = { x, y };
 }
