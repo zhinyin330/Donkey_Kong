@@ -422,10 +422,8 @@ void Scene2::TriggerDkLandSequence() {
 
     // 3. Mover princesa
     float princessX = 367;
-    float princessY = 6 * 32 + platformHitboxOffsetY * tileScale - princessTexture.height * princessScale;
+    float princessY = 6 * 32 + platformHitboxOffsetY * tileScale - princessTexture.height * princessScale + 10;
     princessPosition = { princessX, princessY };
-    TraceLog(LOG_INFO, "Princesa: X=%.1f Y=%.1f", princessX, princessY);
-    TraceLog(LOG_INFO, "=== TriggerDkLandSequence FIN ===");
 }
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
