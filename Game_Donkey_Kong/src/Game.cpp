@@ -7,6 +7,7 @@
 #include "NewMechanic.h"
 #include "GameScene.h"
 #include "Transition.h"
+#include "PauseMenu.h" 
 
 static GameScene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
@@ -16,10 +17,10 @@ static bool isInitialized = false;
 static bool shouldReset = false;
 static bool isScene2 = false;
 static Transition* gameTransition = nullptr;
+static PauseMenu* pauseMenu = nullptr;
 static int currentLevel = 1;
 static int totalScore = 0;
 static int totalStars = 0;
-// 锤子变量 - 显式初始化
 static Texture2D hammerTexture = { 0 };
 static Vector2 hammerPosition = { 400, 300 };
 static bool hammerActive = true;
@@ -37,6 +38,7 @@ void InitGame()
     gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);
     gameStars = new NewMechanic();
     gameTransition = new Transition();
+    pauseMenu = new PauseMenu();
 
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
@@ -50,6 +52,7 @@ void InitGame()
     hammerActive = true;
     hammerCollected = false;
     hammerPosition = { 600.0f, 540.0f };
+
 }
 
 void InitGameScene2()
@@ -62,6 +65,7 @@ void InitGameScene2()
     gameEnemy->SetBehavior(EnemyBehavior::DECORATIVE_CYCLE);
     gameEnemy->SetPosition(340, 130);
     gameStars = new NewMechanic();
+    pauseMenu = new PauseMenu();
 
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
@@ -87,6 +91,7 @@ void CleanupGame()
         if (gameEnemy != nullptr) { delete gameEnemy; gameEnemy = nullptr; }
         if (gameStars != nullptr) { delete gameStars; gameStars = nullptr; }
         if (gameTransition != nullptr) { delete gameTransition; gameTransition = nullptr; }
+        if (pauseMenu != nullptr) { delete pauseMenu; pauseMenu = nullptr; }
 
         isInitialized = false;
         isScene2 = false;
@@ -137,6 +142,29 @@ void DrawGame(GameScreen* currentScreen)
             }
         }
     }
+
+    // --- 3. TRANSICIÓN ---
+    if (gameScene->IsTransitionReached()) {
+        if (gameTransition != nullptr && !gameTransition->IsFinished()) {
+            gameTransition->Update();
+
+            // Dibujar la escena congelada de fondo
+            gameScene->Draw();
+            gamePlayer->Draw();
+            gameEnemy->Draw();
+            gameStars->Draw();
+
+            // Dibujar transición encima
+            gameTransition->Draw();
+
+            if (gameTransition->IsFinished()) {
+                if (!isScene2) InitGameScene2();
+                else InitGame();
+            }
+            return;
+        }
+    }
+
 
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
@@ -216,23 +244,7 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 3. TRANSICIÓN ---
-    if (gameScene->IsTransitionReached()) {
-        if (gameTransition != nullptr && !gameTransition->IsFinished()) {
-            gameTransition->Update();
-            gameScene->Draw();
-            gamePlayer->Draw();
-            gameEnemy->Draw();
-            gameTransition->Draw();
-
-            if (gameTransition->IsFinished()) {
-                if (!isScene2) InitGameScene2();
-                else InitGame();
-            }
-            return;
-        }
-    }
-
+    
     // --- 4. Tecla T ---
     if (IsKeyPressed(KEY_T) && !isScene2) {
         InitGameScene2();
@@ -296,11 +308,38 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 7. ESC ---
+    // --- 7. ESC / PAUSA ---
     if (IsKeyPressed(KEY_ESCAPE)) {
-        *currentScreen = MENU;
-        CleanupGame();
-        return;
+        if (pauseMenu != nullptr && !pauseMenu->IsActive()) {
+            pauseMenu->Show();  // Abrir menú de pausa
+        }
+    }
+
+    // Menú de pausa activo
+    if (pauseMenu != nullptr && pauseMenu->IsActive()) {
+        pauseMenu->Update();
+
+        // Dibujar escena congelada de fondo
+        gameScene->Draw();
+        gamePlayer->Draw();
+        gameEnemy->Draw();
+        gameStars->Draw();
+
+        // Dibujar menú encima
+        pauseMenu->Draw();
+
+        // Seleccionar opción
+        if (IsKeyPressed(KEY_ENTER)) {
+            if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
+                *currentScreen = MENU;
+                CleanupGame();
+                return;
+            }
+            else {
+                pauseMenu->Hide();  // Continuar
+            }
+        }
+        return;  // Congelar juego
     }
 
     // --- 8. DRAW ---
