@@ -1056,3 +1056,6 @@ Rectangle Player::GetAttackHitbox() const {
         };
     }
 }
+void Player::SetScore(int score) {
+    this->score = score;  // 假设你的分数变量名是 score
+}

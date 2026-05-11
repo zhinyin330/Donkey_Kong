@@ -33,6 +33,7 @@ void InitGame()
 
     gameScene = new Scene();
     gamePlayer = new Player();
+    gamePlayer->SetScore(totalScore);// ←恢复分数
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);
     gameStars = new NewMechanic();
@@ -58,6 +59,7 @@ void InitGameScene2()
 
     gameScene = new Scene2();
     gamePlayer = new Player();
+    gamePlayer->SetScore(totalScore);  //恢复分数
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::DECORATIVE_CYCLE);
     gameEnemy->SetPosition(340, 130);
@@ -257,7 +259,7 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
-                totalScore += gamePlayer->GetStarCount() * 100;
+                totalScore = gamePlayer->GetScore();  // ← 改成保存完整分数
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
                     gameTransition->Start(currentLevel, totalScore, totalStars);
@@ -285,7 +287,7 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
-                totalScore += gamePlayer->GetStarCount() * 100;
+                totalScore = gamePlayer->GetScore();  // ← 同样改成保存完整分数
                 currentLevel++;
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {

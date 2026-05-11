@@ -115,6 +115,8 @@ public:
     Player();
     ~Player();
 
+    void SetScore(int score);
+
     // Usar GameScene& en lugar de Scene&
     void HandleInput(GameScene& scene);
     void Update(GameScene& scene);
