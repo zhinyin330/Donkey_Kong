@@ -30,10 +30,13 @@ private:
 
     // 加分物品
     Texture2D item1Texture;
+    Texture2D item2Texture;
     Texture2D item3Texture;
     Vector2 item1Pos;
+    Vector2 item2Pos;
     Vector2 item3Pos;
     bool item1Active;
+    bool item2Active;
     bool item3Active;
     std::vector<bool> buttonsActive;
     std::vector<bool> buttonsScored;
@@ -102,7 +105,7 @@ public:
     void UpdateDkBounce(float deltaTime);
     void DrawDkFalling();
     void TriggerDkLandSequence();
-
+  
 
     // Métodos de transición
     bool transitionReached = false;

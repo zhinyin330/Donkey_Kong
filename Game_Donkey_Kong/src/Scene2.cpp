@@ -11,10 +11,13 @@ Scene2::Scene2() {
     ladderTexture = LoadTexture("Architecture/Dk_Ladder1.png");
 
     item1Texture = LoadTexture("Items/Dk_Item1.png");
+    item2Texture = LoadTexture("Items/Dk_Item2.png");
     item3Texture = LoadTexture("Items/Dk_Item3.png");
-    item1Pos = { 670.0f, 562.0f };
-    item3Pos = { 160.0f, 180.0f };
+    item1Pos = { 668.0f, 555.0f };
+    item2Pos = { 430.0f, 653.0f };
+    item3Pos = { 160.0f, 173.0f };
     item1Active = true;
+    item2Active = true;
     item3Active = true;
 
     newPlatformsVisible = false;
@@ -154,6 +157,7 @@ Scene2::~Scene2() {
     UnloadTexture(pillarTexture);
     UnloadTexture(princessTexture);
     UnloadTexture(item1Texture);
+    UnloadTexture(item2Texture);
     UnloadTexture(item3Texture);
     UnloadTexture(buttonTexture);
     for (auto& tex : dkFallFrames) {
@@ -284,7 +288,19 @@ void Scene2::CheckItemCollision(Rectangle playerHitbox, Player* player) {
         };
         if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
             item3Active = false;
-            player->AddScore(400);  // Item3 加400分
+            player->AddScore(300);  // Item3 加300分
+        }
+    }
+    if (item2Active) {
+        Rectangle itemHitbox = {
+            item2Pos.x,
+            item2Pos.y,
+            item2Texture.width * 2.0f,
+            item2Texture.height * 2.0f
+        };
+        if (CheckCollisionRecs(playerHitbox, itemHitbox)) {
+            item2Active = false;
+            player->AddScore(300);  // Item2 加400分
         }
     }
 }
@@ -577,10 +593,14 @@ void Scene2::Draw() {
 
     // ========== 加分物品 ==========
     if (item1Active) {
-        DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.0f, WHITE);
+        DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.5f, WHITE);
     }
+       if (item2Active) {
+            DrawTextureEx(item2Texture, item2Pos, 0.0f, 2.5f, WHITE);
+        }
+    
     if (item3Active) {
-        DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.0f, WHITE);
+        DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.5f, WHITE);
     }
     // ====================
 
