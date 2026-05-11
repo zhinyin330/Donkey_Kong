@@ -34,19 +34,19 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
 
      
     //  DROP 触发点 进入纵向下落
-    verticalDropTriggers.push_back({ {635.0f, 205.0f, 32.0f, 32.0f},TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {125.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {635.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {125.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {635.0f,595.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {635.0f, 205.0f, 32.0f, 32.0f},TriggerType::DROP, 0 });
+    verticalDropTriggers.push_back({ {125.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });
+    verticalDropTriggers.push_back({ {635.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });
+    verticalDropTriggers.push_back({ {125.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });
+    verticalDropTriggers.push_back({ {635.0f,595.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });
 
     // RETURN 触发恢复横向移动
     // direction 方向控制
-    verticalDropTriggers.push_back({ {650.0f,295.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {140.0f,390.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {650.0f,490.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {140.0f,585.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1, LoadTexture("BlueBall.png") });
-    verticalDropTriggers.push_back({ {650.0f,675.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {650.0f,295.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1 });
+    verticalDropTriggers.push_back({ {140.0f,390.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1 });
+    verticalDropTriggers.push_back({ {650.0f,490.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1 });
+    verticalDropTriggers.push_back({ {140.0f,585.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1 });
+    verticalDropTriggers.push_back({ {650.0f,675.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1 });
 }
 
 // 加载动画

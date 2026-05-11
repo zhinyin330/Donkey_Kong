@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "raylib.h"
 #include <vector>
+#include <algorithm> 
 #include "Barrel.h" 
 
 class GameScene;
@@ -52,6 +53,12 @@ private:
     void SpawnBarrel(); // 丢桶
     void UpdateDecorativeCycle();
 
+    // 桶的动画贴图
+    static std::vector<Texture2D> normalRollingFrames;   // 普通桶侧面
+    static std::vector<Texture2D> normalFallingFrames;   // 普通桶正面
+    static std::vector<Texture2D> blueRollingFrames;     // 蓝桶侧面
+    static std::vector<Texture2D> blueFallingFrames;     // 蓝桶正面
+    static bool texturesLoaded;  // ⭐ 标记贴图是否已加载
 public:
     Enemy();
     ~Enemy();
@@ -78,4 +85,9 @@ public:
 
     const std::vector<Barrel>& GetBarrels() const { return barrels; }
     std::vector<Barrel>& GetBarrels() { return barrels; }  // 返回引用以便修改
+    // 获取桶的贴图
+    static const std::vector<Texture2D>& GetNormalRollingFrames() { return normalRollingFrames; }
+    static const std::vector<Texture2D>& GetNormalFallingFrames() { return normalFallingFrames; }
+    static const std::vector<Texture2D>& GetBlueRollingFrames() { return blueRollingFrames; }
+    static const std::vector<Texture2D>& GetBlueFallingFrames() { return blueFallingFrames; }
 };

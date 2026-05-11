@@ -27,7 +27,6 @@ struct VerticalDropTrigger
     Rectangle rect;     // 触发区域
     TriggerType type;   // 触发类型（DROP / RETURN）
     int direction;      // RETURN用：1=向右，-1=向左
-    Texture2D texture;  // 调试图片
 };
 
 class Barrel {

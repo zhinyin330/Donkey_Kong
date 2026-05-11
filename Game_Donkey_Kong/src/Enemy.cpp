@@ -1,6 +1,14 @@
 ﻿#include "Enemy.h"
 #include "GameScene.h"
 #include "resource_dir.h"
+#include <algorithm> 
+
+// 初始化静态成员
+std::vector<Texture2D> Enemy::normalRollingFrames;
+std::vector<Texture2D> Enemy::normalFallingFrames;
+std::vector<Texture2D> Enemy::blueRollingFrames;
+std::vector<Texture2D> Enemy::blueFallingFrames;
+bool Enemy::texturesLoaded = false;
 
 Enemy::Enemy()
     : currentState(EnemyState::BARREL_GRAB),
@@ -9,7 +17,7 @@ Enemy::Enemy()
     hasBarrel(true),
     isGoingForward(true),
     frameCounter(0.0f),
-    frameSpeed(0.5f),
+    frameSpeed(1.0f),
     position({ 95.0f, 130.0f }),
     scale(2.5f),
     currentBarrelType(BarrelType::NORMAL),
@@ -32,21 +40,34 @@ Enemy::Enemy()
     idleTexture = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Idle1.png");
     emote1Texture = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote1.png");
     emote2Texture = LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Emote2.png");
+
+    // 加载桶的动画贴图
+    if (!texturesLoaded) {
+        normalRollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Mov1.png"));
+        normalFallingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Fall1.png"));
+        blueRollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Mov1.png"));
+        blueFallingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Fall1.png"));
+        texturesLoaded = true;
+    }
 }
 
 Enemy::~Enemy() {
     for (auto& tex : dkWithBarrelTextures) UnloadTexture(tex);
     for (auto& tex : dkEmptyTextures) UnloadTexture(tex);
-    // ⭐ 丢桶
+    UnloadTexture(idleTexture);
+    UnloadTexture(emote1Texture);
+    UnloadTexture(emote2Texture);
 }
 void Enemy::SpawnBarrel()
 {
     Vector2 spawnPos = {
-        position.x + 120,
-        position.y + 45
+        position.x + 120.0f, 
+        position.y + 45.0f
     };
 
-    barrels.emplace_back(currentBarrelType, spawnPos);
+    Barrel newBarrel(currentBarrelType, spawnPos);
+
+    barrels.push_back(newBarrel);
 }
 
 void Enemy::UpdateAnimation() {
@@ -55,7 +76,7 @@ void Enemy::UpdateAnimation() {
     if (behavior == EnemyBehavior::STATIONARY) {
         // Animación simple
         frameCounter += GetFrameTime();
-        if (frameCounter >= frameSpeed * 2) {  // Más lento
+        if (frameCounter >= frameSpeed * 2.0f) {  // Más lento
             frameCounter = 0.0f;
             currentFrame = (currentFrame + animDirection);
 
@@ -81,13 +102,12 @@ void Enemy::UpdateAnimation() {
         // --- 逻辑修正：先处理状态切换，再更新帧 ---
         int maxFrame = (int)dkWithBarrelTextures.size() - 1;
 
-        // ⭐ 丢桶时机（中 → 右）
+        // 丢桶时机（中 → 右）
         if (currentFrame == 1 && isGoingForward && animDirection == 1) {
             hasBarrel = false;
 
             SpawnBarrel();  //  生成桶
         }
-
         // 到右侧，开始回程
         if (currentFrame == maxFrame && isGoingForward) {
             isGoingForward = false;
@@ -171,23 +191,25 @@ void Enemy::Draw() {
         }
         return;
     }
+    // 检查贴图是否有效
+    if (dkWithBarrelTextures.empty() || currentFrame >= (int)dkWithBarrelTextures.size()) {
+        return;
+    }
 
-    if (dkWithBarrelTextures.empty()) return;
-
+    // 选择当前帧的贴图
     const Texture2D& dkTex = hasBarrel
         ? dkWithBarrelTextures[currentFrame]
         : dkEmptyTextures[currentFrame];
 
     DrawTexturePro(
         dkTex,
-        { 0,0,(float)dkTex.width,(float)dkTex.height },
+        { 0.0f, 0.0f, (float)dkTex.width, (float)dkTex.height },  
         { position.x, position.y, dkTex.width * scale, dkTex.height * scale },
-        { 0,0 },
+        { 0.0f, 0.0f }, 
         0.0f,
         WHITE
     );
     
-    // (^^)d
     // 不在scene1 不画THROW_BARRELS
     if (behavior == EnemyBehavior::THROW_BARRELS) {
         // 只绘制没有被锤子打中的桶
