@@ -11,6 +11,7 @@ Scene::Scene() {
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
 
+
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
     // Inicializar vectores con tamaño correcto

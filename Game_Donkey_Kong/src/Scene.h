@@ -42,6 +42,17 @@ private:
     int GetCurrentLevel() override { return currentLevel; }
     void SetCurrentLevel(int level) override { currentLevel = level; }
 
+// 🔵 纵向下落触发点（BlueBall）
+    struct VerticalDropTrigger
+    {
+        float x;
+        float y;
+    };
+
+    // 触发点列表（地图级别，全局共享）
+    std::vector<VerticalDropTrigger> verticalDropTriggers;
+
+
 public:
     Scene();
     ~Scene();

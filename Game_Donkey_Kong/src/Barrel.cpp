@@ -1,15 +1,18 @@
-﻿// Barrel.cpp
-
-#include "Barrel.h"
+﻿#include "Barrel.h"
 #include "GameScene.h"
+
 #define MAP_HEIGHT 22
 
+ 
+//  构造函数 初始化所有参数 + 触发点
+ 
 Barrel::Barrel(BarrelType t, Vector2 pos)
 {
     type = t;
     position = pos;
+
     speed = 80.0f;
-    verticalDropSpeed = 140.0f;
+    verticalDropSpeed = 80.0f;
 
     movingRight = true;
     state = BarrelState::ROLLING;
@@ -19,54 +22,61 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     frameSpeed = 0.1f;
 
     groundOffset = 35.0f;
-    // 默认目标平台
-    targetPlatformY = -1;
 
-    // 加载动画
+    targetPlatformY = -1;
+    dropTargetX = 0.0f;
+
+    inDropPhase = false;          //  新增：是否处于下落阶段
+    triggerLocked = false;
+    triggerLockTimer = 0.0f;
+
     LoadFrames();
 
-   // 设置纵向下落触发点
-    // 第一层
-    verticalDropTriggers.push_back({ 650.0f,130.0f });
-    // 第二层
-    verticalDropTriggers.push_back({ 180.0f,260.0f });
-    // 第三层
-    verticalDropTriggers.push_back({ 620.0f,390.0f });
-    // 第四层
-    verticalDropTriggers.push_back({ 200.0f,520.0f });
+     
+    //  DROP 触发点 进入纵向下落
+    verticalDropTriggers.push_back({ {635.0f, 205.0f, 32.0f, 32.0f},TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {125.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {635.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {125.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {635.0f,595.0f, 32.0f, 32.0f}, TriggerType::DROP, 0, LoadTexture("BlueBall.png") });
+
+    // RETURN 触发恢复横向移动
+    // direction 方向控制
+    verticalDropTriggers.push_back({ {650.0f,295.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {140.0f,390.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {650.0f,490.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {140.0f,585.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1, LoadTexture("BlueBall.png") });
+    verticalDropTriggers.push_back({ {650.0f,675.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1, LoadTexture("BlueBall.png") });
 }
 
+// 加载动画
 void Barrel::LoadFrames()
 {
     if (type == BarrelType::NORMAL)
     {
-        // 普通滚动动画
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Mov1.png"));
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Mov2.png"));
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Mov3.png"));
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Mov4.png"));
 
-        // 掉落/梯子动画
         fallingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Fall1.png"));
         fallingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Fall2.png"));
-       
     }
-    else  // BLUE_BARREL
+    else
     {
-        // 蓝色桶滚动动画
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Mov1.png"));
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Mov2.png"));
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Mov3.png"));
         rollingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Mov4.png"));
 
-        // 蓝色桶掉落/梯子动画
         fallingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Fall1.png"));
         fallingFrames.push_back(LoadTexture("Barrel/Dk_Barrel_Blue_Fall2.png"));
     }
-    // 默认使用滚动动画
+
     currentAnimationFrames = rollingFrames;
 }
 
+//  动画更新 
 void Barrel::UpdateAnimation()
 {
     frameCounter += GetFrameTime();
@@ -77,41 +87,48 @@ void Barrel::UpdateAnimation()
 
         if (!currentAnimationFrames.empty())
         {
-            currentFrame =
-                (currentFrame + 1)
-                % currentAnimationFrames.size();
+            currentFrame++;
+            currentFrame %= currentAnimationFrames.size();
         }
     }
 }
 
-
+ 
+//  检测 DROP 触发 
+//  优化：只允许ROLLING阶段触发
 bool Barrel::CheckVerticalDropTrigger()
 {
-    // 检测所有触发点
+    if (inDropPhase)
+        return false;
+
+    Rectangle barrelRect =
+    {
+        position.x,
+        position.y,
+        GetWidth(),
+        GetHeight()
+    };
+
     for (const auto& trigger : verticalDropTriggers)
     {
-        // 给一个误差范围
-        float xRange = 10.0f;
-        float yRange = 10.0f;
+        if (trigger.type != TriggerType::DROP)
+            continue;
 
-        bool insideX =
-            position.x >= trigger.x - xRange &&
-            position.x <= trigger.x + xRange;
-
-        bool insideY =
-            position.y >= trigger.y - yRange &&
-            position.y <= trigger.y + yRange;
-
-        // 到达触发点
-        if (insideX && insideY)
+        if (CheckCollisionRecs(barrelRect, trigger.rect))
         {
+            currentDropTrigger = &trigger;
+
+            dropTargetX = trigger.rect.x;
+
             return true;
         }
     }
 
     return false;
 }
-
+ 
+//  主更新逻辑 
+ 
 void Barrel::Update(GameScene& scene)
 {
     float dt = GetFrameTime();
@@ -122,41 +139,39 @@ void Barrel::Update(GameScene& scene)
 
     UpdateAnimation();
 
-    switch (state)
+    //  状态锁：防止瞬间重复触发
+    if (triggerLocked)
     {
-    case BarrelState::ROLLING:
+        triggerLockTimer -= dt;
+        if (triggerLockTimer <= 0.0f)
+            triggerLocked = false;
+    }
+
+    //  ROLLING 状态 
+    if (state == BarrelState::ROLLING)
     {
-        // =============================
         // 水平移动
-        // =============================
-        position.x +=
-            (movingRight ? 1.0f : -1.0f)
-            * speed
-            * dt;
+        position.x += (movingRight ? 1 : -1) * speed * dt;
 
-        // =============================
-        // 重新计算Tile
-        // =============================
         tileX = (int)(position.x / tileSize);
+        tileY = (int)((position.y + groundOffset) / tileSize);
 
-        tileY =
-            (int)((position.y + groundOffset) / tileSize);
-
-        // =============================
-        // 检测是否到达纵向触发点
-        // =============================
-        if (CheckVerticalDropTrigger())
+        // DROP 触发（核心）
+        if (!inDropPhase && CheckVerticalDropTrigger())
         {
-            // 切换为纵向下落
             state = BarrelState::VERTICAL_DROP;
-
-            // 切换动画
             currentAnimationFrames = fallingFrames;
             currentFrame = 0;
 
-            // =============================
-            // 寻找下一个平台
-            // =============================
+            // 对齐到DROP触发点
+            if (currentDropTrigger)
+            {
+                position.x = currentDropTrigger->rect.x;
+            }
+
+            inDropPhase = true; //  进入下落阶段
+            targetPlatformY = -1;
+            // 找落点
             for (int y = tileY + 1; y < MAP_HEIGHT; y++)
             {
                 if (scene.IsSolid(tileX, y))
@@ -166,19 +181,10 @@ void Barrel::Update(GameScene& scene)
                 }
             }
 
-            TraceLog(
-                LOG_INFO,
-                "Vertical drop triggered at %.2f %.2f",
-                position.x,
-                position.y
-            );
-
-            break;
+            TraceLog(LOG_INFO, "DROP trigger");
         }
 
-        // =============================
-        // 贴地逻辑
-        // =============================
+        // 贴地（只在ROLLING）
         for (int y = tileY; y < MAP_HEIGHT; y++)
         {
             if (scene.IsSolid(tileX, y))
@@ -188,76 +194,85 @@ void Barrel::Update(GameScene& scene)
                     + scene.GetVisualOffsetY(tileX, y);
 
                 if (position.y + groundOffset <= groundY + 6.0f)
-                {
                     position.y = groundY - groundOffset;
-                }
 
                 break;
             }
         }
-
-        break;
     }
-        // 指定位置纵向下落
-        // 到达平台
-    case BarrelState::VERTICAL_DROP:
+    //  VERTICAL_DROP 状态 
+    else if (state == BarrelState::VERTICAL_DROP)
     {
-        // 向下移动
+        // 锁定X（平滑吸附）
+        position.x += (dropTargetX - position.x) * 10.0f * dt;
+
+        // 下落
         position.y += verticalDropSpeed * dt;
 
-        // 判断是否到达目标平台
-        float targetY =
-            (float)(targetPlatformY * tileSize)
-            - groundOffset;
-        // 到达平台
-        if (position.y >= targetY)
+        // RETURN 触发（必须在下落阶段）
+        if (inDropPhase && !triggerLocked)
         {
-            // 对齐平台
-            position.y = targetY;
-            // 方向反转
-            movingRight = !movingRight;
-            // 恢复滚动状态
-            state = BarrelState::ROLLING;
-            // 恢复滚动动画
-            currentAnimationFrames = rollingFrames;
-            currentFrame = 0;
+            for (const auto& trigger : verticalDropTriggers)
+            {
+                if (trigger.type != TriggerType::RETURN)
+                    continue;
 
-            TraceLog(LOG_INFO,
-                "Barrel reached next platform");
+                Rectangle barrelRect =
+                {
+                    position.x,
+                    position.y,
+                    GetWidth(),
+                    GetHeight()
+                };
+
+                if (CheckCollisionRecs(barrelRect, trigger.rect))
+                {
+                    movingRight = (trigger.direction == 1);
+
+                    state = BarrelState::ROLLING;
+                    currentAnimationFrames = rollingFrames;
+                    currentFrame = 0;
+
+                    inDropPhase = false;
+
+                    triggerLocked = true;
+                    triggerLockTimer = 0.6f;
+
+                    TraceLog(LOG_INFO, "RETURN trigger");
+                    return;
+                }
+            }
         }
 
-        break;
-    }
 
-    // 普通掉落
-    case BarrelState::FALLING:
-    {
-        position.y += 220.0f * dt;
-        break;
-    }
-    }
-
-    // 左边界限制
-        if (position.x < 0.0f)
+        if (targetPlatformY != -1)
         {
-            position.x = 0.0f;
-            movingRight = true;
-        }
+            float targetY =
+                (float)(targetPlatformY * tileSize)
+                - groundOffset;
 
-    // 右边界限制
-        if (position.x > (float)(scene.GetScreenWidth() - GetWidth()))
-        {
-            position.x =
-                (float)(scene.GetScreenWidth() - GetWidth());
+            if (position.y >= targetY)
+            {
+                position.y = targetY;
 
-            movingRight = false;
+                state = BarrelState::ROLLING;
+                movingRight = !movingRight;
+
+                currentAnimationFrames = rollingFrames;
+                currentFrame = 0;
+
+                inDropPhase = false;
+            }
         }
     }
 
+}
+
+//  绘制 
 void Barrel::Draw()
-{   
+{
     if (!currentAnimationFrames.empty() &&
-        currentFrame < (int)currentAnimationFrames.size())
+        currentFrame < currentAnimationFrames.size())
     {
         DrawTextureEx(
             currentAnimationFrames[currentFrame],
@@ -267,10 +282,17 @@ void Barrel::Draw()
             WHITE
         );
     }
+    for (const auto& trigger : verticalDropTriggers)
+    {
+        DrawRectangleLinesEx(trigger.rect, 2, RED);
+    }
 }
+
+//  被攻击 
 void Barrel::Hit()
 {
-    if (!isHit) {
+    if (!isHit)
+    {
         isHit = true;
         TraceLog(LOG_INFO, "桶被锤子打中！");
     }
