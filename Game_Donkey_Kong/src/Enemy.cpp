@@ -43,7 +43,7 @@ void Enemy::SpawnBarrel()
 {
     Vector2 spawnPos = {
         position.x + 120,
-        position.y + 50
+        position.y + 45
     };
 
     barrels.emplace_back(currentBarrelType, spawnPos);
