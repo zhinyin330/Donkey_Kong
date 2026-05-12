@@ -10,8 +10,8 @@ NewMechanic::NewMechanic() {
     starTexture = LoadTexture("Items/New_Dk_star1.png");
 
     spawnTimer = 0.0f;
-    spawnInterval = 3.0f;   // Una estrella cada 2 segundos
-    starSpeed = 1.5f;       // Velocidad de caída
+    spawnInterval = 4.0f;   
+    starSpeed = 1.3f;       // Velocidad de caída
 
     srand(time(nullptr));   // Inicializar random
 }
