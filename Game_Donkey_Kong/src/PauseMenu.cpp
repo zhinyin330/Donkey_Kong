@@ -70,10 +70,10 @@ void PauseMenu::Draw() {
     int menuWidth = MeasureTextEx(font, menuText, 20, 2).x;
     if (selectedOption == PauseOption::MAIN_MENU) {
         DrawTextEx(font, ">",
-            { (float)(screenWidth / 2 - menuWidth / 2 - 25), 270 }, 20, 2, WHITE);
+            { (float)(screenWidth / 2 - menuWidth / 2 - 25), 260 }, 20, 2, WHITE);
     }
     DrawTextEx(font, menuText,
-        { (float)(screenWidth / 2 - menuWidth / 2), 270 }, 20, 2, menuColor);
+        { (float)(screenWidth / 2 - menuWidth / 2), 260 }, 20, 2, menuColor);
 
     // ========== MARCO DE CONTROLES ==========
     float frameScale = 1.0f;

@@ -83,6 +83,7 @@ private:
     bool isClimbing;
     float climbSpeed;
     bool exitingLadder;
+
     int lives;
     bool isDying;
     float deathTimer;

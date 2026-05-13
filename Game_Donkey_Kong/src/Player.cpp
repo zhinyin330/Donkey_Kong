@@ -63,6 +63,7 @@ Player::Player() {
     climbSpeed = 2.5f;
     moveY = 0.0f;
     exitingLadder = false;
+
     lives = 3;
     isDying = false;
     deathTimer = 0.0f;
@@ -752,6 +753,11 @@ void Player::Update(GameScene& scene) {
             return;
         }
         StartDeath();
+        position.x = 2 * tileSize;
+        position.y = 21 * tileSize + 16 - (baseHitboxOffsetY + baseHitboxHeight) * scale;
+        velocityY = 0;
+        isJumping = false;
+        ChangeState(PlayerState::IDLE);
         return;
     }
 
@@ -871,7 +877,6 @@ void Player::ActivateStarMode() {
     starCount = 0;
     currentTint = GOLD;
 }
-
 void Player::StartDeath() {
     isDying = true;
     deathTimer = 0.0f;
@@ -955,6 +960,69 @@ void Player::UpdateStarMode() {
     }
 }
 
+void Player::Draw() {
+    Rectangle source = { 0, 0, (float)currentTexture.width, (float)currentTexture.height };
+    Rectangle dest = {
+        position.x,
+        position.y,
+        currentTexture.width * scale,
+        currentTexture.height * scale
+    };
+    Vector2 origin = { 0, 0 };
+
+    if (!facingRight) {
+        source.width = -source.width;
+    }
+
+    // ... 您原有的绘制马里奥的代码 ...
+    DrawTexturePro(currentTexture, source, dest, origin, 0.0f, currentTint);
+
+    // ========== 绘制锤子 ==========
+    if (isSwingingHammer && !hammerSwingTextures.empty()) {
+        Vector2 hammerPos;
+        int texIndex = swingFrame;
+        if (texIndex >= (int)hammerSwingTextures.size()) {
+            texIndex = hammerSwingTextures.size() - 1;
+        }
+
+        if (facingRight) {
+            hammerPos = { position.x + 30, position.y };
+            DrawTextureEx(hammerSwingTextures[texIndex], hammerPos, 0.0f, scale, WHITE);
+        }
+        else {
+            hammerPos = { position.x - 30, position.y };
+            // 正确翻转图片
+            Rectangle src = { 0, 0, (float)hammerSwingTextures[texIndex].width, (float)hammerSwingTextures[texIndex].height };
+            Rectangle dst = { hammerPos.x, hammerPos.y, hammerSwingTextures[texIndex].width * scale, hammerSwingTextures[texIndex].height * scale };
+            src.width = -src.width;  // 水平翻转
+            DrawTexturePro(hammerSwingTextures[texIndex], src, dst, { 0, 0 }, 0.0f, WHITE);
+        }
+
+    }
+    // ========== 锤子绘制结束 ==========
+
+    // Debug: Hitbox
+    int currentOffsetY = GetCurrentHitboxOffsetY();
+    int currentHeight = GetCurrentHitboxHeight();
+
+    DrawRectangleLines(
+        position.x,
+        position.y + currentOffsetY * scale,
+        currentTexture.width * scale,
+        currentHeight * scale,
+        RED
+    );
+
+    DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
+        GameScene::GetScreenWidth() - 200, 680, 20, YELLOW);
+    
+    // 显示锤子提示
+    if (hasHammer) {
+        DrawText("HAMMER: z", GameScene::GetScreenWidth() - 200, 650, 20, ORANGE);
+    }
+
+    DrawFloatingTexts();   // 绘制浮动文字 
+}
     //得分系统 
 void Player::AddScore(int points)
 {
@@ -1068,6 +1136,7 @@ Rectangle Player::GetAttackHitbox() const {
 }
 void Player::SetScore(int score) {
     this->score = score;  // 假设你的分数变量名是 score
+
 }
 
 void Player::Draw() {
@@ -1149,4 +1218,5 @@ void Player::Draw() {
     //vida
     DrawText(TextFormat("VIDAS: %d", lives),
         GameScene::GetScreenWidth() - 200, 700, 20, RED);
+
 }

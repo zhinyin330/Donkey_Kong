@@ -7,7 +7,8 @@
 #include "NewMechanic.h"
 #include "GameScene.h"
 #include "Transition.h"
-#include "PauseMenu.h" 
+#include "PauseMenu.h"
+#include "GameOver.h"
 
 static GameScene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
@@ -18,6 +19,7 @@ static bool shouldReset = false;
 static bool isScene2 = false;
 static Transition* gameTransition = nullptr;
 static PauseMenu* pauseMenu = nullptr;
+static GameOver* gameOver = nullptr;
 static int currentLevel = 1;
 static int totalScore = 0;
 static int totalStars = 0;
@@ -34,12 +36,13 @@ void InitGame()
 
     gameScene = new Scene();
     gamePlayer = new Player();
-    gamePlayer->SetScore(totalScore);// ←恢复分数
+    gamePlayer->SetScore(totalScore);
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::THROW_BARRELS);
     gameStars = new NewMechanic();
     gameTransition = new Transition();
     pauseMenu = new PauseMenu();
+    gameOver = new GameOver();
 
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
@@ -53,7 +56,6 @@ void InitGame()
     hammerActive = true;
     hammerCollected = false;
     hammerPosition = { 600.0f, 540.0f };
-
 }
 
 void InitGameScene2()
@@ -62,12 +64,13 @@ void InitGameScene2()
 
     gameScene = new Scene2();
     gamePlayer = new Player();
-    gamePlayer->SetScore(totalScore);  //恢复分数
+    gamePlayer->SetScore(totalScore);
     gameEnemy = new Enemy();
     gameEnemy->SetBehavior(EnemyBehavior::DECORATIVE_CYCLE);
     gameEnemy->SetPosition(340, 130);
     gameStars = new NewMechanic();
     pauseMenu = new PauseMenu();
+    gameOver = new GameOver();
 
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
@@ -94,6 +97,7 @@ void CleanupGame()
         if (gameStars != nullptr) { delete gameStars; gameStars = nullptr; }
         if (gameTransition != nullptr) { delete gameTransition; gameTransition = nullptr; }
         if (pauseMenu != nullptr) { delete pauseMenu; pauseMenu = nullptr; }
+        if (gameOver != nullptr) { delete gameOver; gameOver = nullptr; }
 
         isInitialized = false;
         isScene2 = false;
@@ -112,6 +116,7 @@ void DrawGame(GameScreen* currentScreen)
         if (gameStars == nullptr) gameStars = new NewMechanic();
         if (gameTransition == nullptr) gameTransition = new Transition();
         if (pauseMenu == nullptr) pauseMenu = new PauseMenu();
+        if (gameOver == nullptr) gameOver = new GameOver();
 
         isScene2 = false;
         isInitialized = true;
@@ -132,7 +137,6 @@ void DrawGame(GameScreen* currentScreen)
             scene2->UpdateDkFall(deltaTime);
 
             if (scene2->IsDkFalling() && !scene2->IsDkLanded()) {
-                // Pausa: DK cayendo
                 gameScene->Draw();
                 gamePlayer->Draw();
                 gameStars->Draw();
@@ -150,14 +154,10 @@ void DrawGame(GameScreen* currentScreen)
     if (gameScene->IsTransitionReached()) {
         if (gameTransition != nullptr && !gameTransition->IsFinished()) {
             gameTransition->Update();
-
-            // Dibujar la escena congelada de fondo
             gameScene->Draw();
             gamePlayer->Draw();
             gameEnemy->Draw();
             gameStars->Draw();
-
-            // Dibujar transición encima
             gameTransition->Draw();
 
             if (gameTransition->IsFinished()) {
@@ -168,27 +168,21 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 7. ESC / PAUSA ---
+    // --- 4. PAUSA ---
     if (IsKeyPressed(KEY_P)) {
         if (pauseMenu != nullptr && !pauseMenu->IsActive()) {
-            pauseMenu->Show();  // Abrir menú de pausa
+            pauseMenu->Show();
         }
     }
 
-    // Menú de pausa activo
     if (pauseMenu != nullptr && pauseMenu->IsActive()) {
         pauseMenu->Update();
-
-        // Dibujar escena congelada de fondo
         gameScene->Draw();
         gamePlayer->Draw();
         gameEnemy->Draw();
         gameStars->Draw();
-
-        // Dibujar menú encima
         pauseMenu->Draw();
 
-        // Seleccionar opción
         if (IsKeyPressed(KEY_ENTER)) {
             if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
                 *currentScreen = MENU;
@@ -196,12 +190,13 @@ void DrawGame(GameScreen* currentScreen)
                 return;
             }
             else {
-                pauseMenu->Hide();  // Continuar
+                pauseMenu->Hide();
             }
         }
-        return;  // Congelar juego
+        return;
     }
 
+    // --- 5. MUERTE DE MARIO ---
     if (gamePlayer->IsDying()) {
         static bool barrelsCleared = false;
         if (!barrelsCleared && gameEnemy != nullptr) {
@@ -223,29 +218,23 @@ void DrawGame(GameScreen* currentScreen)
     }
 
     if (gamePlayer->IsDead()) {
-        *currentScreen = MENU;
-        totalScore = 0;
-        totalStars = 0;
-        currentLevel = 1;
-        CleanupGame();
+        *currentScreen = GAME_OVER;
+        if (gameOver != nullptr) gameOver->Show();
         return;
     }
 
-
+    // --- 6. UPDATES ---
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
 
-    
     // Martillo
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
         Rectangle hammerHitbox = {
-            hammerPosition.x,
-            hammerPosition.y,
-            hammerTexture.width * hammerScale,
-            hammerTexture.height * hammerScale
+            hammerPosition.x, hammerPosition.y,
+            hammerTexture.width * hammerScale, hammerTexture.height * hammerScale
         };
         Rectangle playerHitbox = gamePlayer->GetHitbox();
         if (CheckCollisionRecs(playerHitbox, hammerHitbox)) {
@@ -255,93 +244,64 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // ========== 锤子打到桶加分 ==========
-   // 锤子打到桶加分（根据桶类型加不同分数）
+    // Martillo golpea barriles
     if (gamePlayer != nullptr && gamePlayer->IsSwingingHammer() && gameEnemy != nullptr) {
         Rectangle attackHitbox = gamePlayer->GetAttackHitbox();
         for (auto& barrel : gameEnemy->GetBarrels()) {
             if (!barrel.IsHit()) {
                 Rectangle barrelHitbox = {
-                    barrel.GetPosition().x,
-                    barrel.GetPosition().y,
-                    barrel.GetWidth(),
-                    barrel.GetHeight()
+                    barrel.GetPosition().x, barrel.GetPosition().y,
+                    barrel.GetWidth(), barrel.GetHeight()
                 };
                 if (CheckCollisionRecs(attackHitbox, barrelHitbox)) {
                     barrel.Hit();
-
-                    // ========== 根据桶类型加不同分数 ==========
-                    int addPoints = 0;
-                    if (barrel.GetType() == BarrelType::NORMAL) {
-                        addPoints = 100;      // 普通桶：100分
-                    }
-                    else if (barrel.GetType() == BarrelType::BLUE_BARREL) {
-                        addPoints = 500;      // 蓝色桶：500分
-                    }
+                    int addPoints = (barrel.GetType() == BarrelType::NORMAL) ? 100 : 500;
                     gamePlayer->AddScore(addPoints);
-                    TraceLog(LOG_INFO, "锤子打中%s！+%d分",
-                        (barrel.GetType() == BarrelType::NORMAL) ? "普通桶" : "蓝色桶",
-                        addPoints);
                 }
             }
         }
     }
 
+    // Colisiones Scene 1 (barriles + DK)
     if (!isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
         Rectangle playerHitbox = gamePlayer->GetHitbox();
-        // Colisión con barriles
+
         for (auto& barrel : gameEnemy->GetBarrels()) {
             if (!barrel.IsHit()) {
                 Rectangle barrelRect = {
-                    barrel.GetPosition().x,
-                    barrel.GetPosition().y,
-                    barrel.GetWidth(),
-                    barrel.GetHeight()
+                    barrel.GetPosition().x, barrel.GetPosition().y,
+                    barrel.GetWidth(), barrel.GetHeight()
                 };
                 if (CheckCollisionRecs(playerHitbox, barrelRect)) {
                     barrel.Hit();
                     gamePlayer->LoseLife();
                     gameEnemy->ClearBarrels();
-
                     if (gamePlayer->IsDead()) {
-                        *currentScreen = MENU;
-                        totalScore = 0;
-                        totalStars = 0;
-                        currentLevel = 1;
-                        CleanupGame();
+                        *currentScreen = GAME_OVER;
+                        if (gameOver != nullptr) gameOver->Show();
                         return;
                     }
                     gamePlayer->StartDeath();
-                    break;  // Salir del bucle para no detectar más colisiones
+                    break;
                 }
             }
         }
 
-        // Colisión con el propio DK
         Rectangle dkHitbox = {
-            gameEnemy->GetPosition().x,
-            gameEnemy->GetPosition().y,
-            gameEnemy->GetWidth(),
-            gameEnemy->GetHeight()
+            gameEnemy->GetPosition().x, gameEnemy->GetPosition().y,
+            gameEnemy->GetWidth(), gameEnemy->GetHeight()
         };
-
         if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
             gamePlayer->LoseLife();
             gameEnemy->ClearBarrels();
-
             if (gamePlayer->IsDead()) {
-                *currentScreen = MENU;
-                totalScore = 0;
-                totalStars = 0;
-                currentLevel = 1;
-                CleanupGame();
+                *currentScreen = GAME_OVER;
+                if (gameOver != nullptr) gameOver->Show();
                 return;
             }
             gamePlayer->StartDeath();
         }
     }
-
-
 
     // Colisiones Scene2 (items + botones)
     if (isScene2) {
@@ -356,8 +316,7 @@ void DrawGame(GameScreen* currentScreen)
             scene2->CheckItemCollision(feetHitbox, gamePlayer);
 
             Rectangle fullHitbox = {
-                gamePlayer->GetPosition().x,
-                gamePlayer->GetPosition().y,
+                gamePlayer->GetPosition().x, gamePlayer->GetPosition().y,
                 gamePlayer->GetTextureWidth() * gamePlayer->GetScale(),
                 gamePlayer->GetTextureHeight() * gamePlayer->GetScale()
             };
@@ -365,45 +324,37 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // Colisión con DK en Scene 2 (solo antes de la caída)
+    // Colisión con DK en Scene 2
     if (isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2 && scene2->CanDkHurt()) {
             Rectangle playerHitbox = gamePlayer->GetHitbox();
             Rectangle dkHitbox = {
-                gameEnemy->GetPosition().x,
-                gameEnemy->GetPosition().y,
-                gameEnemy->GetWidth(),
-                gameEnemy->GetHeight()
+                gameEnemy->GetPosition().x, gameEnemy->GetPosition().y,
+                gameEnemy->GetWidth(), gameEnemy->GetHeight()
             };
-
             if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
                 gamePlayer->LoseLife();
-
                 if (gamePlayer->IsDead()) {
-                    *currentScreen = MENU;
-                    totalScore = 0;
-                    totalStars = 0;
-                    currentLevel = 1;
-                    CleanupGame();
+                    *currentScreen = GAME_OVER;
+                    if (gameOver != nullptr) gameOver->Show();
                     return;
                 }
                 gamePlayer->StartDeath();
             }
         }
     }
-    
-    // --- 4. Tecla T ---
+
+    // --- 7. Tecla T ---
     if (IsKeyPressed(KEY_T) && !isScene2) {
         InitGameScene2();
         return;
     }
 
-    // --- 5. Princesa Scene 1 ---
+    // --- 8. Princesa Scene 1 ---
     if (!isScene2) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
-
         if (princessScale > 0) {
             Rectangle princessRect = {
                 princessPos.x, princessPos.y,
@@ -427,11 +378,10 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 6. Princesa Scene 2 ---
+    // --- 9. Princesa Scene 2 ---
     if (isScene2) {
         Vector2 princessPos = gameScene->GetPrincessPosition();
         float princessScale = gameScene->GetPrincessScale();
-
         if (princessScale > 0) {
             Rectangle princessRect = {
                 princessPos.x, princessPos.y,
@@ -445,7 +395,7 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
-                totalScore = gamePlayer->GetScore(); 
+                totalScore = gamePlayer->GetScore();
                 currentLevel++;
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
@@ -456,16 +406,15 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // --- 8. DRAW ---
+    // --- 10. DRAW ---
     gameScene->Draw();
     gamePlayer->Draw();
 
-    // DK: solo dibujar enemy antiguo si NO está en Scene2 con DK caído/aterrizado
     bool drawOldDk = true;
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2 && (scene2->IsDkFalling() || scene2->IsDkLanded() || scene2->IsDkOnPlatform())) {
-            drawOldDk = false;  // No dibujar el antiguo, el nuevo lo maneja Scene2
+            drawOldDk = false;
         }
     }
     if (drawOldDk) {
@@ -486,6 +435,23 @@ void DrawGame(GameScreen* currentScreen)
     if (shouldReset) {
         CleanupGame();
         shouldReset = false;
+    }
+}
+
+void DrawGameOver(GameScreen* currentScreen) {
+    if (gameOver == nullptr) return;
+
+    gameOver->Update();
+    gameOver->Draw();
+
+    if (gameOver->IsFinished()) {
+        std::string name = gameOver->GetPlayerName();
+        TraceLog(LOG_INFO, "Player: %s, Score: %d", name.c_str(), totalScore);
+        *currentScreen = MENU;
+        totalScore = 0;
+        totalStars = 0;
+        currentLevel = 1;
+        CleanupGame();
     }
 }
 
