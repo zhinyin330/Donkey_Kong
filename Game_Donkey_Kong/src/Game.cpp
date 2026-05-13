@@ -209,15 +209,8 @@ void DrawGame(GameScreen* currentScreen)
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
 
-    if (gamePlayer->IsDead()) {
-        *currentScreen = MENU;
-        totalScore = 0;
-        totalStars = 0;
-        currentLevel = 1;
-        CleanupGame();
-        return;
-    }
     
+
     // Martillo
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
         Rectangle hammerHitbox = {
@@ -261,34 +254,6 @@ void DrawGame(GameScreen* currentScreen)
                     TraceLog(LOG_INFO, "锤子打中%s！+%d分",
                         (barrel.GetType() == BarrelType::NORMAL) ? "普通桶" : "蓝色桶",
                         addPoints);
-                }
-            }
-        }
-    }
-
-    if (!isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
-        Rectangle playerHitbox = gamePlayer->GetHitbox();
-        for (auto& barrel : gameEnemy->GetBarrels()) {
-            if (!barrel.IsHit()) {
-                Rectangle barrelRect = {
-                    barrel.GetPosition().x,
-                    barrel.GetPosition().y,
-                    barrel.GetWidth(),
-                    barrel.GetHeight()
-                };
-                if (CheckCollisionRecs(playerHitbox, barrelRect)) {
-                    barrel.Hit();
-                    gamePlayer->LoseLife();
-
-                    if (gamePlayer->IsDead()) {
-                        *currentScreen = MENU;
-                        totalScore = 0;
-                        totalStars = 0;
-                        currentLevel = 1;
-                        CleanupGame();
-                        return;
-                    }
-                    gamePlayer->Respawn(2, 21);
                 }
             }
         }

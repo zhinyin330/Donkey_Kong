@@ -20,7 +20,6 @@ public:
     virtual bool CheckNewPlatformCollision(Rectangle playerFeetHitbox, float& groundY) { return false; }
     virtual bool HasNewPlatforms() { return false; }
     virtual std::vector<Rectangle> GetNewPlatforms() { return {}; }
-    virtual void ResetScene() {}
 
     virtual int GetCurrentLevel() { return 1; }
     virtual void SetCurrentLevel(int level) {}
