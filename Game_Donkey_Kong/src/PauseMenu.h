@@ -9,6 +9,7 @@ enum class PauseOption {
 class PauseMenu {
 private:
     PauseOption selectedOption;
+    Texture2D frameTexture;
     Font font;
     bool isActive;
 
