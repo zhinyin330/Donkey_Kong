@@ -111,7 +111,6 @@ void DrawGame(GameScreen* currentScreen)
         if (gameEnemy == nullptr) gameEnemy = new Enemy();
         if (gameStars == nullptr) gameStars = new NewMechanic();
         if (gameTransition == nullptr) gameTransition = new Transition();
-        if (pauseMenu == nullptr) pauseMenu = new PauseMenu();
 
         isScene2 = false;
         isInitialized = true;
@@ -166,40 +165,6 @@ void DrawGame(GameScreen* currentScreen)
             }
             return;
         }
-    }
-
-    // --- 7. ESC / PAUSA ---
-    if (IsKeyPressed(KEY_P)) {
-        if (pauseMenu != nullptr && !pauseMenu->IsActive()) {
-            pauseMenu->Show();  // Abrir menú de pausa
-        }
-    }
-
-    // Menú de pausa activo
-    if (pauseMenu != nullptr && pauseMenu->IsActive()) {
-        pauseMenu->Update();
-
-        // Dibujar escena congelada de fondo
-        gameScene->Draw();
-        gamePlayer->Draw();
-        gameEnemy->Draw();
-        gameStars->Draw();
-
-        // Dibujar menú encima
-        pauseMenu->Draw();
-
-        // Seleccionar opción
-        if (IsKeyPressed(KEY_ENTER)) {
-            if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
-                *currentScreen = MENU;
-                CleanupGame();
-                return;
-            }
-            else {
-                pauseMenu->Hide();  // Continuar
-            }
-        }
-        return;  // Congelar juego
     }
 
 
@@ -345,7 +310,39 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-   
+    // --- 7. ESC / PAUSA ---
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        if (pauseMenu != nullptr && !pauseMenu->IsActive()) {
+            pauseMenu->Show();  // Abrir menú de pausa
+        }
+    }
+
+    // Menú de pausa activo
+    if (pauseMenu != nullptr && pauseMenu->IsActive()) {
+        pauseMenu->Update();
+
+        // Dibujar escena congelada de fondo
+        gameScene->Draw();
+        gamePlayer->Draw();
+        gameEnemy->Draw();
+        gameStars->Draw();
+
+        // Dibujar menú encima
+        pauseMenu->Draw();
+
+        // Seleccionar opción
+        if (IsKeyPressed(KEY_ENTER)) {
+            if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
+                *currentScreen = MENU;
+                CleanupGame();
+                return;
+            }
+            else {
+                pauseMenu->Hide();  // Continuar
+            }
+        }
+        return;  // Congelar juego
+    }
 
     // --- 8. DRAW ---
     gameScene->Draw();

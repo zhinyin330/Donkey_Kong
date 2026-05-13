@@ -614,6 +614,17 @@ void Scene2::Draw() {
         }
     }
 
+    for (int x = 9; x <= 15; x++) {
+        if (level[6][x] == 1) {
+            DrawRectangleLines(
+                x * scaledTileSize,
+                6 * scaledTileSize + offsetY,
+                scaledTileSize,
+                visualHeight,
+                RED
+            );
+        }
+    }
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);

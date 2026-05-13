@@ -119,7 +119,7 @@ Player::~Player() {
 
 void Player::HandleInput(GameScene& scene) {
     // K键挥锤 
-    if (IsKeyPressed(KEY_Z) && hasHammer && !isSwingingHammer && currentState != PlayerState::HAMMER_SWING) {
+    if (IsKeyPressed(KEY_K) && hasHammer && !isSwingingHammer && currentState != PlayerState::HAMMER_SWING) {
         StartSwingHammer();
         return;
     }
@@ -238,7 +238,7 @@ void Player::HandleInput(GameScene& scene) {
             moveX = 1;
             facingRight = true;
         }
-        if (IsKeyPressed(KEY_X) && !starMode && starCount >= maxStars) {
+        if (IsKeyPressed(KEY_Z) && !starMode && starCount >= maxStars) {
             ActivateStarMode();
         }
     }
@@ -940,7 +940,7 @@ void Player::Draw() {
     
     // 显示锤子提示
     if (hasHammer) {
-        DrawText("HAMMER: z", GameScene::GetScreenWidth() - 200, 650, 20, ORANGE);
+        DrawText("HAMMER: K", GameScene::GetScreenWidth() - 200, 650, 20, ORANGE);
     }
 
     DrawFloatingTexts();   // 绘制浮动文字 
