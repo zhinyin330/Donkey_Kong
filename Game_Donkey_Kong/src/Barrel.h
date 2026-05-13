@@ -55,6 +55,8 @@ private:
     bool triggerLocked = false;
     float triggerLockTimer = 0.0f;
     bool hasCheckedTrigger = false;
+    bool triggerFailedLock = false;
+
 
 private:
     BarrelType type;
