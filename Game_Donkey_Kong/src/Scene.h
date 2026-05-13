@@ -52,6 +52,12 @@ private:
     // 触发点列表（地图级别，全局共享）
     std::vector<VerticalDropTrigger> verticalDropTriggers;
 
+    // 雨动画
+    Texture2D rainTextures[4];
+    int currentRainFrame;
+    float rainTimer;
+    float rainFrameSpeed;
+
 
 public:
     Scene();
