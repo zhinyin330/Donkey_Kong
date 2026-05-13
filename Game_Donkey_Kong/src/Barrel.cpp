@@ -49,9 +49,9 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     verticalDropTriggers.push_back({ {650.0f,675.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1 });
     
     // direction 方向控制3
-    verticalDropTriggers.push_back({ {255.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });//有几率触发
-    verticalDropTriggers.push_back({ {405.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });//有几率触发
-    verticalDropTriggers.push_back({ {355.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0 });//有几率触发
+    verticalDropTriggers.push_back({ {255.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.35f });//有几率触发
+    verticalDropTriggers.push_back({ {405.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.15f });//有几率触发
+    verticalDropTriggers.push_back({ {355.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.35f });//有几率触发
     // direction 方向控制4
     verticalDropTriggers.push_back({ {270.0f,390.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1 });
     verticalDropTriggers.push_back({ {420.0f,490.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1 });
@@ -126,11 +126,49 @@ bool Barrel::CheckVerticalDropTrigger()
 
         if (CheckCollisionRecs(barrelRect, trigger.rect))
         {
-            currentDropTrigger = &trigger;
+            // 概率判定
+            if (CheckCollisionRecs(barrelRect, trigger.rect))
+            {
+                TraceLog(
+                    LOG_INFO,
+                    TextFormat(
+                        "碰到DROP trigger | chance=%.2f",
+                        trigger.triggerChance
+                    )
+                );
 
-            dropTargetX = trigger.rect.x;
+                float roll =
+                    (float)GetRandomValue(0, 9999) / 10000.0f;
 
-            return true;
+                if (roll <= trigger.triggerChance)
+                {
+                    TraceLog(
+                        LOG_INFO,
+                        TextFormat(
+                            "Siii | roll=%.4f <= %.2f",
+                            roll,
+                            trigger.triggerChance
+                        )
+                    );
+
+                    currentDropTrigger = &trigger;
+
+                    dropTargetX = trigger.rect.x;
+
+                    return true;
+                }
+                else
+                {
+                    TraceLog(
+                        LOG_INFO,
+                        TextFormat(
+                            "Nooo | roll=%.4f > %.2f",
+                            roll,
+                            trigger.triggerChance
+                        )
+                    );
+                }
+            }
         }
     }
 

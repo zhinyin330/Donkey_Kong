@@ -27,6 +27,8 @@ struct VerticalDropTrigger
     Rectangle rect;     // 触发区域
     TriggerType type;   // 触发类型（DROP / RETURN）
     int direction;      // RETURN用：1=向右，-1=向左
+
+    float triggerChance = 1.0f;
 };
 
 class Barrel {
@@ -52,6 +54,7 @@ private:
     bool inDropPhase = false;   // 是否已经进入下落阶段
     bool triggerLocked = false;
     float triggerLockTimer = 0.0f;
+    bool hasCheckedTrigger = false;
 
 private:
     BarrelType type;
