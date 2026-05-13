@@ -417,7 +417,7 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
-                totalScore = gamePlayer->GetScore();
+                totalScore = gamePlayer->GetScore();  // ← 改成保存完整分数
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
                     gameTransition->Start(currentLevel, totalScore, totalStars);
@@ -445,7 +445,7 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerRect, princessRect)) {
                 totalStars = gamePlayer->GetStarCount();
-                totalScore = gamePlayer->GetScore(); 
+                totalScore = gamePlayer->GetScore();  // ← 同样改成保存完整分数
                 currentLevel++;
                 gameScene->SetTransitionReached(true);
                 if (gameTransition != nullptr) {
@@ -455,6 +455,8 @@ void DrawGame(GameScreen* currentScreen)
             }
         }
     }
+
+   
 
     // --- 8. DRAW ---
     gameScene->Draw();

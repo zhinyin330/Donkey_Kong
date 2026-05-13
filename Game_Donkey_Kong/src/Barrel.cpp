@@ -21,7 +21,7 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     frameCounter = 0.0f;
     frameSpeed = 0.1f;
 
-    groundOffset = 35.0f;
+    groundOffset = 29.5f;
 
     targetPlatformY = -1;
     dropTargetX = 0.0f;
@@ -326,13 +326,9 @@ void Barrel::Draw()
             currentAnimationFrames[currentFrame],
             position,
             0.0f,
-            2.5f,
+            2.2f,
             WHITE
         );
-    }
-    for (const auto& trigger : verticalDropTriggers)
-    {
-        DrawRectangleLinesEx(trigger.rect, 2, RED);
     }
 }
 

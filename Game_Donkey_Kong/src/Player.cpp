@@ -31,6 +31,12 @@ Player::Player() {
     climbEndTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_LadderEnd1.png"));
     climbEndTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_LadderEnd2.png"));
 
+    deathTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Death1.png"));
+    deathTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Death2.png"));
+    deathTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Death3.png"));
+    deathTextures.push_back(LoadTexture("Characters/Mario/Dk_Mario_Death4.png"));
+    deathEndTexture = LoadTexture("Characters/Mario/Dk_Mario_DeathEnd.png");
+
     //加载锤子动画
     hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Up.png"));
     hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Right.png"));
@@ -58,6 +64,9 @@ Player::Player() {
     moveY = 0.0f;
     exitingLadder = false;
     lives = 3;
+    isDying = false;
+    deathTimer = 0.0f;
+    deathFrame = 0;
 
     // Configuración de hitbox
     baseHitboxOffsetY = 2;
@@ -115,11 +124,13 @@ Player::~Player() {
     for (Texture2D& tex : climbTextures) UnloadTexture(tex);
     for (Texture2D& tex : climbEndTextures) UnloadTexture(tex);
     UnloadSound(jumpSound);
-    for (Texture2D& tex : hammerSwingTextures) UnloadTexture(tex); //卸载锤子纹理
+    for (Texture2D& tex : hammerSwingTextures) UnloadTexture(tex);
+    for (Texture2D& tex : deathTextures) UnloadTexture(tex);
+    UnloadTexture(deathEndTexture);
 }
 
 void Player::HandleInput(GameScene& scene) {
-    // K键挥锤 
+    if (isDying) return;
     if (IsKeyPressed(KEY_Z) && hasHammer && !isSwingingHammer && currentState != PlayerState::HAMMER_SWING) {
         StartSwingHammer();
         return;
@@ -740,7 +751,7 @@ void Player::Update(GameScene& scene) {
         if (IsDead()) {
             return;
         }
-        Respawn(2, 21);
+        StartDeath();
         return;
     }
 
@@ -859,6 +870,47 @@ void Player::ActivateStarMode() {
     starModeTimer = starModeDuration;
     starCount = 0;
     currentTint = GOLD;
+}
+
+void Player::StartDeath() {
+    isDying = true;
+    deathTimer = 0.0f;
+    deathFrame = 0;
+    velocityY = 0;
+    velocityX = 0;
+    moveX = 0;
+    moveY = 0;
+    isJumping = false;
+    onLadder = false;
+    isClimbing = false;
+    exitingLadder = false;
+}
+
+void Player::UpdateDeath(float deltaTime) {
+    if (!isDying) return;
+
+    deathTimer += deltaTime;
+
+    if (deathTimer < 0.5f) {
+        deathFrame = 0;  // Death1
+    }
+    else if (deathTimer < 1.0f) {
+        deathFrame = 1;  // Death2
+    }
+    else if (deathTimer < 1.5f) {
+        deathFrame = 2;  // Death3
+    }
+    else if (deathTimer < 2.0f) {
+        deathFrame = 3;  // Death4
+    }
+    else if (deathTimer < 4.0f) {
+        deathFrame = 4;  // DeathEnd
+    }
+    else {
+        isDying = false;
+        deathTimer = 0.0f;
+        deathFrame = 0;
+    }
 }
 
 void Player::Respawn(int tileX, int tileY) {
@@ -1019,6 +1071,19 @@ void Player::SetScore(int score) {
 }
 
 void Player::Draw() {
+
+    if (isDying) {
+        Texture2D tex;
+        if (deathFrame < 4) {
+            tex = deathTextures[deathFrame];
+        }
+        else {
+            tex = deathEndTexture;
+        }
+        DrawTextureEx(tex, position, 0.0f, scale, WHITE);
+        return;  // No dibujar nada más durante la muerte
+    }
+
     Rectangle source = { 0, 0, (float)currentTexture.width, (float)currentTexture.height };
     Rectangle dest = {
         position.x,

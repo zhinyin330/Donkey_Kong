@@ -71,7 +71,7 @@ public:
     void UpdateAnimation();
     void ChangeState(EnemyState newState);
 
-    // (^^)d: comportamiento
+    void ClearBarrels() { barrels.clear(); }
     void SetBehavior(EnemyBehavior b) { behavior = b; }
     EnemyBehavior GetBehavior() const { return behavior; }
     
@@ -82,6 +82,21 @@ public:
     float GetScale() const { return scale; }
     float GetTextureWidth() const { return currentTexture.width; }
     float GetTextureHeight() const { return currentTexture.height; }
+    float GetWidth() const {
+        if (behavior == EnemyBehavior::DECORATIVE_CYCLE && currentTexture.id != 0)
+            return currentTexture.width * scale;
+        if (!dkWithBarrelTextures.empty())
+            return dkWithBarrelTextures[0].width * scale;
+        return 32 * scale;
+    }
+
+    float GetHeight() const {
+        if (behavior == EnemyBehavior::DECORATIVE_CYCLE && currentTexture.id != 0)
+            return currentTexture.height * scale;
+        if (!dkWithBarrelTextures.empty())
+            return dkWithBarrelTextures[0].height * scale;
+        return 32 * scale;
+    }
 
     const std::vector<Barrel>& GetBarrels() const { return barrels; }
     std::vector<Barrel>& GetBarrels() { return barrels; }  // 返回引用以便修改

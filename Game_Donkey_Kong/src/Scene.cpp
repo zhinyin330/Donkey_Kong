@@ -298,7 +298,7 @@ void Scene::Draw() {
 
 // 在左下角背景绘制油罐，并向右上调整位置
     if (oilCanisterTexture.id != 0) {
-        float oilScale = 2.5f;        // 放大到 3 倍（原先是 2.0）
+        float oilScale = 2.5f;      
         float xOffset = -700.0f;
         float yOffset = -16.0f;
         float worldBottomY = mapHeight * tileSize * tileScale;
@@ -433,85 +433,6 @@ void Scene::Draw() {
     }
 
     DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
-
-    DrawRectangleLines(
-        princessPosition.x,
-        princessPosition.y,
-        princessTexture.width* princessScale,
-        princessTexture.height* princessScale,
-        PINK
-    );
-
-    #ifdef _DEBUG
-    // 只在 Debug 模式下显示，Release 模式会自动移除
-    for (int y = 0; y < mapHeight; y++) {
-        for (int x = 0; x < mapWidth; x++) {
-            int ladderHitboxValue = ladderHitbox[y][x];
-            if (ladderHitboxValue > 0) {
-                // 计算梯子碰撞框的世界坐标
-                int offsetY = visualOffsetY[y][x];
-                
-                Rectangle hitboxRect;
-                float globalAdjust = -6.6f;
-                float verticalStretch = 1.2f;
-                int extraWidth = 6;
-                
-                // 根据梯子类型计算碰撞框大小
-                if (ladderHitboxValue == 1) {
-                    hitboxRect = {
-                        (float)(x * scaledTileSize) - extraWidth,
-                        (float)(y * scaledTileSize) + offsetY + globalAdjust,
-                        (float)scaledTileSize + extraWidth * 2,
-                        (float)scaledTileSize * verticalStretch
-                    };
-                }
-                else if (ladderHitboxValue == 2) {
-                    hitboxRect = {
-                        (float)(x * scaledTileSize) - extraWidth,
-                        (float)(y * scaledTileSize) + offsetY + globalAdjust,
-                        (float)scaledTileSize + extraWidth * 2,
-                        (float)scaledTileSize * verticalStretch * 0.5f
-                    };
-                }
-                else if (ladderHitboxValue == 3) {
-                    hitboxRect = {
-                        (float)(x * scaledTileSize) - extraWidth,
-                        (float)(y * scaledTileSize) + offsetY + globalAdjust + (scaledTileSize * verticalStretch * 0.5f),
-                        (float)scaledTileSize + extraWidth * 2,
-                        (float)scaledTileSize * verticalStretch * 0.5f
-                    };
-                }
-                else {
-                    // 默认碰撞框
-                    hitboxRect = {
-                        (float)(x * scaledTileSize),
-                        (float)(y * scaledTileSize) + offsetY,
-                        (float)scaledTileSize,
-                        (float)scaledTileSize
-                    };
-                }
-                
-                // 根据梯子类型使用不同颜色
-                Color debugColor;
-                switch (ladderHitboxValue) {
-                    case 1: debugColor = RED; break;      // 完整梯子
-                    case 2: debugColor = GREEN; break;    // 上半部分
-                    case 3: debugColor = BLUE; break;     // 下半部分
-                    default: debugColor = YELLOW; break;
-                }
-                
-                // 绘制半透明填充和边框
-                DrawRectangleRec(hitboxRect, Fade(debugColor, 0.3f));  // 半透明填充
-                DrawRectangleLinesEx(hitboxRect, 2.0f, debugColor);     // 边框
-                
-                // 可选：显示 Hitbox 数值
-                char text[4];
-                snprintf(text, sizeof(text), "%d", ladderHitboxValue);
-                DrawText(text, hitboxRect.x + 5, hitboxRect.y + 5, 12, WHITE);
-            }
-        }
-    }
-    #endif
 
     // ===== 绘制雨层 =====
     DrawTexturePro(

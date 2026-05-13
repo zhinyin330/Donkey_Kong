@@ -31,6 +31,7 @@ Scene2::Scene2() {
     dkBounceFrame = 0;
     dkSequenceDone = false;
     sequenceTriggered = false;
+    dkCanHurt = true;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
@@ -411,19 +412,19 @@ void Scene2::TriggerDkLandSequence() {
         hitboxLevel[3][x] = 0;
         level[3][x] = 0;
     }
-    TraceLog(LOG_INFO, "Y=3 borrada. level[3][10]=%d", level[3][10]);
 
     // 2. Reaparecer tramo central de Y=6
     for (int x = 9; x <= 15; x++) {
         level[6][x] = 1;
         hitboxLevel[6][x] = 1;
     }
-    TraceLog(LOG_INFO, "Y=6 restaurada. level[6][12]=%d", level[6][12]);
 
     // 3. Mover princesa
     float princessX = 367;
     float princessY = 6 * 32 + platformHitboxOffsetY * tileScale - princessTexture.height * princessScale + 10;
     princessPosition = { princessX, princessY };
+
+    dkCanHurt = false;
 }
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;

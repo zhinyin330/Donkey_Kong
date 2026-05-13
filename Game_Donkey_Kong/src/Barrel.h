@@ -103,11 +103,11 @@ public:
 
     float GetWidth() const
     {
-        return rollingFrames.empty() ? 0 : rollingFrames[0].width * 2.5f;
+        return rollingFrames.empty() ? 0 : rollingFrames[0].width * 2.2f;
     }
 
     float GetHeight() const
     {
-        return rollingFrames.empty() ? 0 : rollingFrames[0].height * 2.5f;
+        return rollingFrames.empty() ? 0 : rollingFrames[0].height * 2.2f;
     }
 };

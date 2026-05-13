@@ -37,6 +37,8 @@ private:
     Texture2D currentTexture;
     std::vector<Texture2D> climbTextures;
     std::vector<Texture2D> climbEndTextures;
+    Texture2D deathEndTexture;
+    std::vector<Texture2D> deathTextures;
 
     //锤子
     std::vector<Texture2D> hammerSwingTextures;  // 挥锤动画
@@ -82,6 +84,9 @@ private:
     float climbSpeed;
     bool exitingLadder;
     int lives;
+    bool isDying;
+    float deathTimer;
+    int deathFrame;
 
     // Hitbox base
     int baseHitboxOffsetY;
@@ -173,6 +178,9 @@ public:
     int GetLives() const { return lives; }
     void LoseLife() { if (lives > 0) lives--; }
     bool IsDead() const { return lives <= 0; }
+    bool IsDying() const { return isDying; }
+    void StartDeath();
+    void UpdateDeath(float deltaTime);
 
     //锤子系统方法
  // ========== 在这里添加锤子动画纹理加载 ==========

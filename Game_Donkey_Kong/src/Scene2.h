@@ -56,6 +56,7 @@ private:
     bool dkOnPlatform;
     float dkBounceTimer;
     int dkBounceFrame;
+    bool dkCanHurt;
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -105,7 +106,7 @@ public:
     void UpdateDkBounce(float deltaTime);
     void DrawDkFalling();
     void TriggerDkLandSequence();
-  
+    bool CanDkHurt() { return dkCanHurt; }
 
     // Métodos de transición
     bool transitionReached = false;
