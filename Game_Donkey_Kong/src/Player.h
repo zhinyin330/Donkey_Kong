@@ -81,6 +81,7 @@ private:
     bool isClimbing;
     float climbSpeed;
     bool exitingLadder;
+    int lives;
 
     // Hitbox base
     int baseHitboxOffsetY;
@@ -166,6 +167,13 @@ public:
             baseHitboxHeight * scale
         };
     }
+
+    //vidas
+    void Respawn(int tileX, int tileY);
+    int GetLives() const { return lives; }
+    void LoseLife() { if (lives > 0) lives--; }
+    bool IsDead() const { return lives <= 0; }
+
     //锤子系统方法
  // ========== 在这里添加锤子动画纹理加载 ==========
     void SetHasHammer(bool has) { hasHammer = has; }
