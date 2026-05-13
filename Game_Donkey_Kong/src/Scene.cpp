@@ -21,18 +21,6 @@ Scene::Scene() {
     ladderHitbox.resize(mapHeight, std::vector<int>(mapWidth, 0));
     visualOffsetY.resize(mapHeight, std::vector<int>(mapWidth, baseOffset));
 
-    // ===== 雨动画 =====
-    rainTextures[0] = LoadTexture("UI/Lluvia1.png");
-    rainTextures[1] = LoadTexture("UI/Lluvia2.png");
-    rainTextures[2] = LoadTexture("UI/Lluvia3.png");
-    rainTextures[3] = LoadTexture("UI/Lluvia4.png");
-
-    currentRainFrame = 0;
-    rainTimer = 0.0f;
-
-    // 动画速度
-    rainFrameSpeed = 0.3f;
-
     // ========== PRINCESA ==========
     princessTexture = LoadTexture("Characters/Princess/Dk_Princess_Idle1.png");
     princessScale = 2.2f;
@@ -205,10 +193,6 @@ Scene::~Scene() {
     UnloadTexture(barrelTexture);
     UnloadTexture(oilCanisterTexture);//tongtong
     UnloadTexture(princessTexture);  
-
-    for (int i = 0; i < 4; i++) {
-        UnloadTexture(rainTextures[i]);
-    }
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -284,18 +268,6 @@ void Scene::Draw() {
     UpdateMusicStream(backgroundMusic);
     if (!IsMusicStreamPlaying(backgroundMusic)) {
         PlayMusicStream(backgroundMusic);
-    }
-
-    // ===== 更新雨动画 =====
-    rainTimer += GetFrameTime();
-
-    if (rainTimer >= rainFrameSpeed) {
-        rainTimer = 0.0f;
-        currentRainFrame++;
-
-        if (currentRainFrame >= 4) {
-            currentRainFrame = 0;
-        }
     }
 // 在左下角背景绘制油罐，并向右上调整位置
     if (oilCanisterTexture.id != 0) {
@@ -513,23 +485,4 @@ void Scene::Draw() {
         }
     }
     #endif
-    // ===== 绘制雨层 =====
-    DrawTexturePro(
-        rainTextures[currentRainFrame],
-        Rectangle{
-            0,
-            0,
-            (float)rainTextures[currentRainFrame].width,
-            (float)rainTextures[currentRainFrame].height
-        },
-        Rectangle{
-            0,
-            0,
-            (float)GetScreenWidth(),
-            (float)GetScreenHeight()
-        },
-        Vector2{ 0, 0 },
-        0.0f,
-        WHITE
-    );
 }
