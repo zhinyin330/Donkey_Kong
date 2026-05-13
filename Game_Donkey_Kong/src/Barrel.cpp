@@ -104,8 +104,7 @@ void Barrel::UpdateAnimation()
 }
 
  
-//  检测 DROP 触发 
-//  优化：只允许ROLLING阶段触发
+//  检测 DROP 触发 只允许ROLLING阶段触发
 bool Barrel::CheckVerticalDropTrigger()
 {
     if (inDropPhase)
@@ -133,20 +132,20 @@ bool Barrel::CheckVerticalDropTrigger()
 
         touchingAny = true;
 
-        // 已经尝试过当前区域（避免重复抽）
+        // 已经尝试过当前区域避免重复抽
         if (hasCheckedTrigger)
             continue;
 
         hasCheckedTrigger = true;
 
-        // ⭐100%必触发
+        // 100%必触发
         if (trigger.triggerChance >= 1.0f)
         {
             bestTrigger = &trigger;
             break;
         }
 
-        // ⭐概率触发
+        // 概率触发
         float roll =
             (float)GetRandomValue(0, 9999) / 10000.0f;
 
@@ -156,11 +155,11 @@ bool Barrel::CheckVerticalDropTrigger()
             break;
         }
 
-        // ❗失败：只影响当前，不锁全局！！
+        // 失败只影响当前，不锁全局
         return false;
     }
 
-    // ⭐如果找到了 trigger
+    // 如果找到了 trigger
     if (bestTrigger != nullptr)
     {
         currentDropTrigger = bestTrigger;
