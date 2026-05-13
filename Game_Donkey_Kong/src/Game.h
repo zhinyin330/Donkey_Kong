@@ -9,7 +9,8 @@ enum GameScreen
 	MENU,
 	GAMEPLAY,
 	TRANSITION,
-	SCENE_TEST
+	SCENE_TEST,
+	GAME_OVER
 };
 
 
@@ -24,3 +25,4 @@ void UnloadGame();
 void SwitchToScene2();
 void ResetGame();
 void SetHammerPosition(float x, float y);
+void DrawGameOver(GameScreen* currentScreen);

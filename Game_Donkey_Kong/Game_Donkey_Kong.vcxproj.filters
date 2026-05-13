@@ -102,6 +102,9 @@
     <ClInclude Include="src\oilCaniterFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameOver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Barrel.cpp">
@@ -150,6 +153,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\prova11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameOver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
