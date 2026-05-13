@@ -360,6 +360,7 @@
     <Image Include="resources\Architecture\Dk_Pillar.png" />
     <Image Include="resources\Architecture\Dk_Spring_Active.png" />
     <Image Include="resources\Architecture\Dk_Spring_Idle.png" />
+    <Image Include="resources\Barrel\BlueBall.png" />
     <Image Include="resources\Barrel\Dk_Barrel_Blue_Fall1.png" />
     <Image Include="resources\Barrel\Dk_Barrel_Blue_Fall2.png" />
     <Image Include="resources\Barrel\Dk_Barrel_Blue_Mov1.png" />
@@ -373,6 +374,7 @@
     <Image Include="resources\Barrel\Dk_Barrel_Mov2.png" />
     <Image Include="resources\Barrel\Dk_Barrel_Mov3.png" />
     <Image Include="resources\Barrel\Dk_Barrel_Mov4.png" />
+    <Image Include="resources\Barrel\RedBall.png" />
     <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_L.png" />
     <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_M.png" />
     <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_R.png" />
@@ -441,6 +443,7 @@
     <Image Include="resources\UI\Dk_UI_CurrentLevel.png" />
     <Image Include="resources\UI\Dk_UI_HighScore.png" />
     <Image Include="resources\UI\Dk_UI_Numbers.png" />
+    <Image Include="resources\UI\Dk_marco_b&amp;w.png" />
     <Image Include="resources\VFX\Dk_DonkeyKong_Stars.png" />
     <Image Include="resources\VFX\Dk_Hammer_XP1.png" />
     <Image Include="resources\VFX\Dk_Hammer_XP2.png" />

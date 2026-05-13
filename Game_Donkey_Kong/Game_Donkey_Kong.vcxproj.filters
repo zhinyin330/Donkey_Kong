@@ -215,6 +215,9 @@
     <Image Include="resources\Architecture\Dk_Spring_Idle.png">
       <Filter>Game Resource Files\Architecture</Filter>
     </Image>
+    <Image Include="resources\Barrel\BlueBall.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
     <Image Include="resources\Barrel\Dk_Barrel_Blue_Fall1.png">
       <Filter>Game Resource Files\Barrel</Filter>
     </Image>
@@ -252,6 +255,9 @@
       <Filter>Game Resource Files\Barrel</Filter>
     </Image>
     <Image Include="resources\Barrel\Dk_Barrel_Mov4.png">
+      <Filter>Game Resource Files\Barrel</Filter>
+    </Image>
+    <Image Include="resources\Barrel\RedBall.png">
       <Filter>Game Resource Files\Barrel</Filter>
     </Image>
     <Image Include="resources\Characters\DonkeyKong\Dk_DonkeyKong_BarrelGrab_L.png">
@@ -456,6 +462,9 @@
       <Filter>Game Resource Files\UI</Filter>
     </Image>
     <Image Include="resources\UI\Dk_UI_Numbers.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_marco_b&w.png">
       <Filter>Game Resource Files\UI</Filter>
     </Image>
     <Image Include="resources\VFX\Dk_DonkeyKong_Stars.png">
