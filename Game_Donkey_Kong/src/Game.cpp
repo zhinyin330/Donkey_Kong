@@ -9,6 +9,7 @@
 #include "Transition.h"
 #include "PauseMenu.h"
 #include "GameOver.h"
+#include "LeaderBoard.h"
 
 static GameScene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
@@ -28,6 +29,8 @@ static Vector2 hammerPosition = { 400, 300 };
 static bool hammerActive = true;
 static bool hammerCollected = false;
 static float hammerScale = 2.3f;
+static LeaderBoard* leaderBoard = nullptr;
+static bool gameInProgress = false;
 
 
 void InitGame()
@@ -51,6 +54,7 @@ void InitGame()
     isScene2 = false;
     isInitialized = true;
     shouldReset = false;
+    gameInProgress = true;
 
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
@@ -80,11 +84,19 @@ void InitGameScene2()
     isInitialized = true;
     shouldReset = false;
     gameTransition = new Transition();
+    gameInProgress = true;
 
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
     hammerPosition = { 400.0f, 300.0f };
+}
+
+void InitLeaderBoard() {
+    if (leaderBoard == nullptr) {
+        leaderBoard = new LeaderBoard();
+    }
+    leaderBoard->SetHasActiveGame(gameInProgress);
 }
 
 void CleanupGame()
@@ -98,12 +110,44 @@ void CleanupGame()
         if (gameTransition != nullptr) { delete gameTransition; gameTransition = nullptr; }
         if (pauseMenu != nullptr) { delete pauseMenu; pauseMenu = nullptr; }
         if (gameOver != nullptr) { delete gameOver; gameOver = nullptr; }
+        if (leaderBoard != nullptr) { delete leaderBoard; leaderBoard = nullptr; }
 
+        gameInProgress = false;
         isInitialized = false;
         isScene2 = false;
     }
 }
 
+void DrawLeaderBoard(GameScreen* currentScreen) {
+    if (leaderBoard == nullptr) {
+        InitLeaderBoard();
+    }
+
+    leaderBoard->Update();
+    leaderBoard->Draw();
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        int option = leaderBoard->GetSelectedOption();
+
+        if (option == 0 && gameInProgress) {
+            *currentScreen = GAMEPLAY;
+        }
+        else {
+            totalScore = 0;
+            totalStars = 0;
+            currentLevel = 1;
+            Player::ResetLives();
+            CleanupGame();
+            InitGame();
+            gameInProgress = true;
+            *currentScreen = GAMEPLAY;
+        }
+    }
+
+    if (IsKeyPressed(KEY_ESCAPE) && gameInProgress) {
+        *currentScreen = GAMEPLAY;  
+    }
+}
 
 void DrawGame(GameScreen* currentScreen)
 {
@@ -185,12 +229,11 @@ void DrawGame(GameScreen* currentScreen)
 
         if (IsKeyPressed(KEY_ENTER)) {
             if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
-                *currentScreen = MENU;
-                CleanupGame();
-                return;
-            }
-            else {
+                *currentScreen = LEADERBOARD;
+                InitLeaderBoard();
+                leaderBoard->SetHasActiveGame(true);  
                 pauseMenu->Hide();
+                return;
             }
         }
         return;
@@ -212,6 +255,7 @@ void DrawGame(GameScreen* currentScreen)
 
         if (!gamePlayer->IsDying()) {
             barrelsCleared = false;
+            gameStars->ResetStars();
             gamePlayer->Respawn(2, 21);
         }
         return;
@@ -446,11 +490,13 @@ void DrawGameOver(GameScreen* currentScreen) {
 
     if (gameOver->IsFinished()) {
         std::string name = gameOver->GetPlayerName();
-        TraceLog(LOG_INFO, "Player: %s, Score: %d", name.c_str(), totalScore);
-        *currentScreen = MENU;
+        InitLeaderBoard();
+        leaderBoard->AddScore(name, currentLevel, totalScore);
+        *currentScreen = LEADERBOARD;
         totalScore = 0;
         totalStars = 0;
         currentLevel = 1;
+        Player::ResetLives();
         CleanupGame();
     }
 }

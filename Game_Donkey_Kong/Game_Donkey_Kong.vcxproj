@@ -309,6 +309,7 @@
     <ClInclude Include="src\GameOver.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\Intro.h" />
+    <ClInclude Include="src\LeaderBoard.h" />
     <ClInclude Include="src\Menu.h" />
     <ClInclude Include="src\NewMechanic.h" />
     <ClInclude Include="src\PauseMenu.h" />
@@ -326,6 +327,7 @@
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GameOver.cpp" />
     <ClCompile Include="src\Intro.cpp" />
+    <ClCompile Include="src\LeaderBoard.cpp" />
     <ClCompile Include="src\Menu.cpp" />
     <ClCompile Include="src\NewMechanic.cpp" />
     <ClCompile Include="src\PauseMenu.cpp" />

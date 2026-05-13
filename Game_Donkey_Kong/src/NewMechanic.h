@@ -29,6 +29,7 @@ public:
     void CheckCollisionWithPlayer(Player* player);
     void ResetStars() { stars.clear(); }
 
+
     //Verificar colisión y devolver si se recogió una estrella
     bool CheckAndCollect(Rectangle playerHitbox);
 

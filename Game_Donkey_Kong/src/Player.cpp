@@ -5,6 +5,7 @@
 
 //Para usarlo correctamente; Duracion del modo immune
 const float Player::starModeDuration = 10.0f;
+int Player::lives = 3;
 
 Player::Player() {
     // Cargar texturas
@@ -64,7 +65,6 @@ Player::Player() {
     moveY = 0.0f;
     exitingLadder = false;
 
-    lives = 3;
     isDying = false;
     deathTimer = 0.0f;
     deathFrame = 0;
@@ -896,19 +896,19 @@ void Player::UpdateDeath(float deltaTime) {
 
     deathTimer += deltaTime;
 
-    if (deathTimer < 0.5f) {
+    if (deathTimer < 0.25f) {
         deathFrame = 0;  // Death1
     }
-    else if (deathTimer < 1.0f) {
+    else if (deathTimer < 0.5f) {
         deathFrame = 1;  // Death2
     }
-    else if (deathTimer < 1.5f) {
+    else if (deathTimer < 0.75f) {
         deathFrame = 2;  // Death3
     }
-    else if (deathTimer < 2.0f) {
+    else if (deathTimer < 1.0f) {
         deathFrame = 3;  // Death4
     }
-    else if (deathTimer < 4.0f) {
+    else if (deathTimer < 2.25f) {
         deathFrame = 4;  // DeathEnd
     }
     else {

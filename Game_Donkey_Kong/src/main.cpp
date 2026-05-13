@@ -51,6 +51,10 @@ int main()
                 DrawGame(&currentScreen);
                 break;
 
+            case LEADERBOARD:
+                DrawLeaderBoard(&currentScreen);
+                break;
+
             case GAME_OVER:
                 DrawGameOver(&currentScreen);
                 break;

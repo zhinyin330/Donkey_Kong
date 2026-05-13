@@ -105,6 +105,9 @@
     <ClInclude Include="src\GameOver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\LeaderBoard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Barrel.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GameOver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LeaderBoard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

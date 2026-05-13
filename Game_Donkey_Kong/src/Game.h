@@ -10,7 +10,9 @@ enum GameScreen
 	GAMEPLAY,
 	TRANSITION,
 	SCENE_TEST,
+	LEADERBOARD,
 	GAME_OVER
+
 };
 
 
@@ -26,3 +28,5 @@ void SwitchToScene2();
 void ResetGame();
 void SetHammerPosition(float x, float y);
 void DrawGameOver(GameScreen* currentScreen);
+void InitLeaderBoard();
+void DrawLeaderBoard(GameScreen* currentScreen);

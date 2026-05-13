@@ -12,7 +12,7 @@ enum class PlayerState {
     JUMPING,
     CLIMBING,
     CLIMBING_END,
-    HAMMER_SWING  //挥锤状态
+    HAMMER_SWING 
 };
 
 // ========== 新增：浮动文字结构 ==========
@@ -84,7 +84,7 @@ private:
     float climbSpeed;
     bool exitingLadder;
 
-    int lives;
+    static int lives;
     bool isDying;
     float deathTimer;
     int deathFrame;
@@ -182,6 +182,7 @@ public:
     bool IsDying() const { return isDying; }
     void StartDeath();
     void UpdateDeath(float deltaTime);
+    static void ResetLives() { lives = 3; }
 
     //锤子系统方法
  // ========== 在这里添加锤子动画纹理加载 ==========
