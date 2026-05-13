@@ -26,7 +26,8 @@ static Vector2 hammerPosition = { 400, 300 };
 static bool hammerActive = true;
 static bool hammerCollected = false;
 static float hammerScale = 2.3f;
-
+static Texture2D heartTexture = { 0 };
+static bool heartLoaded = false;
 
 void InitGame()
 {
@@ -54,6 +55,11 @@ void InitGame()
     hammerCollected = false;
     hammerPosition = { 600.0f, 540.0f };
 
+    if (!heartLoaded) {
+        heartTexture = LoadTexture("items/heart.png");
+        heartLoaded = true;
+       
+    }
 }
 
 void InitGameScene2()
@@ -209,7 +215,7 @@ void DrawGame(GameScreen* currentScreen)
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
 
-    
+
 
     // Martillo
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
@@ -281,7 +287,7 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    
+
     // --- 4. Tecla T ---
     if (IsKeyPressed(KEY_T) && !isScene2) {
         InitGameScene2();
@@ -345,7 +351,7 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-   
+
 
     // --- 8. DRAW ---
     gameScene->Draw();
@@ -374,15 +380,37 @@ void DrawGame(GameScreen* currentScreen)
         DrawText(TextFormat("SCORE: %04d", gamePlayer->GetScore()), 15, 15, 20, WHITE);
     }
 
-    if (shouldReset) {
-        CleanupGame();
-        shouldReset = false;
+    if (heartTexture.id != 0) {
+        float heartY = 45.0f;           
+        float heartScale = 1.0f;       
+        float spacing = 20.0f; // 间隔
+
+        // 第一个爱心
+        DrawTextureEx(heartTexture, { 15.0f, heartY }, 0.0f, heartScale, WHITE);
+
+        // 第二个爱心
+        DrawTextureEx(heartTexture, { 15.0f + spacing, heartY }, 0.0f, heartScale, WHITE);
+
+        // 第三个爱心
+        DrawTextureEx(heartTexture, { 15.0f + spacing * 2, heartY }, 0.0f, heartScale, WHITE);
     }
+    
+
+        if (shouldReset) {
+            CleanupGame();
+            shouldReset = false;
+        }
+   
 }
 
 void UnloadGame()
 {
     CleanupGame();
+
+    if (heartLoaded) {
+        UnloadTexture(heartTexture);
+        heartLoaded = false;
+    }
 }
 
 void SwitchToScene2()
