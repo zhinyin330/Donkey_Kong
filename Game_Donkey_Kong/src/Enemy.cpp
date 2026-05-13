@@ -71,8 +71,7 @@ void Enemy::SpawnBarrel()
 }
 
 void Enemy::UpdateAnimation() {
-    // (^^)d
-    // Si está en modo STATIONARY, no hacer animación de lanzamiento
+
     if (behavior == EnemyBehavior::STATIONARY) {
         // Animación simple
         frameCounter += GetFrameTime();
@@ -191,28 +190,45 @@ void Enemy::Draw() {
         }
         return;
     }
-    // 检查贴图是否有效
+
     if (dkWithBarrelTextures.empty() || currentFrame >= (int)dkWithBarrelTextures.size()) {
         return;
     }
 
-    // 选择当前帧的贴图
     const Texture2D& dkTex = hasBarrel
         ? dkWithBarrelTextures[currentFrame]
         : dkEmptyTextures[currentFrame];
 
     DrawTexturePro(
         dkTex,
-        { 0.0f, 0.0f, (float)dkTex.width, (float)dkTex.height },  
+        { 0.0f, 0.0f, (float)dkTex.width, (float)dkTex.height },
         { position.x, position.y, dkTex.width * scale, dkTex.height * scale },
-        { 0.0f, 0.0f }, 
+        { 0.0f, 0.0f },
         0.0f,
         WHITE
     );
-    
-    // 不在scene1 不画THROW_BARRELS
+
+    if (hasBarrel && currentFrame == 1 && behavior == EnemyBehavior::THROW_BARRELS) {
+        // Elegir textura según el tipo de barril que va a lanzar
+        Texture2D barrelInHands;
+        if (currentBarrelType == BarrelType::BLUE_BARREL) {
+            barrelInHands = blueFallingFrames[0];   // Dk_Barrel_Blue_Fall1.png
+        }
+        else {
+            barrelInHands = normalFallingFrames[0]; // Dk_Barrel_Fall1.png
+        }
+
+        float barrelScale = 3.0f;
+        Vector2 barrelPos = {
+            position.x + 37,
+            position.y + 41
+        };
+
+        DrawTextureEx(barrelInHands, barrelPos, 0.0f, barrelScale, WHITE);
+    }
+
+    // Dibujar barriles rodando
     if (behavior == EnemyBehavior::THROW_BARRELS) {
-        // 只绘制没有被锤子打中的桶
         for (auto& b : barrels) {
             if (!b.IsHit()) {
                 b.Draw();
