@@ -34,11 +34,11 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
 
      
     //  DROP 触发点 进入纵向下落1
-    verticalDropTriggers.push_back({ {635.0f, 205.0f, 32.0f, 32.0f},TriggerType::DROP, 0,1.0f });
+    verticalDropTriggers.push_back({ {638.0f, 205.0f, 32.0f, 32.0f},TriggerType::DROP, 0,1.0f });
     verticalDropTriggers.push_back({ {125.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,1.0f });
-    verticalDropTriggers.push_back({ {635.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,1.0f });
+    verticalDropTriggers.push_back({ {638.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,1.0f });
     verticalDropTriggers.push_back({ {125.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,1.0f });
-    verticalDropTriggers.push_back({ {635.0f,595.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,1.0f });
+    verticalDropTriggers.push_back({ {638.0f,595.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,1.0f });
 
     // RETURN 触发恢复横向移动
     // direction 方向控制2
@@ -50,8 +50,8 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     
     // direction 方向控制3
     verticalDropTriggers.push_back({ {255.0f,305.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.35f });//有几率触发
-    verticalDropTriggers.push_back({ {405.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.15f });//有几率触发
-    verticalDropTriggers.push_back({ {355.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.50f });//有几率触发
+    verticalDropTriggers.push_back({ {415.0f,400.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.15f });//有几率触发
+    verticalDropTriggers.push_back({ {353.0f,495.0f, 32.0f, 32.0f}, TriggerType::DROP, 0,0.50f });//有几率触发
     // direction 方向控制4
     verticalDropTriggers.push_back({ {270.0f,390.0f, 32.0f, 32.0f}, TriggerType::RETURN,  1,1.0f });
     verticalDropTriggers.push_back({ {420.0f,490.0f, 32.0f, 32.0f}, TriggerType::RETURN, -1,1.0f });
