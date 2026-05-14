@@ -107,8 +107,8 @@ void PauseMenu::Draw() {
     DrawTextEx(font, "ESPACIO", { leftX, startY + lineSpacing * 2 }, fontSize, 2, YELLOW);
 
     DrawTextEx(font, "ESTRELLA", { rightX, startY + lineSpacing * 3 }, fontSize, 2, WHITE);
-    DrawTextEx(font, "X", { leftX, startY + lineSpacing * 3 }, fontSize, 2, YELLOW);
+    DrawTextEx(font, "K", { leftX, startY + lineSpacing * 3 }, fontSize, 2, YELLOW);
 
     DrawTextEx(font, "MARTILLO", { rightX, startY + lineSpacing * 4 }, fontSize, 2, WHITE);
-    DrawTextEx(font, "Z", { leftX, startY + lineSpacing * 4 }, fontSize, 2, YELLOW);
+    DrawTextEx(font, "J", { leftX, startY + lineSpacing * 4 }, fontSize, 2, YELLOW);
 }
