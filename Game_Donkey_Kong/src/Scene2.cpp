@@ -1,6 +1,7 @@
 ﻿#include "Scene2.h"
 #include "resource_dir.h" 
 #include "Player.h" 
+#include "raymath.h"
 
 Scene2::Scene2() {
     // 加载背景音乐
@@ -502,90 +503,103 @@ void Scene2::AddLadder(int startY, int endY, int x,
     }
 }
 
-void Scene2::UpdateBombs(float deltaTime) {
-    // === 速度调节参数 (数字越小播放越快) ===
-    float speed1 = 0.15f; // 第一段 (Bomb 1-3) 的切换速度
-    float speed2 = 0.10f; // 第二段 (Bomb 4-6) 的切换速度
-    int maxLoopsStage1 = 3; // 第一段循环播放次数
-    // 1. 处理生成逻辑
+void Scene2::UpdateBombs(float deltaTime, Player* player) {
+    if (!player) return;
+
+    // === 1. 配置参数 (固定数值，避免重复声明) ===
+    const float detectionRange = 40.0f; // 触发范围
+    const float speedAnim = 0.15f;      // 0-2帧（闪烁/准备）的速度
+    const float speedExplode = 0.10f;   // 3-5帧（爆炸）的速度
+    const int maxLoops = 2;             // 第一阶段循环次数
+
+    // === 2. 生成逻辑 (基本保持不变) ===
     bombSpawnTimer += deltaTime;
     if (bombSpawnTimer >= nextSpawnTime) {
         bombSpawnTimer = 0.0f;
-        nextSpawnTime = (float)GetRandomValue(2, 7); // 重新重置下一次生成时间
+        nextSpawnTime = (float)GetRandomValue(2, 7);
 
-        // ========== 修改：指定从下往上数 5 个平台的逻辑行号 (Y) ==========
-        // 对应你构造函数中的：底楼(21), 第一层(18), 第二层(14), 第三层(10)
-        int platformYRows[] = { 21, 18, 14, 10};
+        int platformYRows[] = { 21, 18, 14, 10 };
         int rowIndex = GetRandomValue(0, 3);
         int selectedYRow = platformYRows[rowIndex];
-        float randomX = 400.0f;
 
-        // ========== 修改：根据不同平台的宽度，限制 X 的随机范围，确保不掉出平台 =========
-        if (selectedYRow == 21) {
-            randomX = (float)GetRandomValue(40, 760); // 底层最宽 (0-24 tiles)
-        }
-        else if (selectedYRow == 18) {
-            randomX = (float)GetRandomValue(80, 720); // Y=18 (2-22 tiles)
-        }
-        else if (selectedYRow == 14) {
-            randomX = (float)GetRandomValue(110, 690); // Y=14 (3-21 tiles)
-        }
-        else if (selectedYRow == 10) {
-            randomX = (float)GetRandomValue(140, 660); // Y=10 (4-20 tiles)
-        }
-        //计算 Y 坐标，确保炸弹站在平台上
+        float randomX = 400.0f;
+        if (selectedYRow == 21) randomX = (float)GetRandomValue(40, 760);
+        else if (selectedYRow == 18) randomX = (float)GetRandomValue(80, 720);
+        else if (selectedYRow == 14) randomX = (float)GetRandomValue(110, 690);
+        else if (selectedYRow == 10) randomX = (float)GetRandomValue(140, 660);
+
         float visualOffsetY = (float)platformHitboxOffsetY * tileScale;
-        float bombHeight = 16.0f * 2.0f; // 贴图原始高度 * 缩放比例
-        float adjustment = 0.0f;
+        float bombHeight = 16.0f * 2.0f;
         float spawnY = (float)(selectedYRow * 32) + visualOffsetY - bombHeight;
 
-        // 将炸弹加入列表
-        activeBombs.push_back({ {randomX, spawnY}, 0, 0.0f, true, 0, 0 });
-
-        // 调试输出：可以在控制台查看坐标是否正确
-        TraceLog(LOG_INFO, "[Bomb create] 行:%d, X:%.1f, Y:%.1f", selectedYRow, randomX, spawnY);
+        // 【增加/修正】：初始化所有结构体成员
+        activeBombs.push_back({ {randomX, spawnY}, 0, 0.0f, true, 0, 0, false });
     }
 
-    // 2. 动画状态机逻辑
+    // === 3. 状态更新与碰撞检测 ===
+    Rectangle playerRect = player->GetHitbox();
+
     for (int i = (int)activeBombs.size() - 1; i >= 0; i--) {
         Bomb& bomb = activeBombs[i];
-        bomb.frameTimer += deltaTime;
 
-        if (bomb.stage == 0) {
-            // --- 第一阶段：播放 0, 1, 2 帧 (Bomb 1, 2, 3) ---
-            if (bomb.frameTimer >= speed1) {
+        // 计算中心距离
+        Vector2 bombCenter = { bomb.position.x + 16, bomb.position.y + 16 };
+        Vector2 playerCenter = { playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2 };
+        float dist = Vector2Distance(bombCenter, playerCenter);
+
+        // --- 逻辑 A：靠近触发 ---
+        if (!bomb.isTriggered && dist < detectionRange) {
+            bomb.isTriggered = true;
+            bomb.stage = 0; // 进入准备阶段
+            bomb.currentFrame = 0;
+            TraceLog(LOG_INFO, "炸弹被激活！");
+        }
+
+        // --- 逻辑 B：动画状态机 (核心增加部分) ---
+        if (bomb.isTriggered) {
+            bomb.frameTimer += deltaTime;
+            float currentSpeed = (bomb.stage == 0) ? speedAnim : speedExplode;
+
+            if (bomb.frameTimer >= currentSpeed) {
                 bomb.frameTimer = 0.0f;
-                bomb.currentFrame++;
 
-                if (bomb.currentFrame > 2) { // 播完了一轮 0-2
-                    bomb.loopCount++;
-                    if (bomb.loopCount >= maxLoopsStage1) {
-                        // 循环 3 次结束，进入第二阶段
-                        bomb.stage = 1;
-                        bomb.currentFrame = 3; // 跳转到第二段起始帧
-                    }
-                    else {
-                        // 继续循环，跳回第一帧
+                if (bomb.stage == 0) {
+                    // 阶段0：循环播放 0, 1, 2 帧
+                    bomb.currentFrame++;
+                    if (bomb.currentFrame > 2) {
                         bomb.currentFrame = 0;
+                        bomb.loopCount++;
+                        if (bomb.loopCount >= maxLoops) {
+                            bomb.stage = 1;      // 进入爆炸阶段
+                            bomb.currentFrame = 3; // 跳到爆炸起始帧
+                        }
+                    }
+                }
+                else if (bomb.stage == 1) {
+                    // 阶段1：播放 3, 4, 5 帧并销毁
+                    bomb.currentFrame++;
+                    if (bomb.currentFrame > 5) {
+                        activeBombs.erase(activeBombs.begin() + i);
+                        continue; // 炸弹消失，跳过后续逻辑
                     }
                 }
             }
-        }
-        else if (bomb.stage == 1) {
-            // --- 第二阶段：播放 3, 4, 5 帧 (Bomb 4, 5, 6) ---
-            if (bomb.frameTimer >= speed2) {
-                bomb.frameTimer = 0.0f;
-                bomb.currentFrame++;
 
-                // 播放完最后一帧 5，炸弹消失
-                if (bomb.currentFrame > 5) {
-                    activeBombs.erase(activeBombs.begin() + i);
+            // --- 逻辑 C：伤害检测 (修改部分) ---
+            // 只有在爆炸帧（4或5帧）时才产生实际伤害判定
+            if (bomb.stage == 1 && bomb.currentFrame >= 4) {
+                // 增大一点判定范围
+                Rectangle explosionArea = { bomb.position.x - 15, bomb.position.y - 15, 62, 62 };
+                if (CheckCollisionRecs(playerRect, explosionArea)) {
+                    if (!player->IsDying()) {
+                        player->StartDeath();
+                        TraceLog(LOG_INFO, "玩家被炸死了！");
+                    }
                 }
             }
         }
     }
 }
-
 
 void Scene2::DrawDkFalling() {
     if (dkFalling && !dkLanded) {

@@ -180,7 +180,7 @@ void DrawGame(GameScreen* currentScreen)
         if (scene2) {
             scene2->UpdateDkFall(deltaTime);
             // 调用炸弹更新逻辑
-            scene2->UpdateBombs(deltaTime);
+            scene2->UpdateBombs(deltaTime,gamePlayer);
 
             if (scene2->IsDkFalling() && !scene2->IsDkLanded()) {
                 gameScene->Draw();

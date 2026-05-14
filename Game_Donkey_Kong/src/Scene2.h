@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <vector>
 #include "GameScene.h"
+#include "Player.h"
 class Player;
 
 class Scene2 : public GameScene {
@@ -82,9 +83,9 @@ private:
         int currentFrame;
         float frameTimer;
         bool active;
-        // --- 新增属性 ---
         int stage;          // 0 代表第一段(帧0-2)，1 代表第二段(帧3-5)
         int loopCount;      // 记录当前阶段已经循环播放了几次
+        bool isTriggered; //标记是否已被玩家靠近
     };
     std::vector<Texture2D> bombTextures; // 存储 Bomb1 到 Bomb6
     std::vector<Bomb> activeBombs;       // 当前屏幕上的炸弹
@@ -133,5 +134,5 @@ public:
     void UpdateMusic();
 
     //更新炸弹
-    void UpdateBombs(float deltaTime);
+    void UpdateBombs(float deltaTime, Player* player);
 };
