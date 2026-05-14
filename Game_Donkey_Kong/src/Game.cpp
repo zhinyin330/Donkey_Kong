@@ -130,14 +130,27 @@ void DrawLeaderBoard(GameScreen* currentScreen) {
         int option = leaderBoard->GetSelectedOption();
 
         if (option == 0 && gameInProgress) {
+            // Continuar partida - volver sin hacer nada
             *currentScreen = GAMEPLAY;
         }
         else {
+            // Nueva partida
             totalScore = 0;
             totalStars = 0;
             currentLevel = 1;
             Player::ResetLives();
-            CleanupGame();
+            // No borrar leaderBoard
+            if (gameScene != nullptr) { delete gameScene; gameScene = nullptr; }
+            if (gamePlayer != nullptr) { delete gamePlayer; gamePlayer = nullptr; }
+            if (gameEnemy != nullptr) { delete gameEnemy; gameEnemy = nullptr; }
+            if (gameStars != nullptr) { delete gameStars; gameStars = nullptr; }
+            if (gameTransition != nullptr) { delete gameTransition; gameTransition = nullptr; }
+            if (pauseMenu != nullptr) { delete pauseMenu; pauseMenu = nullptr; }
+            if (gameOver != nullptr) { delete gameOver; gameOver = nullptr; }
+            isInitialized = false;
+            isScene2 = false;
+            gameInProgress = false;
+
             InitGame();
             gameInProgress = true;
             *currentScreen = GAMEPLAY;
@@ -145,7 +158,7 @@ void DrawLeaderBoard(GameScreen* currentScreen) {
     }
 
     if (IsKeyPressed(KEY_ESCAPE) && gameInProgress) {
-        *currentScreen = GAMEPLAY;  
+        *currentScreen = GAMEPLAY;
     }
 }
 
@@ -258,7 +271,15 @@ void DrawGame(GameScreen* currentScreen)
         if (!gamePlayer->IsDying()) {
             barrelsCleared = false;
             gameStars->ResetStars();
-            gamePlayer->Respawn(2, 21);
+
+            // Al terminar la animación, comprobar si murió
+            if (gamePlayer->IsDead()) {
+                *currentScreen = GAME_OVER;
+                if (gameOver != nullptr) gameOver->Show();
+            }
+            else {
+                gamePlayer->Respawn(2, 21);
+            }
         }
         return;
     }
@@ -322,12 +343,12 @@ void DrawGame(GameScreen* currentScreen)
                     barrel.Hit();
                     gamePlayer->LoseLife();
                     gameEnemy->ClearBarrels();
+                    gamePlayer->StartDeath();
                     if (gamePlayer->IsDead()) {
                         *currentScreen = GAME_OVER;
                         if (gameOver != nullptr) gameOver->Show();
                         return;
                     }
-                    gamePlayer->StartDeath();
                     break;
                 }
             }
@@ -492,14 +513,35 @@ void DrawGameOver(GameScreen* currentScreen) {
 
     if (gameOver->IsFinished()) {
         std::string name = gameOver->GetPlayerName();
+        int finalLevel = currentLevel;
+        int finalScore = totalScore;
+
+        // Limpiar juego pero NO el leaderBoard
+        if (gameScene != nullptr) { delete gameScene; gameScene = nullptr; }
+        if (gamePlayer != nullptr) { delete gamePlayer; gamePlayer = nullptr; }
+        if (gameEnemy != nullptr) { delete gameEnemy; gameEnemy = nullptr; }
+        if (gameStars != nullptr) { delete gameStars; gameStars = nullptr; }
+        if (gameTransition != nullptr) { delete gameTransition; gameTransition = nullptr; }
+        if (pauseMenu != nullptr) { delete pauseMenu; pauseMenu = nullptr; }
+        if (gameOver != nullptr) { delete gameOver; gameOver = nullptr; }
+        isInitialized = false;
+        isScene2 = false;
+        gameInProgress = false;
+
+        // Ahora añadir score (leaderBoard sigue vivo)
         InitLeaderBoard();
-        leaderBoard->AddScore(name, currentLevel, totalScore);
-        *currentScreen = LEADERBOARD;
+        if (leaderBoard != nullptr) {
+            leaderBoard->AddScore(name, finalLevel, finalScore);
+            leaderBoard->SetHasActiveGame(false);
+        }
+
+        // Resetear para nueva partida
         totalScore = 0;
         totalStars = 0;
         currentLevel = 1;
         Player::ResetLives();
-        CleanupGame();
+
+        *currentScreen = LEADERBOARD;
     }
 }
 

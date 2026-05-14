@@ -1153,6 +1153,6 @@ void Player::Draw() {
 
     //vida
     DrawText(TextFormat("VIDAS: %d", lives),
-        GameScene::GetScreenWidth() - 200, 700, 20, RED);
+        GameScene::GetScreenWidth() - 200, 45, 20, RED);
 
 }
