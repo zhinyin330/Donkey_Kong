@@ -179,6 +179,8 @@ void DrawGame(GameScreen* currentScreen)
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
             scene2->UpdateDkFall(deltaTime);
+            // 调用炸弹更新逻辑
+            scene2->UpdateBombs(deltaTime);
 
             if (scene2->IsDkFalling() && !scene2->IsDkLanded()) {
                 gameScene->Draw();

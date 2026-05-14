@@ -35,6 +35,14 @@ Scene2::Scene2() {
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
+    //新增：加载炸弹资源与初始化计时器
+    // 加载 Bomb1.png 到 Bomb6.png
+    for (int i = 1; i <= 6; i++) {
+        bombTextures.push_back(LoadTexture(TextFormat("Items/Bomb%d.png", i))); // 请确认路径是 Items 还是 Barrel，根据你描述改为正确路径
+    }
+    bombSpawnTimer = 0.0f;
+    nextSpawnTime = (float)GetRandomValue(2, 7); // 初始随机 2-7 秒
+
     // Inicializar vectores
     level.resize(mapHeight, std::vector<int>(mapWidth, 0));
     hitboxLevel.resize(mapHeight, std::vector<int>(mapWidth, 0));
@@ -162,6 +170,11 @@ Scene2::~Scene2() {
     UnloadTexture(item3Texture);
     UnloadTexture(buttonTexture);
     for (auto& tex : dkFallFrames) {
+        UnloadTexture(tex);
+    }
+
+    //卸载炸弹贴图
+    for (auto& tex : bombTextures) {
         UnloadTexture(tex);
     }
 }
@@ -489,6 +502,91 @@ void Scene2::AddLadder(int startY, int endY, int x,
     }
 }
 
+void Scene2::UpdateBombs(float deltaTime) {
+    // === 速度调节参数 (数字越小播放越快) ===
+    float speed1 = 0.15f; // 第一段 (Bomb 1-3) 的切换速度
+    float speed2 = 0.10f; // 第二段 (Bomb 4-6) 的切换速度
+    int maxLoopsStage1 = 3; // 第一段循环播放次数
+    // 1. 处理生成逻辑
+    bombSpawnTimer += deltaTime;
+    if (bombSpawnTimer >= nextSpawnTime) {
+        bombSpawnTimer = 0.0f;
+        nextSpawnTime = (float)GetRandomValue(2, 7); // 重新重置下一次生成时间
+
+        // ========== 修改：指定从下往上数 5 个平台的逻辑行号 (Y) ==========
+        // 对应你构造函数中的：底楼(21), 第一层(18), 第二层(14), 第三层(10)
+        int platformYRows[] = { 21, 18, 14, 10};
+        int rowIndex = GetRandomValue(0, 3);
+        int selectedYRow = platformYRows[rowIndex];
+        float randomX = 400.0f;
+
+        // ========== 修改：根据不同平台的宽度，限制 X 的随机范围，确保不掉出平台 =========
+        if (selectedYRow == 21) {
+            randomX = (float)GetRandomValue(40, 760); // 底层最宽 (0-24 tiles)
+        }
+        else if (selectedYRow == 18) {
+            randomX = (float)GetRandomValue(80, 720); // Y=18 (2-22 tiles)
+        }
+        else if (selectedYRow == 14) {
+            randomX = (float)GetRandomValue(110, 690); // Y=14 (3-21 tiles)
+        }
+        else if (selectedYRow == 10) {
+            randomX = (float)GetRandomValue(140, 660); // Y=10 (4-20 tiles)
+        }
+        //计算 Y 坐标，确保炸弹站在平台上
+        float visualOffsetY = (float)platformHitboxOffsetY * tileScale;
+        float bombHeight = 16.0f * 2.0f; // 贴图原始高度 * 缩放比例
+        float adjustment = 0.0f;
+        float spawnY = (float)(selectedYRow * 32) + visualOffsetY - bombHeight;
+
+        // 将炸弹加入列表
+        activeBombs.push_back({ {randomX, spawnY}, 0, 0.0f, true, 0, 0 });
+
+        // 调试输出：可以在控制台查看坐标是否正确
+        TraceLog(LOG_INFO, "[Bomb create] 行:%d, X:%.1f, Y:%.1f", selectedYRow, randomX, spawnY);
+    }
+
+    // 2. 动画状态机逻辑
+    for (int i = (int)activeBombs.size() - 1; i >= 0; i--) {
+        Bomb& bomb = activeBombs[i];
+        bomb.frameTimer += deltaTime;
+
+        if (bomb.stage == 0) {
+            // --- 第一阶段：播放 0, 1, 2 帧 (Bomb 1, 2, 3) ---
+            if (bomb.frameTimer >= speed1) {
+                bomb.frameTimer = 0.0f;
+                bomb.currentFrame++;
+
+                if (bomb.currentFrame > 2) { // 播完了一轮 0-2
+                    bomb.loopCount++;
+                    if (bomb.loopCount >= maxLoopsStage1) {
+                        // 循环 3 次结束，进入第二阶段
+                        bomb.stage = 1;
+                        bomb.currentFrame = 3; // 跳转到第二段起始帧
+                    }
+                    else {
+                        // 继续循环，跳回第一帧
+                        bomb.currentFrame = 0;
+                    }
+                }
+            }
+        }
+        else if (bomb.stage == 1) {
+            // --- 第二阶段：播放 3, 4, 5 帧 (Bomb 4, 5, 6) ---
+            if (bomb.frameTimer >= speed2) {
+                bomb.frameTimer = 0.0f;
+                bomb.currentFrame++;
+
+                // 播放完最后一帧 5，炸弹消失
+                if (bomb.currentFrame > 5) {
+                    activeBombs.erase(activeBombs.begin() + i);
+                }
+            }
+        }
+    }
+}
+
+
 void Scene2::DrawDkFalling() {
     if (dkFalling && !dkLanded) {
         // Cayendo: solo Fall1 (frame 0)
@@ -612,6 +710,14 @@ void Scene2::Draw() {
                 Rectangle dest = { x, plat.y, 32, plat.height };
                 DrawTexturePro(tileTexture, source, dest, { 0,0 }, 0.0f, WHITE);
             }
+        }
+    }
+
+    //绘制随机炸弹动画
+    for (const auto& bomb : activeBombs) {
+        if (bomb.currentFrame < (int)bombTextures.size()) {
+            // 使用 2.0 倍缩放，确保炸弹清晰可见
+            DrawTextureEx(bombTextures[bomb.currentFrame], bomb.position, 0.0f, 2.0f, WHITE);
         }
     }
 

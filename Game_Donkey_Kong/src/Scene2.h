@@ -75,6 +75,21 @@ private:
     bool newPlatformsVisible;
     bool dkSequenceDone;
     bool sequenceTriggered;
+    
+    //炸弹相关变量
+    struct Bomb {
+        Vector2 position;
+        int currentFrame;
+        float frameTimer;
+        bool active;
+        // --- 新增属性 ---
+        int stage;          // 0 代表第一段(帧0-2)，1 代表第二段(帧3-5)
+        int loopCount;      // 记录当前阶段已经循环播放了几次
+    };
+    std::vector<Texture2D> bombTextures; // 存储 Bomb1 到 Bomb6
+    std::vector<Bomb> activeBombs;       // 当前屏幕上的炸弹
+    float bombSpawnTimer;                // 距离下一次生成炸弹的时间
+    float nextSpawnTime;                 // 随机生成的间隔目标（2-7秒）
 
 public:
     Scene2();
@@ -116,4 +131,7 @@ public:
     bool CheckAdjacentTiles() override { return false; }
 
     void UpdateMusic();
+
+    //更新炸弹
+    void UpdateBombs(float deltaTime);
 };
