@@ -37,12 +37,3 @@ public:
     virtual void SetTransitionReached(bool val) {}
     virtual bool CheckAdjacentTiles() { return true; }
 };
-// 油桶结构体
-struct OilCanister {
-    Rectangle rect;
-    bool isActive;
-    bool isBurning;
-    float burnTimer;
-    int currentFrame;
-    Vector2 position;
-};

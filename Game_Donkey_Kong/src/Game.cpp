@@ -246,16 +246,14 @@ void DrawGame(GameScreen* currentScreen)
             if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
                 *currentScreen = LEADERBOARD;
                 InitLeaderBoard();
-                leaderBoard->SetHasActiveGame(true);  
+                leaderBoard->SetHasActiveGame(true);
                 pauseMenu->Hide();
                 return;
             }
-<<<<<<< HEAD
             else {
+                // CONTINUAR: solo cerrar el menú
                 pauseMenu->Hide();
             }
-=======
->>>>>>> parent of f4f9b96 (Merge branch 'main' of https://github.com/zhinyin330/Donkey_Kong)
         }
         return;
     }
@@ -302,28 +300,6 @@ void DrawGame(GameScreen* currentScreen)
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
-
-    // 桶碰油桶
-    Scene* scene1 = dynamic_cast<Scene*>(gameScene);
-    if (scene1 != nullptr) {
-        scene1->UpdateOilCanisters(deltaTime);
-        std::vector<OilCanister>& cans = scene1->GetOilCanisters();
-
-        for (auto& barrel : gameEnemy->GetBarrels()) {
-            if (!barrel.IsHit()) {
-                Rectangle barrelRect = { barrel.GetPosition().x, barrel.GetPosition().y, barrel.GetWidth(), barrel.GetHeight() };
-                for (int i = 0; i < (int)cans.size(); i++) {
-                    if (cans[i].isActive && !cans[i].isBurning && CheckCollisionRecs(barrelRect, cans[i].rect)) {
-                        barrel.Hit();
-                        cans[i].isActive = false;
-                        cans[i].isBurning = true;
-                        cans[i].burnTimer = 0;
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
     // Martillo
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
@@ -389,13 +365,12 @@ void DrawGame(GameScreen* currentScreen)
         if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
             gamePlayer->LoseLife();
             gameEnemy->ClearBarrels();
-            gamePlayer->StartDeath();
             if (gamePlayer->IsDead()) {
                 *currentScreen = GAME_OVER;
                 if (gameOver != nullptr) gameOver->Show();
                 return;
             }
-
+            gamePlayer->StartDeath();
         }
     }
 
@@ -431,13 +406,12 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
                 gamePlayer->LoseLife();
-                gamePlayer->StartDeath();
                 if (gamePlayer->IsDead()) {
                     *currentScreen = GAME_OVER;
                     if (gameOver != nullptr) gameOver->Show();
                     return;
                 }
-
+                gamePlayer->StartDeath();
             }
         }
     }

@@ -749,6 +749,9 @@ void Player::Update(GameScene& scene) {
     int mapHeightPixels = GameScene::GetScreenHeight();
     if (nextFeetY > mapHeightPixels) {
         LoseLife();
+        if (IsDead()) {
+            return;
+        }
         StartDeath();
         position.x = 2 * tileSize;
         position.y = 21 * tileSize + 16 - (baseHitboxOffsetY + baseHitboxHeight) * scale;

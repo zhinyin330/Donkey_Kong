@@ -4,7 +4,6 @@
 
 GameOver::GameOver() {
     font = LoadFont("fonts/donkey-kong-nes-1981.ttf");
-    marioSadTexture = LoadTexture("UI/Mario_sad.png");
     isActive = false;
     showNameInput = false;
     timer = 0.0f;
@@ -15,7 +14,6 @@ GameOver::GameOver() {
 
 GameOver::~GameOver() {
     UnloadFont(font);
-    UnloadTexture(marioSadTexture);
 }
 
 void GameOver::Show() {
@@ -69,28 +67,21 @@ void GameOver::Draw() {
     int screenHeight = GetScreenHeight();
 
     if (!showNameInput) {
-        // Fase 1: GAME OVER + Imagen
+        // Fase 1: GAME OVER
         DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
 
-        // GAME OVER
         const char* gameOverText = "GAME OVER";
-        int textWidth = MeasureTextEx(font, gameOverText, 70, 2).x;
+        int textWidth = MeasureTextEx(font, gameOverText, 50, 2).x;
         DrawTextEx(font, gameOverText,
-            { (float)(screenWidth / 2 - textWidth / 2), 120 }, 70, 2, RED);
+            { (float)(screenWidth / 2 - textWidth / 2), 250 }, 50, 2, RED);
 
-        // Mario triste
-        float marioScale = 0.6f;
-        float marioX = screenWidth / 2 - marioSadTexture.width * marioScale / 2;
-        float marioY = 190;
-        DrawTextureEx(marioSadTexture, { marioX, marioY }, 0.0f, marioScale, WHITE);
-
-        // Continuar (parpadeante)
+        // Parpadeo
         float alpha = 0.5f + sinf(timer * 4.0f) * 0.5f;
         Color blinkColor = Fade(WHITE, alpha);
         const char* continueText = "PULSA CUALQUIER TECLA";
         int continueWidth = MeasureTextEx(font, continueText, 18, 2).x;
         DrawTextEx(font, continueText,
-            { (float)(screenWidth / 2 - continueWidth / 2), 600 }, 18, 2, blinkColor);
+            { (float)(screenWidth / 2 - continueWidth / 2), 400 }, 18, 2, blinkColor);
     }
     else {
         // Fase 2: Pedir nombre

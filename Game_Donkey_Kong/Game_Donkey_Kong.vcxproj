@@ -318,7 +318,6 @@
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Scene2.h" />
     <ClInclude Include="src\Transition.h" />
-    <ClInclude Include="src\UI.h" />
     <ClInclude Include="src\oilCaniterFire.h" />
   </ItemGroup>
   <ItemGroup>
@@ -337,7 +336,6 @@
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Scene2.cpp" />
     <ClCompile Include="src\Transition.cpp" />
-    <ClCompile Include="src\UI.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\oilCaniterFire.cpp" />
     <ClCompile Include="src\prova11.cpp" />
@@ -351,7 +349,6 @@
     <None Include="resources\audio\scene.ogg" />
     <None Include="resources\audio\scenedos.ogg" />
     <None Include="resources\fonts\donkey-kong-nes-1981.ttf" />
-    <None Include="resources\scores.txt" />
     <None Include="src\icon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -428,12 +425,6 @@
     <Image Include="resources\Characters\Princess\Dk_Princess_Idle2.png" />
     <Image Include="resources\Characters\Princess\Dk_Princess_Walk1.png" />
     <Image Include="resources\Characters\Princess\Dk_Princess_Walk2.png" />
-    <Image Include="resources\Items\Bomb1.png" />
-    <Image Include="resources\Items\Bomb2.png" />
-    <Image Include="resources\Items\Bomb3.png" />
-    <Image Include="resources\Items\Bomb4.png" />
-    <Image Include="resources\Items\Bomb5.png" />
-    <Image Include="resources\Items\Bomb6.png" />
     <Image Include="resources\Items\Dk_BottomButton.png" />
     <Image Include="resources\Items\Dk_GoldenPiston.png" />
     <Image Include="resources\Items\Dk_Hammer_Right.png" />
@@ -449,17 +440,11 @@
     <Image Include="resources\Items\new_Dk_star.png" />
     <Image Include="resources\Items\new_Dk_star1.png" />
     <Image Include="resources\UI\Dk_Kong_StartScreen.png" />
-    <Image Include="resources\UI\Dk_Mario_Idle1.png" />
     <Image Include="resources\UI\Dk_UI_1up.png" />
     <Image Include="resources\UI\Dk_UI_BonusScore.png" />
     <Image Include="resources\UI\Dk_UI_CurrentLevel.png" />
     <Image Include="resources\UI\Dk_UI_HighScore.png" />
     <Image Include="resources\UI\Dk_UI_Numbers.png" />
-    <Image Include="resources\UI\Dk_marco_b&amp;w.png" />
-    <Image Include="resources\UI\Lluvia1.png" />
-    <Image Include="resources\UI\Lluvia2.png" />
-    <Image Include="resources\UI\Lluvia3.png" />
-    <Image Include="resources\UI\Lluvia4.png" />
     <Image Include="resources\VFX\Dk_DonkeyKong_Stars.png" />
     <Image Include="resources\VFX\Dk_Hammer_XP1.png" />
     <Image Include="resources\VFX\Dk_Hammer_XP2.png" />

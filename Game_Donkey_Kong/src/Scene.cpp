@@ -11,11 +11,6 @@ Scene::Scene() {
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
 
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
-    // 加载火焰贴图
-    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire1.png"));
-    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire2.png"));
-    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire3.png"));
-    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire4.png"));
 
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");   //tongtong
@@ -23,16 +18,7 @@ Scene::Scene() {
     texHighScore = LoadTexture("UI/Dk_UI_HighScore.png");
     Level = LoadTexture("UI/Dk_UI_CurrentLevel.png");
 
-    // 初始化油桶（位置根据你的地图调整）
-    OilCanister c1;                           // 声明一个油桶变量
-    c1.position = { 100, 600 };               // 设置绘制位置 X=100像素，Y=600像素
-    c1.rect = { 30, 600, 80, 80 };          // 设置碰撞箱 X=100, Y=600, 宽80, 高80
-    c1.isActive = true;                       // 油桶激活状态（可以被桶碰撞）
-    c1.isBurning = false;                     // 初始不在燃烧状态
-    c1.burnTimer = 0;                         // 燃烧计时器初始为0
-    c1.currentFrame = 0;
 
-    oilCanisters.push_back(c1);
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
@@ -482,34 +468,84 @@ void Scene::Draw() {
         WHITE
     );
 
+    #ifdef _DEBUG
+    // 只在 Debug 模式下显示，Release 模式会自动移除
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int ladderHitboxValue = ladderHitbox[y][x];
+            if (ladderHitboxValue > 0) {
+                // 计算梯子碰撞框的世界坐标
+                int offsetY = visualOffsetY[y][x];
+                
+                Rectangle hitboxRect;
+                float globalAdjust = -6.6f;
+                float verticalStretch = 1.2f;
+                int extraWidth = 6;
+                
+                // 根据梯子类型计算碰撞框大小
+                if (ladderHitboxValue == 1) {
+                    hitboxRect = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + offsetY + globalAdjust,
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch
+                    };
+                }
+                else if (ladderHitboxValue == 2) {
+                    hitboxRect = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + offsetY + globalAdjust,
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch * 0.5f
+                    };
+                }
+                else if (ladderHitboxValue == 3) {
+                    hitboxRect = {
+                        (float)(x * scaledTileSize) - extraWidth,
+                        (float)(y * scaledTileSize) + offsetY + globalAdjust + (scaledTileSize * verticalStretch * 0.5f),
+                        (float)scaledTileSize + extraWidth * 2,
+                        (float)scaledTileSize * verticalStretch * 0.5f
+                    };
+                }
+                else {
+                    // 默认碰撞框
+                    hitboxRect = {
+                        (float)(x * scaledTileSize),
+                        (float)(y * scaledTileSize) + offsetY,
+                        (float)scaledTileSize,
+                        (float)scaledTileSize
+                    };
+                }
+                
+                // 根据梯子类型使用不同颜色
+                Color debugColor;
+                switch (ladderHitboxValue) {
+                    case 1: debugColor = RED; break;      // 完整梯子
+                    case 2: debugColor = GREEN; break;    // 上半部分
+                    case 3: debugColor = BLUE; break;     // 下半部分
+                    default: debugColor = YELLOW; break;
+                }
+                
+                // 绘制半透明填充和边框
+                DrawRectangleRec(hitboxRect, Fade(debugColor, 0.3f));  // 半透明填充
+                DrawRectangleLinesEx(hitboxRect, 2.0f, debugColor);     // 边框
+                
+                // 可选：显示 Hitbox 数值
+                char text[4];
+                snprintf(text, sizeof(text), "%d", ladderHitboxValue);
+                DrawText(text, hitboxRect.x + 5, hitboxRect.y + 5, 12, WHITE);
+            }
+        }
+    }
+    #endif
+    // Dibujar zona de transición
+    DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
+    DrawText("LVL2", transitionZone.x + 680, transitionZone.y + 30, 20, GREEN);
 
 
     // Dibujar UI
 
     DrawTextureEx(texHighScore, { 300, 8 }, 0.0f, 2.0f, WHITE);
     DrawTextureEx(Level, { 640, 30 }, 0.0f, 2.0f, WHITE);
-    // 绘制火焰
-    for (int i = 0; i < (int)oilCanisters.size(); i++) {
-        if (oilCanisters[i].isBurning && oilCanisters[i].currentFrame < 4) {
-            Vector2 firePos = { oilCanisters[i].position.x - 40, oilCanisters[i].position.y + 10 };
-            DrawTextureEx(fireFrames[oilCanisters[i].currentFrame], firePos, 0, 2.5f, WHITE);
-        }
-    }
-}
 
-void Scene::UpdateOilCanisters(float deltaTime) {
-    for (int i = 0; i < (int)oilCanisters.size(); i++) {
-        if (oilCanisters[i].isBurning) {
-            oilCanisters[i].burnTimer += deltaTime;
-            int frame = (int)(oilCanisters[i].burnTimer / 0.2f);
-            if (frame >= 4) {
-                oilCanisters[i].isBurning = false;
-                oilCanisters[i].isActive = true;
-                oilCanisters[i].burnTimer = 0;
-            }
-            else {
-                oilCanisters[i].currentFrame = frame;
-            }
-        }
-    }
 }
