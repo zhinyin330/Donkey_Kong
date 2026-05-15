@@ -11,6 +11,11 @@ Scene::Scene() {
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
 
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
+    // 加载火焰贴图
+    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire1.png"));
+    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire2.png"));
+    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire3.png"));
+    fireFrames.push_back(LoadTexture("items/Dk_Oil_Fire4.png"));
 
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");   //tongtong
@@ -18,7 +23,16 @@ Scene::Scene() {
     texHighScore = LoadTexture("UI/Dk_UI_HighScore.png");
     Level = LoadTexture("UI/Dk_UI_CurrentLevel.png");
 
+    // 初始化油桶（位置根据你的地图调整）
+    OilCanister c1;                           // 声明一个油桶变量
+    c1.position = { 100, 600 };               // 设置绘制位置 X=100像素，Y=600像素
+    c1.rect = { 30, 600, 80, 80 };          // 设置碰撞箱 X=100, Y=600, 宽80, 高80
+    c1.isActive = true;                       // 油桶激活状态（可以被桶碰撞）
+    c1.isBurning = false;                     // 初始不在燃烧状态
+    c1.burnTimer = 0;                         // 燃烧计时器初始为0
+    c1.currentFrame = 0;
 
+    oilCanisters.push_back(c1);
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
 
@@ -469,9 +483,33 @@ void Scene::Draw() {
     );
 
 
+
     // Dibujar UI
 
     DrawTextureEx(texHighScore, { 300, 8 }, 0.0f, 2.0f, WHITE);
-    DrawTextureEx(Level, { 640, 50 }, 0.0f, 2.0f, WHITE);
+    DrawTextureEx(Level, { 640, 30 }, 0.0f, 2.0f, WHITE);
+    // 绘制火焰
+    for (int i = 0; i < (int)oilCanisters.size(); i++) {
+        if (oilCanisters[i].isBurning && oilCanisters[i].currentFrame < 4) {
+            Vector2 firePos = { oilCanisters[i].position.x - 40, oilCanisters[i].position.y + 10 };
+            DrawTextureEx(fireFrames[oilCanisters[i].currentFrame], firePos, 0, 2.5f, WHITE);
+        }
+    }
+}
 
+void Scene::UpdateOilCanisters(float deltaTime) {
+    for (int i = 0; i < (int)oilCanisters.size(); i++) {
+        if (oilCanisters[i].isBurning) {
+            oilCanisters[i].burnTimer += deltaTime;
+            int frame = (int)(oilCanisters[i].burnTimer / 0.2f);
+            if (frame >= 4) {
+                oilCanisters[i].isBurning = false;
+                oilCanisters[i].isActive = true;
+                oilCanisters[i].burnTimer = 0;
+            }
+            else {
+                oilCanisters[i].currentFrame = frame;
+            }
+        }
+    }
 }

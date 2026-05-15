@@ -69,10 +69,16 @@
     <ClInclude Include="src\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameOver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\GameScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Intro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LeaderBoard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Menu.h">
@@ -99,13 +105,10 @@
     <ClInclude Include="src\Transition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\UI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\oilCaniterFire.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameOver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LeaderBoard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -122,7 +125,13 @@
     <ClCompile Include="src\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameOver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Intro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LeaderBoard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Menu.cpp">
@@ -149,6 +158,9 @@
     <ClCompile Include="src\Transition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -156,12 +168,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\prova11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameOver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LeaderBoard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -189,6 +195,9 @@
     </None>
     <None Include="resources\fonts\donkey-kong-nes-1981.ttf">
       <Filter>Game Resource Files\fonts</Filter>
+    </None>
+    <None Include="resources\scores.txt">
+      <Filter>Game Resource Files</Filter>
     </None>
     <None Include="src\icon.ico">
       <Filter>Windows Resource Files</Filter>
@@ -410,6 +419,24 @@
     <Image Include="resources\Characters\Princess\Dk_Princess_Walk2.png">
       <Filter>Game Resource Files\Characters\Princess</Filter>
     </Image>
+    <Image Include="resources\Items\Bomb1.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Bomb2.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Bomb3.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Bomb4.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Bomb5.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
+    <Image Include="resources\Items\Bomb6.png">
+      <Filter>Game Resource Files\Items</Filter>
+    </Image>
     <Image Include="resources\Items\Dk_BottomButton.png">
       <Filter>Game Resource Files\Items</Filter>
     </Image>
@@ -455,6 +482,9 @@
     <Image Include="resources\UI\Dk_Kong_StartScreen.png">
       <Filter>Game Resource Files\UI</Filter>
     </Image>
+    <Image Include="resources\UI\Dk_Mario_Idle1.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
     <Image Include="resources\UI\Dk_UI_1up.png">
       <Filter>Game Resource Files\UI</Filter>
     </Image>
@@ -468,6 +498,21 @@
       <Filter>Game Resource Files\UI</Filter>
     </Image>
     <Image Include="resources\UI\Dk_UI_Numbers.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Dk_marco_b&w.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Lluvia1.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Lluvia2.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Lluvia3.png">
+      <Filter>Game Resource Files\UI</Filter>
+    </Image>
+    <Image Include="resources\UI\Lluvia4.png">
       <Filter>Game Resource Files\UI</Filter>
     </Image>
     <Image Include="resources\VFX\Dk_DonkeyKong_Stars.png">

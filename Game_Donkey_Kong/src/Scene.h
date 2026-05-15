@@ -16,6 +16,9 @@ private:
     std::vector<std::vector<int>> ladderHitbox;
     std::vector<std::vector<int>> visualOffsetY;
 
+    std::vector<OilCanister> oilCanisters;
+    std::vector<Texture2D> fireFrames;
+
     Texture2D tileTexture;
     Texture2D ladderTexture;
     Texture2D barrelTexture;
@@ -86,4 +89,7 @@ public:
     Rectangle GetTransitionZone() override { return transitionZone; }
     bool IsTransitionReached() override { return transitionReached; }
     void SetTransitionReached(bool val) override { transitionReached = val; }
+
+    void UpdateOilCanisters(float deltaTime);
+    std::vector<OilCanister>& GetOilCanisters() { return oilCanisters; }
 };
