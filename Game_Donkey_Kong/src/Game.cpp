@@ -246,9 +246,13 @@ void DrawGame(GameScreen* currentScreen)
             if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
                 *currentScreen = LEADERBOARD;
                 InitLeaderBoard();
-                leaderBoard->SetHasActiveGame(true);  
+                leaderBoard->SetHasActiveGame(true);
                 pauseMenu->Hide();
                 return;
+            }
+            else {
+                // CONTINUAR: solo cerrar el menú
+                pauseMenu->Hide();
             }
         }
         return;
