@@ -540,12 +540,12 @@ void Scene::Draw() {
     #endif
     // Dibujar zona de transición
     DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
-    DrawText("LVL2", transitionZone.x + 680, transitionZone.y + 50, 20, GREEN);
+    DrawText("LVL2", transitionZone.x + 680, transitionZone.y + 30, 20, GREEN);
 
 
     // Dibujar UI
 
     DrawTextureEx(texHighScore, { 300, 8 }, 0.0f, 2.0f, WHITE);
-    DrawTextureEx(Level, { 640, 50 }, 0.0f, 2.0f, WHITE);
+    DrawTextureEx(Level, { 640, 30 }, 0.0f, 2.0f, WHITE);
 
 }

@@ -891,7 +891,7 @@ void Player::StartDeath() {
     exitingLadder = false;
 }
 
-void Player::UpdateDeath(float deltaTime) {
+void Player::UpdateDeath(float deltaTime) {          
     if (!isDying) return;
 
     deathTimer += deltaTime;
@@ -1009,7 +1009,7 @@ void Player::DrawFloatingTexts()
      
         // 白色主文字
         DrawText(ft.text.c_str(), (int)drawPos.x - textWidth / 2, (int)drawPos.y - 1, fontSize, textColor);
-    }
+    }       
 }
 
 //锤子系统方法实现 
@@ -1142,17 +1142,17 @@ void Player::Draw() {
     );
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
-        GameScene::GetScreenWidth() - 200, 680, 20, YELLOW);
+        GameScene::GetScreenWidth() - 200, 50, 20, YELLOW);
 
     // 显示锤子提示
     if (hasHammer) {
-        DrawText("HAMMER: J", GameScene::GetScreenWidth() - 200, 650, 20, ORANGE);
+        DrawText("HAMMER: J", GameScene::GetScreenWidth() - 180, 70, 20, ORANGE);
     }
 
     DrawFloatingTexts();   // 绘制浮动文字 
 
     //vida
     DrawText(TextFormat("VIDAS: %d", lives),
-        GameScene::GetScreenWidth() - 200, 45, 20, RED);
+        GameScene::GetScreenWidth() - 785, 40, 20, RED);
 
 }
