@@ -246,13 +246,16 @@ void DrawGame(GameScreen* currentScreen)
             if (pauseMenu->GetSelectedOption() == PauseOption::MAIN_MENU) {
                 *currentScreen = LEADERBOARD;
                 InitLeaderBoard();
-                leaderBoard->SetHasActiveGame(true);
+                leaderBoard->SetHasActiveGame(true);  
                 pauseMenu->Hide();
                 return;
             }
+<<<<<<< HEAD
             else {
                 pauseMenu->Hide();
             }
+=======
+>>>>>>> parent of f4f9b96 (Merge branch 'main' of https://github.com/zhinyin330/Donkey_Kong)
         }
         return;
     }
