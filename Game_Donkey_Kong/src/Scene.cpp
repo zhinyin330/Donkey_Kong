@@ -9,16 +9,15 @@ Scene::Scene() {
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
-<<<<<<< Updated upstream
+
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");//tongtong
-=======
+
     barrelTexture = LoadTexture("Barrel/Dk_Barrel_Idle.png");
     oilCanisterTexture = LoadTexture("items/Dk_OilCanister.png");   //tongtong
 
     texHighScore = LoadTexture("UI/Dk_UI_HighScore.png");
-    texScore = LoadTexture("UI/Dk_UI_Numbers.png");
     Level = LoadTexture("UI/Dk_UI_CurrentLevel.png");
->>>>>>> Stashed changes
+
 
 
     int baseOffset = platformHitboxOffsetY * tileScale;  // 8 * 2 = 16
@@ -212,19 +211,16 @@ Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
-<<<<<<< Updated upstream
     UnloadTexture(oilCanisterTexture);//tongtong
     UnloadTexture(princessTexture);  
     for (int i = 0; i < 4; i++) {
         UnloadTexture(rainTextures[i]);
     }
-=======
     UnloadTexture(oilCanisterTexture); //tongtong
 
     UnloadTexture(Level);
     UnloadTexture(texHighScore);
-    UnloadTexture(texScore);
->>>>>>> Stashed changes
+
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -448,7 +444,7 @@ void Scene::Draw() {
             }
         }
     }
-<<<<<<< Updated upstream
+
 
     DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
 
@@ -471,7 +467,7 @@ void Scene::Draw() {
         0.0f,
         WHITE
     );
-=======
+
     #ifdef _DEBUG
     // 只在 Debug 模式下显示，Release 模式会自动移除
     for (int y = 0; y < mapHeight; y++) {
@@ -544,13 +540,12 @@ void Scene::Draw() {
     #endif
     // Dibujar zona de transición
     DrawRectangleLinesEx(transitionZone, 3.0f, GREEN);
-    DrawText("LVL2", transitionZone.x + 20, transitionZone.y + 10, 20, GREEN);
+    DrawText("LVL2", transitionZone.x + 680, transitionZone.y + 50, 20, GREEN);
 
 
     // Dibujar UI
 
     DrawTextureEx(texHighScore, { 300, 8 }, 0.0f, 2.0f, WHITE);
-    DrawTextureEx(texScore, { 20, 8 }, 0.0f, 1.0f, WHITE);
-    DrawTextureEx(Level, { 700, 50 }, 0.0f, 2.0f, WHITE);
->>>>>>> Stashed changes
+    DrawTextureEx(Level, { 640, 50 }, 0.0f, 2.0f, WHITE);
+
 }

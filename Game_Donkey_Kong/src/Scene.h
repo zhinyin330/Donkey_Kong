@@ -20,15 +20,15 @@ private:
     Texture2D ladderTexture;
     Texture2D barrelTexture;
     Texture2D oilCanisterTexture;//tongtong
-<<<<<<< Updated upstream
+
     Music backgroundMusic;//背景音乐
-=======
+
 
     Texture2D texHighScore;
     Texture2D texScore;
     Texture2D Level;
 
->>>>>>> Stashed changes
+
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
 

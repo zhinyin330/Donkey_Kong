@@ -533,7 +533,7 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
         float spawnY = (float)(selectedYRow * 32) + visualOffsetY - bombHeight;
 
         // 【增加/修正】：初始化所有结构体成员
-        activeBombs.push_back({ {randomX, spawnY}, 0, 0.0f, true, 0, 0, false });
+        activeBombs.push_back({ {randomX, spawnY}, 0, 0.0f, true, 0, 0, false,0.0f });
     }
 
     // === 3. 状态更新与碰撞检测 ===
@@ -541,7 +541,18 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
 
     for (int i = (int)activeBombs.size() - 1; i >= 0; i--) {
         Bomb& bomb = activeBombs[i];
+        // 累计存在时间
+        bomb.lifeTimer += deltaTime;
 
+        // 如果2秒还没触发，自动爆炸
+        if (!bomb.isTriggered && bomb.lifeTimer >= 5.0f) {
+            bomb.isTriggered = true;
+            bomb.stage = 1;       // 直接进入爆炸阶段
+            bomb.currentFrame = 3;
+            bomb.frameTimer = 0.0f;
+
+            TraceLog(LOG_INFO, "炸弹自动爆炸！");
+        }
         // 计算中心距离
         Vector2 bombCenter = { bomb.position.x + 16, bomb.position.y + 16 };
         Vector2 playerCenter = { playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2 };
