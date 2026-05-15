@@ -86,6 +86,7 @@ private:
         int stage;          // 0 代表第一段(帧0-2)，1 代表第二段(帧3-5)
         int loopCount;      // 记录当前阶段已经循环播放了几次
         bool isTriggered; //标记是否已被玩家靠近
+        float lifeTimer;//存在时间
     };
     std::vector<Texture2D> bombTextures; // 存储 Bomb1 到 Bomb6
     std::vector<Bomb> activeBombs;       // 当前屏幕上的炸弹
