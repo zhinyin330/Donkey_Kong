@@ -301,6 +301,29 @@ void DrawGame(GameScreen* currentScreen)
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
 
+    // 桶碰油桶
+    Scene* scene1 = dynamic_cast<Scene*>(gameScene);
+    if (scene1 != nullptr) {
+        scene1->UpdateOilCanisters(deltaTime);
+        std::vector<OilCanister>& cans = scene1->GetOilCanisters();
+
+        for (auto& barrel : gameEnemy->GetBarrels()) {
+            if (!barrel.IsHit()) {
+                Rectangle barrelRect = { barrel.GetPosition().x, barrel.GetPosition().y, barrel.GetWidth(), barrel.GetHeight() };
+                for (int i = 0; i < (int)cans.size(); i++) {
+                    if (cans[i].isActive && !cans[i].isBurning && CheckCollisionRecs(barrelRect, cans[i].rect)) {
+                        barrel.Hit();
+                        cans[i].isActive = false;
+                        cans[i].isBurning = true;
+                        cans[i].burnTimer = 0;
+                        gamePlayer->AddScore(50);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     // Martillo
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
         Rectangle hammerHitbox = {
