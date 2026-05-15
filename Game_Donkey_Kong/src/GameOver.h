@@ -5,6 +5,8 @@
 class GameOver {
 private:
     Font font;
+    Texture2D marioSadTexture;
+
     bool isActive;
     float timer;
     bool showNameInput;      // Primero Game Over, luego pedir nombre
