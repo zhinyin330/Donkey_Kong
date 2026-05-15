@@ -251,7 +251,6 @@ void DrawGame(GameScreen* currentScreen)
                 return;
             }
             else {
-                // CONTINUAR: solo cerrar el menú
                 pauseMenu->Hide();
             }
         }
@@ -365,12 +364,13 @@ void DrawGame(GameScreen* currentScreen)
         if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
             gamePlayer->LoseLife();
             gameEnemy->ClearBarrels();
+            gamePlayer->StartDeath();
             if (gamePlayer->IsDead()) {
                 *currentScreen = GAME_OVER;
                 if (gameOver != nullptr) gameOver->Show();
                 return;
             }
-            gamePlayer->StartDeath();
+
         }
     }
 
@@ -406,12 +406,13 @@ void DrawGame(GameScreen* currentScreen)
             };
             if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
                 gamePlayer->LoseLife();
+                gamePlayer->StartDeath();
                 if (gamePlayer->IsDead()) {
                     *currentScreen = GAME_OVER;
                     if (gameOver != nullptr) gameOver->Show();
                     return;
                 }
-                gamePlayer->StartDeath();
+
             }
         }
     }
