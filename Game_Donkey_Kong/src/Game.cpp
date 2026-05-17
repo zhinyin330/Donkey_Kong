@@ -31,6 +31,8 @@ static bool hammerCollected = false;
 static float hammerScale = 2.3f;
 static LeaderBoard* leaderBoard = nullptr;
 static bool gameInProgress = false;
+static Texture2D heartTexture = { 0 };
+static bool heartLoaded = false;
 
 
 void InitGame()
@@ -59,7 +61,12 @@ void InitGame()
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
-    hammerPosition = { 600.0f, 540.0f };
+    hammerPosition = { 600.0f, 450.0f };
+    if (!heartLoaded) {
+        heartTexture = LoadTexture("items/heart.png");
+        heartLoaded = true;
+
+    }
 }
 
 void InitGameScene2()
@@ -527,6 +534,21 @@ void DrawGame(GameScreen* currentScreen)
         DrawText(TextFormat("SCORE: %04d", gamePlayer->GetScore()), 15, 15, 20, WHITE);
     }
 
+    if (heartTexture.id != 0) {
+        float heartY = 60.0f;
+        float heartScale = 1.3f;
+        float spacing = 23.0f; // 间隔
+
+        // 第一个爱心
+        DrawTextureEx(heartTexture, { 15.0f, heartY }, 0.0f, heartScale, WHITE);
+
+        // 第二个爱心
+        DrawTextureEx(heartTexture, { 15.0f + spacing, heartY }, 0.0f, heartScale, WHITE);
+
+        // 第三个爱心
+        DrawTextureEx(heartTexture, { 15.0f + spacing * 2, heartY }, 0.0f, heartScale, WHITE);
+    }
+
     if (shouldReset) {
         CleanupGame();
         shouldReset = false;
@@ -576,6 +598,10 @@ void DrawGameOver(GameScreen* currentScreen) {
 void UnloadGame()
 {
     CleanupGame();
+    if (heartLoaded) {
+        UnloadTexture(heartTexture);
+        heartLoaded = false;
+    }
 }
 
 void SwitchToScene2()
