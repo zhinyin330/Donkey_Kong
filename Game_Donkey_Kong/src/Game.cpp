@@ -61,7 +61,7 @@ void InitGame()
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
-    hammerPosition = { 600.0f, 450.0f };
+    hammerPosition = { 50.0f, 250.0f };
     if (!heartLoaded) {
         heartTexture = LoadTexture("items/heart.png");
         heartLoaded = true;
@@ -96,7 +96,7 @@ void InitGameScene2()
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
-    hammerPosition = { 400.0f, 300.0f };
+    hammerPosition = { 383.0f, 300.0f };
 }
 
 void InitLeaderBoard() {
