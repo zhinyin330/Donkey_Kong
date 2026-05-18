@@ -179,13 +179,15 @@ public:
                  position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale };
     }
 
-    // Temporal: Hitbox para colisiones
+    // Hitbox para colisiones
     Rectangle GetHitbox() const {
+        float hitboxRatio = 0.5f;  // 50% inferior
+        float fullHeight = baseHitboxHeight * scale;
         return {
             position.x,
-            position.y + baseHitboxOffsetY * scale,
+            position.y + baseHitboxOffsetY * scale + fullHeight * (1.0f - hitboxRatio),
             currentTexture.width * scale,
-            baseHitboxHeight * scale
+            fullHeight * hitboxRatio
         };
     }
 

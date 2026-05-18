@@ -860,15 +860,21 @@ void Player::Update(GameScene& scene) {
         int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
 
+        // Usar hitbox reducido (misma altura que GetHitbox)
+        float reducedHeight = (currentHeight * scale) * 0.5f;
+        float reducedTopY = position.y + currentOffsetY * scale + reducedHeight;  // Mitad inferior
+
+        int reducedTopTile = (int)(reducedTopY / tileSize);
+
         for (int tx = checkLeftTile; tx <= checkRightTile && !hitCeiling; tx++) {
-            for (int ty = nextHeadTileY - 1; ty <= (int)(hitboxTopY / tileSize) + 1; ty++) {
+            for (int ty = nextHeadTileY - 1; ty <= reducedTopTile + 1; ty++) {
                 if (ty < 0) continue;
 
                 if (scene.IsSolid(tx, ty)) {
                     int tileOffsetY = scene.GetVisualOffsetY(tx, ty);
                     float platformBottom = ty * tileSize + tileOffsetY + platformHitboxHeight;
 
-                    if (nextHeadY <= platformBottom && hitboxTopY >= platformBottom - 5) {
+                    if (nextHeadY <= platformBottom && reducedTopY >= platformBottom - 5) {
                         ceilingY = platformBottom - currentOffsetY * scale;
                         hitCeiling = true;
                         break;
@@ -1155,17 +1161,8 @@ void Player::Draw() {
     }
     // ========== 锤子绘制结束 ==========
 
-    // Debug: Hitbox
-    int currentOffsetY = GetCurrentHitboxOffsetY();
-    int currentHeight = GetCurrentHitboxHeight();
-
-    DrawRectangleLines(
-        position.x,
-        position.y + currentOffsetY * scale,
-        currentTexture.width * scale,
-        currentHeight * scale,
-        RED
-    );
+    Rectangle hb = GetHitbox();
+    DrawRectangleLines(hb.x, hb.y, hb.width, hb.height, RED);
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
         GameScene::GetScreenWidth() - 200, 50, 20, YELLOW);
