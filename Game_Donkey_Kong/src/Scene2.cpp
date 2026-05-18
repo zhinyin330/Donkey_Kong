@@ -140,14 +140,14 @@ Scene2::Scene2() {
     float buttonW = buttonTexture.width * buttonScale;
     float buttonY = 21 * 32 + platformHitboxOffsetY * tileScale - buttonTexture.height * buttonScale;
 
-    buttons.push_back({ 255, 586 });   // Botón 1
-    buttons.push_back({ 260, 456 });   // Botón 2
-    buttons.push_back({ 255, 328 });   // Botón 3
-    buttons.push_back({ 260, 200 });   // Botón 4
-    buttons.push_back({ 508, 586 });   // Botón 5
-    buttons.push_back({ 513, 456 });   // Botón 6
-    buttons.push_back({ 508, 328 });   // Botón 7
-    buttons.push_back({ 513, 200 });   // Botón 8
+    buttons.push_back({ 235, 586 });   // Botón 1
+    buttons.push_back({ 240, 456 });   // Botón 2
+    buttons.push_back({ 235, 328 });   // Botón 3
+    buttons.push_back({ 240, 200 });   // Botón 4
+    buttons.push_back({ 528, 586 });   // Botón 5
+    buttons.push_back({ 533, 456 });   // Botón 6
+    buttons.push_back({ 528, 328 });   // Botón 7
+    buttons.push_back({ 533, 200 });   // Botón 8
 
     for (int i = 0; i < 8; i++) {
         buttonsActive.push_back(true);

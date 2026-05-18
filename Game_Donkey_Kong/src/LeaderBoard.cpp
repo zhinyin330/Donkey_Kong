@@ -54,13 +54,13 @@ void LeaderBoard::Draw() {
     DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 0.9f));
 
     // ========== TÍTULO ==========
-    const char* title = "TOP 5 JUGADORES";
+    const char* title = "Leaderboard";
     int titleWidth = MeasureTextEx(font, title, 28, 2).x;
     DrawTextEx(font, title,
-        { (float)(screenWidth / 2 - titleWidth / 2), 40 }, 28, 2, GOLD);
+        { (float)(screenWidth / 2 - titleWidth / 2), 320 }, 28, 2, GOLD);
 
     // ========== OPCIONES SUPERIORES ==========
-    float optionY = 100;
+    float optionY = 160;
 
     // Opción CONTINUAR (solo si hay partida activa)
     if (hasActiveGame) {
@@ -82,7 +82,7 @@ void LeaderBoard::Draw() {
             { (float)(screenWidth / 2 - noGameWidth / 2), optionY }, 16, 2, DARKGRAY);
     }
 
-    optionY += 40;
+    optionY += 60;
 
     // Opción NUEVA PARTIDA
     int newGameOption = hasActiveGame ? 1 : 0;
@@ -98,7 +98,7 @@ void LeaderBoard::Draw() {
         { (float)(screenWidth / 2 - newGameWidth / 2), optionY }, 20, 2, newGameColor);
 
     // ========== TABLA DE PUNTUACIONES ==========
-    float tableY = 190;
+    float tableY = 390;
     float colNameX = screenWidth / 2 - 200;
     float colLevelX = screenWidth / 2 + 20;
     float colScoreX = screenWidth / 2 + 120;

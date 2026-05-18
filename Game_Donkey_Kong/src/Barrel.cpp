@@ -30,6 +30,8 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     triggerLocked = false;
     triggerLockTimer = 0.0f;
 
+    hasBeenJumped = false;
+
     LoadFrames();
 
      

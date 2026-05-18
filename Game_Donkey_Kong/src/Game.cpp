@@ -61,7 +61,7 @@ void InitGame()
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
-    hammerPosition = { 600.0f, 450.0f };
+    hammerPosition = { 50.0f, 250.0f };
     if (!heartLoaded) {
         heartTexture = LoadTexture("items/heart.png");
         heartLoaded = true;
@@ -96,7 +96,7 @@ void InitGameScene2()
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
-    hammerPosition = { 400.0f, 300.0f };
+    hammerPosition = { 383.0f, 300.0f };
 }
 
 void InitLeaderBoard() {
@@ -365,6 +365,7 @@ void DrawGame(GameScreen* currentScreen)
     // Colisiones Scene 1 (barriles + DK)
     if (!isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
         Rectangle playerHitbox = gamePlayer->GetHitbox();
+        float playerFeetY = playerHitbox.y + playerHitbox.height;
 
         for (auto& barrel : gameEnemy->GetBarrels()) {
             if (!barrel.IsHit()) {
@@ -372,16 +373,32 @@ void DrawGame(GameScreen* currentScreen)
                     barrel.GetPosition().x, barrel.GetPosition().y,
                     barrel.GetWidth(), barrel.GetHeight()
                 };
+
+                // Verificar si Mario saltó POR ENCIMA del barril (sin tocarlo)
+                if (gamePlayer->GetVelocityY() >= 0) {  // Cayendo
+                    // ¿El barril está debajo de Mario y sus pies pasaron por encima?
+                    float barrelTopY = barrel.GetPosition().y;
+                    float marioBottomY = gamePlayer->GetPosition().y + gamePlayer->GetTextureHeight() * gamePlayer->GetScale();
+
+                    // Barril pasó por debajo de Mario mientras saltaba
+                    if (playerHitbox.x < barrelRect.x + barrelRect.width &&
+                        playerHitbox.x + playerHitbox.width > barrelRect.x &&
+                        marioBottomY >= barrelTopY - 20 &&
+                        marioBottomY <= barrelTopY + 10 &&
+                        !barrel.HasBeenJumped()) {
+
+                        barrel.MarkAsJumped();
+                        gamePlayer->AddScore(100);
+                        TraceLog(LOG_INFO, "Jumped over barrel! +100");
+                    }
+                }
+
+                // Colisión normal
                 if (CheckCollisionRecs(playerHitbox, barrelRect)) {
                     barrel.Hit();
                     gamePlayer->LoseLife();
                     gameEnemy->ClearBarrels();
                     gamePlayer->StartDeath();
-                    if (gamePlayer->IsDead()) {
-                        *currentScreen = GAME_OVER;
-                        if (gameOver != nullptr) gameOver->Show();
-                        return;
-                    }
                     break;
                 }
             }
@@ -395,12 +412,6 @@ void DrawGame(GameScreen* currentScreen)
             gamePlayer->LoseLife();
             gameEnemy->ClearBarrels();
             gamePlayer->StartDeath();
-            if (gamePlayer->IsDead()) {
-                *currentScreen = GAME_OVER;
-                if (gameOver != nullptr) gameOver->Show();
-                return;
-            }
-
         }
     }
 
@@ -437,12 +448,6 @@ void DrawGame(GameScreen* currentScreen)
             if (CheckCollisionRecs(playerHitbox, dkHitbox)) {
                 gamePlayer->LoseLife();
                 gamePlayer->StartDeath();
-                if (gamePlayer->IsDead()) {
-                    *currentScreen = GAME_OVER;
-                    if (gameOver != nullptr) gameOver->Show();
-                    return;
-                }
-
             }
         }
     }

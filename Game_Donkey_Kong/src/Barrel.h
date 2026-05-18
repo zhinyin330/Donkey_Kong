@@ -32,17 +32,6 @@ struct VerticalDropTrigger
 };
 
 class Barrel {
-public:
-    // 构造函数
-    Barrel(BarrelType t, Vector2 pos);
-
-    // 更新 / 渲染
-    void Update(GameScene& scene);
-    void Draw();
-
-    void Hit();           // 桶被锤子打中时调用
-    bool IsHit() const { return isHit; }  // 检查桶是否已被打中
-    BarrelType GetType() const { return type; }
 
 private:
     void UpdateAnimation();
@@ -57,8 +46,6 @@ private:
     bool hasCheckedTrigger = false;
     bool triggerFailedLock = false;
 
-
-private:
     BarrelType type;
     BarrelState state;
 
@@ -110,4 +97,19 @@ public:
     {
         return rollingFrames.empty() ? 0 : rollingFrames[0].height * 2.2f;
     }
+
+    // 构造函数
+    Barrel(BarrelType t, Vector2 pos);
+
+    // 更新 / 渲染
+    void Update(GameScene& scene);
+    void Draw();
+
+    void Hit();           // 桶被锤子打中时调用
+    bool IsHit() const { return isHit; }  // 检查桶是否已被打中
+    BarrelType GetType() const { return type; }
+
+    bool hasBeenJumped;
+    bool HasBeenJumped() const { return hasBeenJumped; }
+    void MarkAsJumped() { hasBeenJumped = true; }
 };

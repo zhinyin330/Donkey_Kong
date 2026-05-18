@@ -78,7 +78,7 @@ Player::Player() {
     jumpHitboxHeight = feetOffset - jumpHitboxOffsetY;
 
     int tileSize = 32;
-    int startTileX = 2;
+    int startTileX = 5;
     int startTileY = 21;
     int platformOffsetY = 8;
 
@@ -114,9 +114,14 @@ Player::Player() {
     swingHammerTimer = 0.0f;
     swingHammerDuration = 0.3f;
     swingFrame = 0;
+
+
+    jumpedBarrels.clear();
+
     hammerCooldownTimer = 0.0f;
     hammerCooldownDuration = 5.0f;  // 5秒冷却
     isHammerOnCooldown = false;
+
 }
 
 Player::~Player() {

@@ -209,6 +209,25 @@ void Enemy::Draw() {
         0.0f,
         WHITE
     );
+
+    // ========== DIBUJAR BARRIL EN MANOS (frame M, con barril) ==========
+    if (hasBarrel && currentFrame == 1 && behavior == EnemyBehavior::THROW_BARRELS) {
+        Texture2D barrelInHands;
+        if (currentBarrelType == BarrelType::BLUE_BARREL) {
+            barrelInHands = blueFallingFrames[0];
+        }
+        else {
+            barrelInHands = normalFallingFrames[0];
+        }
+
+        float barrelScale = 3.0f;
+        Vector2 barrelPos = {
+            position.x + 37,
+            position.y + 38
+        };
+
+        DrawTextureEx(barrelInHands, barrelPos, 0.0f, barrelScale, WHITE);
+    }
     
     // 不在scene1 不画THROW_BARRELS
     if (behavior == EnemyBehavior::THROW_BARRELS) {

@@ -15,13 +15,14 @@ enum class PlayerState {
     HAMMER_SWING 
 };
 
-// ========== ÐÂÔö£º¸¡¶¯ÎÄ×Ö½á¹¹ ==========
 struct FloatingText {
     Vector2 position;
     std::string text;
     float lifetime;
     float alpha;
-    float floatOffset;  // ÏòÉÏÆ®µÄÆ«ÒÆÁ¿
+
+    float floatOffset;  
+
 
     FloatingText(Vector2 pos, const std::string& txt, float duration = 1.0f)
         : position(pos), text(txt), lifetime(duration), alpha(1.0f), floatOffset(0.0f) {}
@@ -39,6 +40,7 @@ private:
     std::vector<Texture2D> climbEndTextures;
     Texture2D deathEndTexture;
     std::vector<Texture2D> deathTextures;
+    std::vector<Rectangle> jumpedBarrels;
 
  
     std::vector<Texture2D> hammerSwingTextures; 
@@ -141,6 +143,7 @@ public:
 
     // Getters públicos
     Vector2 GetPosition() const { return position; }
+    float GetVelocityY() const { return velocityY; }
     float GetScale() const { return scale; }
     float GetTextureWidth() const { return currentTexture.width; }
     float GetTextureHeight() const { return currentTexture.height; }
