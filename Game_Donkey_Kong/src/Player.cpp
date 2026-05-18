@@ -115,7 +115,13 @@ Player::Player() {
     swingHammerDuration = 0.3f;
     swingFrame = 0;
 
+
     jumpedBarrels.clear();
+
+    hammerCooldownTimer = 0.0f;
+    hammerCooldownDuration = 5.0f;  // 5秒冷却
+    isHammerOnCooldown = false;
+
 }
 
 Player::~Player() {
@@ -236,6 +242,7 @@ void Player::HandleInput(GameScene& scene) {
             }
         }
     }
+    
 
     // Movimiento normal
     if (currentState != PlayerState::CLIMBING) {
@@ -257,6 +264,7 @@ void Player::HandleInput(GameScene& scene) {
             ActivateStarMode();
         }
     }
+  
 
     UpdateStarMode();
 
@@ -413,6 +421,15 @@ void Player::SetFeetPosition(float feetY) {
 }
 
 void Player::Update(GameScene& scene) {
+    // ========== 更新锤子冷却 ==========
+    if (isHammerOnCooldown) {
+        hammerCooldownTimer -= GetFrameTime();
+        if (hammerCooldownTimer <= 0.0f) {
+            isHammerOnCooldown = false;
+            hammerCooldownTimer = 0.0f;
+            TraceLog(LOG_INFO, "锤子冷却结束！可以再次使用");
+        }
+    }
     UpdateHammerSwing(GetFrameTime());// 先更新挥锤动画
     UpdateAnimation();
     UpdateStarMode();
@@ -997,6 +1014,14 @@ void Player::UpdateFloatingTexts()
     }
 }
 
+void Player::SetHasHammer(bool has) {
+    hasHammer = has;
+    if (has) {
+        isHammerOnCooldown = false;
+        hammerCooldownTimer = 0.0f;
+    }
+}
+
 void Player::DrawFloatingTexts()
 {
     for (const auto& ft : floatingTexts)
@@ -1014,7 +1039,7 @@ void Player::DrawFloatingTexts()
 //锤子系统方法实现 
 void Player::StartSwingHammer() {
     if (!hasHammer) return;  // 没有锤子就不能挥
-
+    if (isHammerOnCooldown) return;   // 冷却中不能挥锤
     isSwingingHammer = true;
     swingHammerTimer = swingHammerDuration;  // 设置挥锤时间为0.3秒
     swingFrame = 0;
@@ -1024,21 +1049,23 @@ void Player::StartSwingHammer() {
 void Player::UpdateHammerSwing(float deltaTime) {
     if (!isSwingingHammer) return;
 
-    swingHammerTimer -= deltaTime;  // 减少计时器
+    swingHammerTimer -= deltaTime;
 
-
-    // 计算动画帧（只记录帧数，不修改纹理）
+    // 计算动画帧
     float frameTime = swingHammerDuration / hammerSwingTextures.size();
     int newFrame = (int)((swingHammerDuration - swingHammerTimer) / frameTime);
     if (newFrame >= (int)hammerSwingTextures.size()) {
         newFrame = hammerSwingTextures.size() - 1;
     }
-
-    swingFrame = newFrame;  // 只记录当前帧
+    swingFrame = newFrame;
 
     if (swingHammerTimer <= 0) {
         isSwingingHammer = false;
         swingFrame = 0;
+        // ========== 挥锤结束，进入冷却 ==========
+        isHammerOnCooldown = true;
+        hammerCooldownTimer = hammerCooldownDuration;
+
         if (currentState == PlayerState::HAMMER_SWING) {
             ChangeState(PlayerState::IDLE);
         }
@@ -1145,6 +1172,13 @@ void Player::Draw() {
 
     // 显示锤子提示
     if (hasHammer) {
+        if (isHammerOnCooldown) {
+            // 冷却中显示灰色提示
+            char cooldownText[50];
+            sprintf(cooldownText, "HAMMER: %.1fs", hammerCooldownTimer);
+            DrawText(cooldownText, GameScene::GetScreenWidth() - 180, 70, 20, GRAY);
+        }
+        else {
         DrawText("HAMMER: J", GameScene::GetScreenWidth() - 180, 70, 20, ORANGE);
     }
 
@@ -1154,4 +1188,5 @@ void Player::Draw() {
     DrawText(TextFormat("VIDAS: %d", lives),
         GameScene::GetScreenWidth() - 785, 40, 20, RED);
 
+}
 }
