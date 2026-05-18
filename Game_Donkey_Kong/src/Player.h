@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "raylib.h"
 #include <vector>
 #include <string>
@@ -15,13 +15,13 @@ enum class PlayerState {
     HAMMER_SWING 
 };
 
-// ========== ĞÂÔö£º¸¡¶¯ÎÄ×Ö½á¹¹ ==========
+// ========== ÃÃ‚Ã”Ã¶Â£ÂºÂ¸Â¡Â¶Â¯ÃÃ„Ã—Ã–Â½Ã¡Â¹Â¹ ==========
 struct FloatingText {
     Vector2 position;
     std::string text;
     float lifetime;
     float alpha;
-    float floatOffset;  // ÏòÉÏÆ®µÄÆ«ÒÆÁ¿
+    float floatOffset;  // ÃÃ²Ã‰ÃÃ†Â®ÂµÃ„Ã†Â«Ã’Ã†ÃÂ¿
 
     FloatingText(Vector2 pos, const std::string& txt, float duration = 1.0f)
         : position(pos), text(txt), lifetime(duration), alpha(1.0f), floatOffset(0.0f) {}
@@ -40,14 +40,14 @@ private:
     Texture2D deathEndTexture;
     std::vector<Texture2D> deathTextures;
 
-    //´¸×Ó
-    std::vector<Texture2D> hammerSwingTextures;  // »Ó´¸¶¯»­
+ 
+    std::vector<Texture2D> hammerSwingTextures; 
     bool hasHammer;
     bool isSwingingHammer;
     float swingHammerTimer;
     float swingHammerDuration;
     int swingFrame;
-    Vector2 hammerOffset;  // ´¸×ÓÏà¶ÔÓÚÍæ¼ÒµÄÆ«ÒÆ
+    Vector2 hammerOffset; 
 
     // Audio
     Sound jumpSound;
@@ -60,9 +60,9 @@ private:
     bool wasMoving;
     bool isStepPlaying;
 
-    float climbStepInterval; // ÅÀÌİ×Ó¼ä¸ô
+    float climbStepInterval; 
 
-    // Animación
+    // AnimaciÃ³n
     PlayerState currentState;
     int currentFrame;
     float frameCounter;
@@ -97,7 +97,7 @@ private:
     int jumpHitboxOffsetY;
     int jumpHitboxHeight;
 
-    // Métodos privados
+    // MÃ©todos privados
     float GetFeetPosition();
     void SetFeetPosition(float feetY);
     int GetCurrentHitboxOffsetY();
@@ -113,10 +113,15 @@ private:
     static const float starModeDuration;
     Color currentTint;
 
-   
-    int score; //µÃ·Ö
+    // é”¤å­å†·å´ç³»ç»Ÿ
+    float hammerCooldownTimer;    
+    float hammerCooldownDuration;  
+    bool isHammerOnCooldown;    
+ 
+
+    int score; 
     
-    std::vector<FloatingText> floatingTexts;// ¸¡¶¯¼Ó·ÖÁĞ±í
+    std::vector<FloatingText> floatingTexts;
 
 public:
     Player();
@@ -131,7 +136,10 @@ public:
     void UpdateAnimation();
     void ChangeState(PlayerState newState);
 
-    // Getters públicos
+    void SetHasHammer(bool has);
+    bool HasHammer() const { return hasHammer; }
+
+    // Getters pÃºblicos
     Vector2 GetPosition() const { return position; }
     float GetScale() const { return scale; }
     float GetTextureWidth() const { return currentTexture.width; }
@@ -149,16 +157,20 @@ public:
     void UpdateStarMode();
     bool IsInStarMode() const { return starMode; }
 
-    //µÃ·Ö
+    bool IsHammerOnCooldown() const { return isHammerOnCooldown; }
+    float GetHammerCooldownRemaining() const {
+        return hammerCooldownTimer > 0 ? hammerCooldownTimer : 0;
+    }
+
     void AddScore(int points);  
     int GetScore() const { return score; }  
     void ResetScore(); 
 
-    // ========== ĞÂÔö£º¸¡¶¯ÎÄ×Ö·½·¨ ==========
+   
     void AddFloatingText(Vector2 worldPos, const std::string& text, int points);
     void UpdateFloatingTexts();
     void DrawFloatingTexts();
-    // »ñÈ¡Íæ¼Ò½ÅÏÂÎ»ÖÃ£¨ÓÃÓÚÏÔÊ¾·ÖÊıÆ®×Ö£©
+  
     Vector2 GetFeetWorldPos() const {
         return { position.x + currentTexture.width * scale / 2,
                  position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale };
@@ -184,13 +196,10 @@ public:
     void UpdateDeath(float deltaTime);
     static void ResetLives() { lives = 3; }
 
-    //´¸×ÓÏµÍ³·½·¨
- // ========== ÔÚÕâÀïÌí¼Ó´¸×Ó¶¯»­ÎÆÀí¼ÓÔØ ==========
-    void SetHasHammer(bool has) { hasHammer = has; }
-    bool HasHammer() const { return hasHammer; }
+  
     void StartSwingHammer();
     bool IsSwingingHammer() const { return isSwingingHammer; }
     void UpdateHammerSwing(float deltaTime);
     Rectangle GetAttackHitbox() const;
-    // ========== ´¸×ÓÎÆÀí¼ÓÔØ½áÊø ==========
+  
 };
