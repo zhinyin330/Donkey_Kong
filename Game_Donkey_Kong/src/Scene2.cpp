@@ -153,9 +153,22 @@ Scene2::Scene2() {
         buttonsActive.push_back(true);
     }
     // 初始化按钮分数记录数组（全部设为 false，表示还没给过分数）
-        for (int i = 0; i < 8; i++) {
-            buttonsScored.push_back(false);
-        }
+    for (int i = 0; i < 8; i++) {
+        buttonsScored.push_back(false);
+    }
+
+    // 创建火焰敌人
+
+    float fireTileX = 22.0;
+    float fireTileY = 21.0;
+
+    float fireX = fireTileX * tileSize * tileScale;
+    float fireY = fireTileY * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32;
+
+    Vector2 fireSpawnPos = { fireX, fireY };
+
+    fireEnemy = new FireSprite(fireSpawnPos);
+
 }
 
 Scene2::~Scene2() {
@@ -178,6 +191,7 @@ Scene2::~Scene2() {
     for (auto& tex : bombTextures) {
         UnloadTexture(tex);
     }
+    delete fireEnemy;
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
     float buttonScale = 2.0f;
@@ -502,6 +516,28 @@ void Scene2::AddLadder(int startY, int endY, int x,
         }
     }
 }
+void Scene2::Update(float deltaTime, Player* player)
+{
+    UpdateMusic();
+
+    UpdateBombs(deltaTime, player);
+
+    if (fireEnemy != nullptr)
+    {
+        fireEnemy->Update(deltaTime);
+
+        // 玩家碰撞
+        if (CheckCollisionRecs(
+            fireEnemy->GetHitbox(),
+            player->GetHitbox()))
+        {
+            if (!player->IsDying())
+            {
+                player->StartDeath();
+            }
+        }
+    }
+}
 
 void Scene2::UpdateBombs(float deltaTime, Player* player) {
     if (!player) return;
@@ -744,6 +780,11 @@ void Scene2::Draw() {
             // 使用 2.0 倍缩放，确保炸弹清晰可见
             DrawTextureEx(bombTextures[bomb.currentFrame], bomb.position, 0.0f, 2.0f, WHITE);
         }
+    }
+
+    if (fireEnemy != nullptr)
+    {
+        fireEnemy->Draw();
     }
 
 }

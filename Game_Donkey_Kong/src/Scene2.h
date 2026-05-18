@@ -3,6 +3,7 @@
 #include <vector>
 #include "GameScene.h"
 #include "Player.h"
+#include "FireSprite.h"
 class Player;
 
 class Scene2 : public GameScene {
@@ -136,4 +137,8 @@ public:
 
     //更新炸弹
     void UpdateBombs(float deltaTime, Player* player);
+
+    // 火焰敌人
+    FireSprite* fireEnemy;
+    void Update(float deltaTime, Player* player);
 };
