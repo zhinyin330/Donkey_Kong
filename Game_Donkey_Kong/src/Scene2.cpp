@@ -123,13 +123,7 @@ Scene2::Scene2() {
     AddPillar(465, 175);
 
     //princesa
-    princessTexture = LoadTexture("Characters/Princess/Dk_Princess_Idle1.png");
-    princessScale = 2.2f;
-    // Colocar en la plataforma superior (Y=3), centrado
-    float princessX = 383;
-    int platformY = 3;
-    float princessY = platformY * 32 - princessTexture.height * princessScale + 24;
-    princessPosition = { princessX, princessY };
+    princess.SetPosition(383, 3 * 32 - 32 * 2.2f + 24);
 
     // ========== BOTONES DEL SUELO ==========
     buttonTexture = LoadTexture("items/Dk_BottomButton.png");
@@ -178,7 +172,6 @@ Scene2::~Scene2() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(pillarTexture);
-    UnloadTexture(princessTexture);
     UnloadTexture(item1Texture);
     UnloadTexture(item2Texture);
     UnloadTexture(item3Texture);
@@ -214,7 +207,6 @@ void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
                     if (!buttonsScored[i] && player != nullptr) {
                         buttonsScored[i] = true;      // 标记这个按钮已经给过分数了
                         player->AddScore(100);         // 加100分
-                        TraceLog(LOG_INFO, "按钮 %d 被踩！+100分", i);  // 控制台输出调试信息
                     }
                     buttonsActive[i] = false;
                 }
@@ -433,7 +425,6 @@ void Scene2::UpdateDkBounce(float deltaTime) {
 }
 
 void Scene2::TriggerDkLandSequence() {
-    TraceLog(LOG_INFO, "=== TriggerDkLandSequence INICIO ===");
 
     // 1. Desaparecer plataforma superior (Y=3)
     for (int x = mapWidth / 2 - 3; x < mapWidth / 2 + 4; x++) {
@@ -448,9 +439,7 @@ void Scene2::TriggerDkLandSequence() {
     }
 
     // 3. Mover princesa
-    float princessX = 367;
-    float princessY = 6 * 32 + platformHitboxOffsetY * tileScale - princessTexture.height * princessScale + 10;
-    princessPosition = { princessX, princessY };
+    princess.SetPosition(367, 6 * 32 + platformHitboxOffsetY * tileScale - 32 * 2.2f + 10);
 
     dkCanHurt = false;
 }
@@ -587,7 +576,6 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
             bomb.currentFrame = 3;
             bomb.frameTimer = 0.0f;
 
-            TraceLog(LOG_INFO, "炸弹自动爆炸！");
         }
         // 计算中心距离
         Vector2 bombCenter = { bomb.position.x + 16, bomb.position.y + 16 };
@@ -599,7 +587,6 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
             bomb.isTriggered = true;
             bomb.stage = 0; // 进入准备阶段
             bomb.currentFrame = 0;
-            TraceLog(LOG_INFO, "炸弹被激活！");
         }
 
         // --- 逻辑 B：动画状态机 (核心增加部分) ---
@@ -640,7 +627,6 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
                 if (CheckCollisionRecs(playerRect, explosionArea)) {
                     if (!player->IsDying()) {
                         player->StartDeath();
-                        TraceLog(LOG_INFO, "玩家被炸死了！");
                     }
                 }
             }
@@ -662,6 +648,10 @@ void Scene2::DrawDkFalling() {
             DrawTextureEx(dkFallFrames[frameIndex], dkStartPosition, 0.0f, 2.8f, WHITE);
         }
     }
+}
+
+void Scene2::UpdatePrincess(float deltaTime) {
+    princess.Update(deltaTime);
 }
 
 void Scene2::Draw() {
@@ -745,7 +735,7 @@ void Scene2::Draw() {
         }
     }
 
-    DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
+    princess.Draw();
 
     DrawDkFalling();
 

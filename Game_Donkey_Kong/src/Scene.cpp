@@ -56,12 +56,7 @@ Scene::Scene() {
     rainFrameSpeed = 0.2f;
 
     // ========== PRINCESA ==========
-    princessTexture = LoadTexture("Characters/Princess/Dk_Princess_Idle1.png");
-    princessScale = 2.2f;
-    float princessX = 10 * 32;  // Columna 13 (dentro de la plataforma superior: 10-15)
-    int platformY = 3;
-    float princessY = platformY * 32 - princessTexture.height * princessScale + 24;
-    princessPosition = { princessX, princessY };
+    princess.SetPosition(10 * 32, 3 * 32 - 32 * 2.2f + 24);
 
     // PLATAFORMAS
     int platformHeights[] = {
@@ -225,12 +220,10 @@ Scene::~Scene() {
     UnloadTexture(tileTexture);
     UnloadTexture(ladderTexture);
     UnloadTexture(barrelTexture);
-    UnloadTexture(oilCanisterTexture);//tongtong
-    UnloadTexture(princessTexture);  
+    UnloadTexture(oilCanisterTexture);//tongtong 
     for (int i = 0; i < 4; i++) {
         UnloadTexture(rainTextures[i]);
     }
-    UnloadTexture(oilCanisterTexture); //tongtong
 
     UnloadTexture(Level);
     UnloadTexture(texHighScore);
@@ -276,6 +269,10 @@ void Scene::AddLadder(int startY, int endY, int x,
     }
 }
 
+void Scene::UpdatePrincess(float deltaTime) {
+    princess.Update(deltaTime);
+}
+
 bool Scene::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return false;
@@ -304,6 +301,24 @@ int Scene::GetVisualOffsetY(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
         return platformHitboxOffsetY * tileScale;
     return visualOffsetY[y][x];
+}
+
+
+void Scene::UpdateOilCanisters(float deltaTime) {
+    for (int i = 0; i < (int)oilCanisters.size(); i++) {
+        if (oilCanisters[i].isBurning) {
+            oilCanisters[i].burnTimer += deltaTime;
+            int frame = (int)(oilCanisters[i].burnTimer / 0.2f);
+            if (frame >= 4) {
+                oilCanisters[i].isBurning = false;
+                oilCanisters[i].isActive = true;
+                oilCanisters[i].burnTimer = 0;
+            }
+            else {
+                oilCanisters[i].currentFrame = frame;
+            }
+        }
+    }
 }
 
 void Scene::Draw() {
@@ -460,7 +475,7 @@ void Scene::Draw() {
     }
 
 
-    DrawTextureEx(princessTexture, princessPosition, 0.0f, princessScale, WHITE);
+    princess.Draw();
 
     // ===== 绘制雨层 =====
     DrawTexturePro(
@@ -493,23 +508,6 @@ void Scene::Draw() {
         if (oilCanisters[i].isBurning && oilCanisters[i].currentFrame < 4) {
             Vector2 firePos = { oilCanisters[i].position.x - 40, oilCanisters[i].position.y + 10 };
             DrawTextureEx(fireFrames[oilCanisters[i].currentFrame], firePos, 0, 2.5f, WHITE);
-        }
-    }
-}
-
-void Scene::UpdateOilCanisters(float deltaTime) {
-    for (int i = 0; i < (int)oilCanisters.size(); i++) {
-        if (oilCanisters[i].isBurning) {
-            oilCanisters[i].burnTimer += deltaTime;
-            int frame = (int)(oilCanisters[i].burnTimer / 0.2f);
-            if (frame >= 4) {
-                oilCanisters[i].isBurning = false;
-                oilCanisters[i].isActive = true;
-                oilCanisters[i].burnTimer = 0;
-            }
-            else {
-                oilCanisters[i].currentFrame = frame;
-            }
         }
     }
 }

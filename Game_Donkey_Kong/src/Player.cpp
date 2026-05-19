@@ -52,18 +52,19 @@ Player::Player() {
 
     // Variables
     currentTexture = idleTexture;
-    speed = 5.0f;
+    speed = 3.3f;
     velocityY = 0.0f;
-    gravity = 0.3f;
+    gravity = 0.13f;
     isJumping = false;
     scale = 2.3f;
     moveX = 0.0f;
     velocityX = 0.0f;
     onLadder = false;
     isClimbing = false;
-    climbSpeed = 2.5f;
+    climbSpeed = 1.8f;
     moveY = 0.0f;
     exitingLadder = false;
+    wasInAir = false;
 
     isDying = false;
     deathTimer = 0.0f;
@@ -247,7 +248,7 @@ void Player::HandleInput(GameScene& scene) {
     // Movimiento normal
     if (currentState != PlayerState::CLIMBING) {
         if (IsKeyPressed(KEY_SPACE) && !isJumping) {
-            velocityY = -9.5f;
+            velocityY = -4.0f;
             isJumping = true;
             PlaySound(jumpSound);
         }
@@ -427,7 +428,6 @@ void Player::Update(GameScene& scene) {
         if (hammerCooldownTimer <= 0.0f) {
             isHammerOnCooldown = false;
             hammerCooldownTimer = 0.0f;
-            TraceLog(LOG_INFO, "锤子冷却结束！可以再次使用");
         }
     }
     UpdateHammerSwing(GetFrameTime());// 先更新挥锤动画
@@ -834,12 +834,18 @@ void Player::Update(GameScene& scene) {
         if (landed) {
             position.y = groundY;
             velocityY = 0;
+
+            if (isJumping && wasInAir) {
+                justLanded = true;
+            }
+
             isJumping = false;
 
             if (moveX == 0) ChangeState(PlayerState::IDLE);
             else ChangeState(PlayerState::WALKING);
         }
         else {
+            if (isJumping) wasInAir = true;
             position.y = nextY;
         }
     }
@@ -860,21 +866,15 @@ void Player::Update(GameScene& scene) {
         int mapWidthTiles = GameScene::GetScreenWidth() / tileSize;
         if (checkRightTile >= mapWidthTiles) checkRightTile = mapWidthTiles - 1;
 
-        // Usar hitbox reducido (misma altura que GetHitbox)
-        float reducedHeight = (currentHeight * scale) * 0.5f;
-        float reducedTopY = position.y + currentOffsetY * scale + reducedHeight;  // Mitad inferior
-
-        int reducedTopTile = (int)(reducedTopY / tileSize);
-
         for (int tx = checkLeftTile; tx <= checkRightTile && !hitCeiling; tx++) {
-            for (int ty = nextHeadTileY - 1; ty <= reducedTopTile + 1; ty++) {
+            for (int ty = nextHeadTileY - 1; ty <= (int)(hitboxTopY / tileSize) + 1; ty++) {
                 if (ty < 0) continue;
 
                 if (scene.IsSolid(tx, ty)) {
                     int tileOffsetY = scene.GetVisualOffsetY(tx, ty);
                     float platformBottom = ty * tileSize + tileOffsetY + platformHitboxHeight;
 
-                    if (nextHeadY <= platformBottom && reducedTopY >= platformBottom - 5) {
+                    if (nextHeadY <= platformBottom && hitboxTopY >= platformBottom - 5) {
                         ceilingY = platformBottom - currentOffsetY * scale;
                         hitCeiling = true;
                         break;
@@ -985,7 +985,6 @@ void Player::UpdateStarMode() {
 void Player::AddScore(int points)
 {
     score += points;
-    TraceLog(LOG_INFO, "Score +%d! Total: %d", points, score);
 
     // 添加浮动文字 
     Vector2 textPos = GetFeetWorldPos();
@@ -1160,9 +1159,6 @@ void Player::Draw() {
 
     }
     // ========== 锤子绘制结束 ==========
-
-    Rectangle hb = GetHitbox();
-    DrawRectangleLines(hb.x, hb.y, hb.width, hb.height, RED);
 
     DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
         GameScene::GetScreenWidth() - 200, 50, 20, YELLOW);

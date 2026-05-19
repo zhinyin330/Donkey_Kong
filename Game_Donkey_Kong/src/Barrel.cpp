@@ -32,6 +32,8 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
 
     hasBeenJumped = false;
 
+    playerCollisionScale = 0.7f;
+
     LoadFrames();
 
      
@@ -332,6 +334,17 @@ void Barrel::Draw()
             WHITE
         );
     }
+
+    // DEBUG: Hitbox de física (verde)
+    DrawRectangleLines(
+        position.x, position.y,
+        GetWidth(), GetHeight(),
+        GREEN
+    );
+
+    // DEBUG: Hitbox de jugador (azul, más pequeño)
+    Rectangle playerHb = GetPlayerHitbox();
+    DrawRectangleLines(playerHb.x, playerHb.y, playerHb.width, playerHb.height, BLUE);
 }
 
 //  被攻击 
@@ -340,6 +353,5 @@ void Barrel::Hit()
     if (!isHit)
     {
         isHit = true;
-        TraceLog(LOG_INFO, "桶被锤子打中！");
     }
 }

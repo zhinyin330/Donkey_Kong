@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <vector>
 #include "GameScene.h"
+#include "Princess.h"
 
 class Scene : public GameScene {
 private:
@@ -22,15 +23,15 @@ private:
     Texture2D tileTexture;
     Texture2D ladderTexture;
     Texture2D barrelTexture;
-    Texture2D oilCanisterTexture;//tongtong
+    Texture2D oilCanisterTexture;
 
-    Music backgroundMusic;//背景音乐
-
+    Music backgroundMusic;
 
     Texture2D texHighScore;
     Texture2D texScore;
     Texture2D Level;
 
+    Princess princess; 
 
     static const int platformHitboxHeight = 8;
     static const int platformHitboxOffsetY = 8;
@@ -39,31 +40,20 @@ private:
         const std::vector<int>& visual,
         const std::vector<int>& hitboxes);
 
-    // Zona de transición
     Rectangle transitionZone;
     bool transitionReached;
 
-    //princesa
-    Texture2D princessTexture;
-    Vector2 princessPosition;
-    float princessScale;
-
-    //level
     int currentLevel = 1;
     int GetCurrentLevel() override { return currentLevel; }
     void SetCurrentLevel(int level) override { currentLevel = level; }
 
-// 🔵 纵向下落触发点（BlueBall）
-    struct VerticalDropTrigger
-    {
+    struct VerticalDropTrigger {
         float x;
         float y;
     };
 
-    // 触发点列表（地图级别，全局共享）
     std::vector<VerticalDropTrigger> verticalDropTriggers;
 
-    // 雨动画
     Texture2D rainTextures[4];
     int currentRainFrame;
     float rainTimer;
@@ -82,10 +72,10 @@ public:
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
     int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale; }
-    Vector2 GetPrincessPosition() override { return princessPosition; }
-    float GetPrincessScale() override { return princessScale; }
+    Vector2 GetPrincessPosition() override { return princess.GetPosition(); }
+    float GetPrincessScale() override { return princess.GetScale(); }
+    void UpdatePrincess(float deltaTime);
 
-    //Temporal
     Rectangle GetTransitionZone() override { return transitionZone; }
     bool IsTransitionReached() override { return transitionReached; }
     void SetTransitionReached(bool val) override { transitionReached = val; }

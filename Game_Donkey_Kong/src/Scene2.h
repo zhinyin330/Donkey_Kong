@@ -4,6 +4,8 @@
 #include "GameScene.h"
 #include "Player.h"
 #include "FireSprite.h"
+#include "Princess.h"
+
 class Player;
 
 class Scene2 : public GameScene {
@@ -44,9 +46,7 @@ private:
     std::vector<bool> buttonsScored;
 
     // princesa
-    Texture2D princessTexture;
-    Vector2 princessPosition;
-    float princessScale;
+    Princess princess;
 
     //donkey died
     bool dkFalling;
@@ -108,8 +108,9 @@ public:
     int GetTileSize() override { return tileSize * tileScale; }
     int GetPlatformHitboxHeight() override { return platformHitboxHeight * tileScale; }
     int GetPlatformHitboxOffsetY() override { return platformHitboxOffsetY * tileScale; }
-    Vector2 GetPrincessPosition() override { return princessPosition; }
-    float GetPrincessScale() override { return princessScale; }
+    Vector2 GetPrincessPosition() override { return princess.GetPosition(); }
+    float GetPrincessScale() override { return princess.GetScale(); }
+    void UpdatePrincess(float deltaTime);
     void CheckButtonCollision(Rectangle playerHitbox, Player* player);
     bool CheckNewPlatformCollision(Rectangle playerFeetHitbox, float& groundY) override;
     bool HasNewPlatforms() override { return newPlatformsVisible; }

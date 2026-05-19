@@ -10,6 +10,7 @@
 #include "PauseMenu.h"
 #include "GameOver.h"
 #include "LeaderBoard.h"
+#include "Princess.h"
 
 static GameScene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
@@ -194,6 +195,19 @@ void DrawGame(GameScreen* currentScreen)
         if (scene2) scene2->UpdateMusic();
     }
 
+    if (!isScene2) {
+        Scene* scene1 = dynamic_cast<Scene*>(gameScene);
+        if (scene1) {
+            scene1->UpdatePrincess(deltaTime);
+        }
+    }
+    if (isScene2) {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2) {
+            scene2->UpdatePrincess(deltaTime);
+        }
+    }
+
     // ========== CAÍDA DE DK (Scene2) ==========
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
@@ -367,33 +381,33 @@ void DrawGame(GameScreen* currentScreen)
         Rectangle playerHitbox = gamePlayer->GetHitbox();
         float playerFeetY = playerHitbox.y + playerHitbox.height;
 
-        for (auto& barrel : gameEnemy->GetBarrels()) {
-            if (!barrel.IsHit()) {
-                Rectangle barrelRect = {
-                    barrel.GetPosition().x, barrel.GetPosition().y,
-                    barrel.GetWidth(), barrel.GetHeight()
-                };
-
-                // Verificar si Mario saltó POR ENCIMA del barril (sin tocarlo)
-                if (gamePlayer->GetVelocityY() >= 0) {  // Cayendo
-                    // ¿El barril está debajo de Mario y sus pies pasaron por encima?
+        // Verificar si Mario acaba de aterrizar de un salto (saltó sobre barril)
+        if (gamePlayer->HasJustLanded()) {
+            TraceLog(LOG_INFO, "HasJustLanded TRUE, checking %d barrels...", (int)gameEnemy->GetBarrels().size());
+            for (auto& barrel : gameEnemy->GetBarrels()) {
+                if (!barrel.IsHit() && !barrel.HasBeenJumped()) {
+                    Rectangle barrelRect = barrel.GetPlayerHitbox();
                     float barrelTopY = barrel.GetPosition().y;
-                    float marioBottomY = gamePlayer->GetPosition().y + gamePlayer->GetTextureHeight() * gamePlayer->GetScale();
 
-                    // Barril pasó por debajo de Mario mientras saltaba
-                    if (playerHitbox.x < barrelRect.x + barrelRect.width &&
-                        playerHitbox.x + playerHitbox.width > barrelRect.x &&
-                        marioBottomY >= barrelTopY - 20 &&
-                        marioBottomY <= barrelTopY + 10 &&
-                        !barrel.HasBeenJumped()) {
+                    float distX = abs((playerHitbox.x + playerHitbox.width / 2) - (barrelRect.x + barrelRect.width / 2));
+                    float distY = abs(playerFeetY - barrelTopY);
 
+                    TraceLog(LOG_INFO, "  Barril: distX=%.1f, distY=%.1f, feetY=%.1f, barrelY=%.1f", distX, playerFeetY, barrelTopY);
+
+                    // Más generoso: 80 píxeles horizontal, 40 vertical
+                    if (distX < 80 && distY < 40) {
                         barrel.MarkAsJumped();
                         gamePlayer->AddScore(100);
-                        TraceLog(LOG_INFO, "Jumped over barrel! +100");
+                        TraceLog(LOG_INFO, "SALTADO! +100");
                     }
                 }
+            }
+        }
 
-                // Colisión normal
+        // Colisión normal (daño)
+        for (auto& barrel : gameEnemy->GetBarrels()) {
+            if (!barrel.IsHit()) {
+                Rectangle barrelRect = barrel.GetPlayerHitbox();
                 if (CheckCollisionRecs(playerHitbox, barrelRect)) {
                     barrel.Hit();
                     gamePlayer->LoseLife();

@@ -84,6 +84,9 @@ private:
     float dropTargetX;
     const VerticalDropTrigger* currentDropTrigger = nullptr;
 
+    //mario & barril
+    float playerCollisionScale;
+
 public:
     // 以下3个为新增
     Vector2 GetPosition() const { return position; }
@@ -112,4 +115,28 @@ public:
     bool hasBeenJumped;
     bool HasBeenJumped() const { return hasBeenJumped; }
     void MarkAsJumped() { hasBeenJumped = true; }
+
+    // Hitbox para colisión con el jugador (más pequeño)
+    Rectangle GetPlayerHitbox() const {
+        float w = GetWidth() * playerCollisionScale;
+        float h = GetHeight() * playerCollisionScale;
+        float offsetX = (GetWidth() - w) / 2.0f;
+        float offsetY = (GetHeight() - h) / 2.0f;
+        return {
+            position.x + offsetX,
+            position.y + offsetY,
+            w,
+            h
+        };
+    }
+
+    // Hitbox original para física (detección de triggers, suelo)
+    Rectangle GetPhysicsHitbox() const {
+        return {
+            position.x,
+            position.y,
+            GetWidth(),
+            GetHeight()
+        };
+    }
 };

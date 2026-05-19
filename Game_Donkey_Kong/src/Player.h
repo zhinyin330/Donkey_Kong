@@ -41,9 +41,9 @@ private:
     Texture2D deathEndTexture;
     std::vector<Texture2D> deathTextures;
     std::vector<Rectangle> jumpedBarrels;
-
- 
     std::vector<Texture2D> hammerSwingTextures; 
+
+
     bool hasHammer;
     bool isSwingingHammer;
     float swingHammerTimer;
@@ -85,6 +85,7 @@ private:
     bool isClimbing;
     float climbSpeed;
     bool exitingLadder;
+    bool wasInAir;
 
     static int lives;
     bool isDying;
@@ -181,14 +182,17 @@ public:
 
     // Hitbox para colisiones
     Rectangle GetHitbox() const {
-        float hitboxRatio = 0.5f;  // 50% inferior
-        float fullHeight = baseHitboxHeight * scale;
         return {
-            position.x,
-            position.y + baseHitboxOffsetY * scale + fullHeight * (1.0f - hitboxRatio),
-            currentTexture.width * scale,
-            fullHeight * hitboxRatio
+        position.x,
+        position.y + baseHitboxOffsetY * scale,
+        currentTexture.width * scale,
+        baseHitboxHeight * scale
         };
+    }
+    bool justLanded = false;
+    bool HasJustLanded() {
+        if (justLanded) { justLanded = false; return true; }
+        return false;
     }
 
     //vidas
