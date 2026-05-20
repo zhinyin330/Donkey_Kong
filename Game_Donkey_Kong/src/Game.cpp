@@ -358,7 +358,29 @@ void DrawGame(GameScreen* currentScreen)
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
 
-    // Ajustar frecuencia de barriles según nivel
+    // Detección salto sobre barril (antes de mover barriles)
+    if (!isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
+        Rectangle playerHitbox = gamePlayer->GetHitbox();
+        float playerFeetY = playerHitbox.y + playerHitbox.height;
+
+        if (gamePlayer->HasJustLanded()) {
+            for (auto& barrel : gameEnemy->GetBarrels()) {
+                if (!barrel.IsHit() && !barrel.HasBeenJumped()) {
+                    Rectangle barrelRect = barrel.GetPlayerHitbox();
+                    float barrelTopY = barrelRect.y;
+                    float distX = abs((playerHitbox.x + playerHitbox.width / 2) - (barrelRect.x + barrelRect.width / 2));
+                    float distY = abs(playerFeetY - barrelTopY);
+                    if (distX < 80 && distY < 40) {
+                        barrel.MarkAsJumped();
+                        gamePlayer->AddScore(100);
+                    }
+                }
+            }
+            gamePlayer->ClearJustLanded();
+        }
+    }
+
+    // frecuencia del nivel
     if (gameEnemy != nullptr) {
         float newSpeed = 1.0f / (1.0f + currentLevel * 0.3f);
         if (newSpeed < 0.2f) newSpeed = 0.2f;
@@ -369,12 +391,11 @@ void DrawGame(GameScreen* currentScreen)
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
 
-    // 桶碰油桶
+    // Barril choca con bidón de aceite
     Scene* scene1 = dynamic_cast<Scene*>(gameScene);
     if (scene1 != nullptr) {
         scene1->UpdateOilCanisters(deltaTime);
         std::vector<OilCanister>& cans = scene1->GetOilCanisters();
-
         for (auto& barrel : gameEnemy->GetBarrels()) {
             if (!barrel.IsHit()) {
                 Rectangle barrelRect = { barrel.GetPosition().x, barrel.GetPosition().y, barrel.GetWidth(), barrel.GetHeight() };
@@ -392,7 +413,7 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // Martillo
+    // Martillo recogido
     if (hammerActive && !hammerCollected && gamePlayer != nullptr) {
         Rectangle hammerHitbox = {
             hammerPosition.x, hammerPosition.y,
@@ -406,7 +427,7 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // Martillo golpea barriles
+    //  Martillo golpea barriles
     if (gamePlayer != nullptr && gamePlayer->IsSwingingHammer() && gameEnemy != nullptr) {
         Rectangle attackHitbox = gamePlayer->GetAttackHitbox();
         for (auto& barrel : gameEnemy->GetBarrels()) {
@@ -424,31 +445,10 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
-    // Colisiones Scene 1 (barriles + DK)
+    // Colisión daño (barriles + DK) — Scene 1
     if (!isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
         Rectangle playerHitbox = gamePlayer->GetHitbox();
-        float playerFeetY = playerHitbox.y + playerHitbox.height;
 
-        // Verificar si Mario acaba de aterrizar de un salto (saltó sobre barril)
-        if (gamePlayer->HasJustLanded()) {
-            for (auto& barrel : gameEnemy->GetBarrels()) {
-                if (!barrel.IsHit() && !barrel.HasBeenJumped()) {
-                    Rectangle barrelRect = barrel.GetPlayerHitbox();
-                    float barrelTopY = barrelRect.y;  // Usar el hitbox, no GetPosition()
-
-                    float distX = abs((playerHitbox.x + playerHitbox.width / 2) - (barrelRect.x + barrelRect.width / 2));
-                    float distY = abs(playerFeetY - barrelTopY);
-
-                    if (distX < 80 && distY < 40) {
-                        barrel.MarkAsJumped();
-                        gamePlayer->AddScore(100);
-                        gamePlayer->ClearJustLanded();
-                    }
-                }
-            }
-        }
-
-        // Colisión normal (daño)
         for (auto& barrel : gameEnemy->GetBarrels()) {
             if (!barrel.IsHit()) {
                 Rectangle barrelRect = barrel.GetPlayerHitbox();

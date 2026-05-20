@@ -169,7 +169,6 @@ public:
     void AddScore(int points);  
     int GetScore() const { return score; }  
     void ResetScore(); 
-    void ClearJustLanded() { justLanded = false; }
 
    
     void AddFloatingText(Vector2 worldPos, const std::string& text, int points);
@@ -190,11 +189,9 @@ public:
         baseHitboxHeight * scale
         };
     }
-    bool justLanded = false;
-    bool HasJustLanded() {
-        if (justLanded) { justLanded = false; return true; }
-        return false;
-    }
+    float justLandedTimer = 0.0f;
+    bool HasJustLanded() const { return justLandedTimer > 0.0f; }
+    void ClearJustLanded() { justLandedTimer = 0.0f; }
 
     //vidas
     void Respawn(int tileX, int tileY);

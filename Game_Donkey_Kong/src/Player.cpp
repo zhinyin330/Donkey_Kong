@@ -212,11 +212,13 @@ void Player::HandleInput(GameScene& scene) {
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
             isClimbing = true;
             moveY = -1;
+            position.x = (float)(tileX * 32) + (32 - currentTexture.width * scale) / 2.0f;
             ChangeState(PlayerState::CLIMBING);
         }
         else if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
             isClimbing = true;
             moveY = 1;
+            position.x = (float)(tileX * 32) + (32 - currentTexture.width * scale) / 2.0f;
             ChangeState(PlayerState::CLIMBING);
         }
         else if (currentState == PlayerState::CLIMBING) {
@@ -430,6 +432,10 @@ void Player::Update(GameScene& scene) {
             hammerCooldownTimer = 0.0f;
         }
     }
+
+    if (justLandedTimer > 0.0f)
+        justLandedTimer -= GetFrameTime();
+
     UpdateHammerSwing(GetFrameTime());// 先更新挥锤动画
     UpdateAnimation();
     UpdateStarMode();
@@ -482,15 +488,12 @@ void Player::Update(GameScene& scene) {
         }
         position.x += moveX * speed;
 
-        // Límites - USAR GameScene::GetScreenWidth/Height
         if (position.x < 0) position.x = 0;
-        if (position.x + currentTexture.width * scale > GameScene::GetScreenWidth()) {
+        if (position.x + currentTexture.width * scale > GameScene::GetScreenWidth())
             position.x = GameScene::GetScreenWidth() - currentTexture.width * scale;
-        }
         if (position.y < 0) position.y = 0;
-        if (position.y + currentTexture.height * scale > GameScene::GetScreenHeight()) {
+        if (position.y + currentTexture.height * scale > GameScene::GetScreenHeight())
             position.y = GameScene::GetScreenHeight() - currentTexture.height * scale;
-        }
 
         velocityY = 0;
         isJumping = false;
@@ -500,14 +503,31 @@ void Player::Update(GameScene& scene) {
         int feetY = (int)(position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale);
         int tileY = feetY / 32;
 
+        // ── SUBIENDO: parar solo cuando los pies toquen la plataforma destino ──
+        if (moveY < 0 && isClimbing) {
+            float platformVisualOffset = (float)scene.GetVisualOffsetY(tileX, tileY);
+            float platformTop = tileY * 32 + platformVisualOffset;
+            float marioFeetY = position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale;
+
+            if (scene.IsSolid(tileX, tileY) && marioFeetY <= platformTop + 6.0f) {
+                position.y = platformTop - (baseHitboxOffsetY + baseHitboxHeight) * scale;
+                ChangeState(PlayerState::CLIMBING_END);
+                isClimbing = false;
+                moveY = 0;
+                return;
+            }
+            // Mientras sube, ignorar canClimbHere si el tile de arriba es la plataforma destino
+            // (evita que pare a mitad de escalera)
+            return;
+        }
+
+        // ── BAJANDO o parado: comprobar si hay escalera bajo los pies ──
         int currentHitbox = scene.GetLadderHitbox(tileX, tileY);
         int bodyHitbox = scene.GetLadderHitbox(tileX, tileY - 1);
 
         bool canClimbHere = false;
 
-        if (currentHitbox == 1) {
-            canClimbHere = true;
-        }
+        if (currentHitbox == 1) canClimbHere = true;
         else if (currentHitbox == 2) {
             float localY = position.y + (baseHitboxOffsetY + baseHitboxHeight) * scale - (tileY * 32);
             if (localY >= 16) canClimbHere = true;
@@ -518,9 +538,7 @@ void Player::Update(GameScene& scene) {
         }
 
         if (!canClimbHere && bodyHitbox > 0) {
-            if (bodyHitbox == 1) {
-                canClimbHere = true;
-            }
+            if (bodyHitbox == 1) canClimbHere = true;
             else if (bodyHitbox == 2) {
                 float localY = position.y + (baseHitboxOffsetY + baseHitboxHeight / 2) * scale - ((tileY - 1) * 32);
                 if (localY >= 16) canClimbHere = true;
@@ -836,7 +854,8 @@ void Player::Update(GameScene& scene) {
             velocityY = 0;
 
             if (isJumping && wasInAir) {
-                justLanded = true;
+                justLandedTimer = 0.12f;   // ventana de 120ms
+                wasInAir = false;
             }
 
             isJumping = false;
@@ -1173,13 +1192,10 @@ void Player::Draw() {
         }
         else {
         DrawText("HAMMER: J", GameScene::GetScreenWidth() - 180, 70, 20, ORANGE);
+        }
     }
 
     DrawFloatingTexts();   // 绘制浮动文字 
-
-    //vida
     DrawText(TextFormat("VIDAS: %d", lives),
         GameScene::GetScreenWidth() - 785, 40, 20, RED);
-
-}
 }
