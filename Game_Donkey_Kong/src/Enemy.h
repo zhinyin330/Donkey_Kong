@@ -70,6 +70,7 @@ public:
     // ===== 动画控制 =====
     void UpdateAnimation();
     void ChangeState(EnemyState newState);
+    void SetFrameSpeed(float speed) { frameSpeed = speed; }
 
     void ClearBarrels() { barrels.clear(); }
     void SetBehavior(EnemyBehavior b) { behavior = b; }

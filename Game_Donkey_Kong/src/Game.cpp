@@ -34,7 +34,12 @@ static LeaderBoard* leaderBoard = nullptr;
 static bool gameInProgress = false;
 static Texture2D heartTexture = { 0 };
 static bool heartLoaded = false;
-
+static float lightningTimer = 0.0f;
+static float lightningNextTime = 0.0f;
+static float lightningDuration = 0.3f;
+static bool lightningActive = false;
+static float lightningFrequencyMin = 10.0f;
+static float lightningFrequencyMax = 20.0f;
 
 void InitGame()
 {
@@ -59,6 +64,14 @@ void InitGame()
     shouldReset = false;
     gameInProgress = true;
 
+    lightningTimer = 0.0f;
+    lightningNextTime = (float)GetRandomValue(10, 20);
+    lightningDuration = 0.3f;
+    lightningActive = false;
+    lightningFrequencyMin = 10.0f;
+    lightningFrequencyMax = 20.0f;
+    lightningNextTime = (float)GetRandomValue((int)lightningFrequencyMin, (int)lightningFrequencyMax);
+
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
     hammerCollected = false;
@@ -68,6 +81,7 @@ void InitGame()
         heartLoaded = true;
 
     }
+
 }
 
 void InitGameScene2()
@@ -93,6 +107,14 @@ void InitGameScene2()
     shouldReset = false;
     gameTransition = new Transition();
     gameInProgress = true;
+
+    lightningTimer = 0.0f;
+    lightningNextTime = (float)GetRandomValue(10, 15);
+    lightningDuration = 0.3f;
+    lightningActive = false;
+    lightningFrequencyMin = 10.0f;
+    lightningFrequencyMax = 20.0f;
+    lightningNextTime = (float)GetRandomValue((int)lightningFrequencyMin, (int)lightningFrequencyMax);
 
     hammerTexture = LoadTexture("items/Dk_Hammer_Up.png");
     hammerActive = true;
@@ -189,10 +211,27 @@ void DrawGame(GameScreen* currentScreen)
 
     // --- 2. UPDATE ---
     float deltaTime = GetFrameTime();
+    float barrelFrequency = 1.0f / (1.0f + currentLevel * 0.15f);  
+    float lightningFrequencyMin = 10.0f - currentLevel * 1.5f;    
+    float lightningFrequencyMax = 20.0f - currentLevel * 2.0f;     
 
-    if (isScene2) {
-        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
-        if (scene2) scene2->UpdateMusic();
+    if (lightningFrequencyMin < 3.0f) lightningFrequencyMin = 3.0f;
+    if (lightningFrequencyMax < 5.0f) lightningFrequencyMax = 5.0f;
+
+    if (lightningActive) {
+        lightningTimer += deltaTime;
+        if (lightningTimer >= lightningDuration) {
+            lightningActive = false;
+            lightningTimer = 0.0f;
+            lightningNextTime = (float)GetRandomValue((int)lightningFrequencyMin, (int)lightningFrequencyMax);
+        }
+    }
+    else {
+        lightningTimer += deltaTime;
+        if (lightningTimer >= lightningNextTime) {
+            lightningActive = true;
+            lightningTimer = 0.0f;
+        }
     }
 
     if (!isScene2) {
@@ -204,6 +243,7 @@ void DrawGame(GameScreen* currentScreen)
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
+            scene2->UpdateMusic();
             scene2->UpdatePrincess(deltaTime);
         }
     }
@@ -317,6 +357,14 @@ void DrawGame(GameScreen* currentScreen)
     // --- 6. UPDATES ---
     gamePlayer->HandleInput(*gameScene);
     gamePlayer->Update(*gameScene);
+
+    // Ajustar frecuencia de barriles según nivel
+    if (gameEnemy != nullptr) {
+        float newSpeed = 1.0f / (1.0f + currentLevel * 0.3f);
+        if (newSpeed < 0.2f) newSpeed = 0.2f;
+        gameEnemy->SetFrameSpeed(newSpeed);
+    }
+
     gameEnemy->Update(*gameScene);
     gameStars->Update(deltaTime, GameScene::GetScreenWidth());
     gameStars->CheckCollisionWithPlayer(gamePlayer);
@@ -383,22 +431,17 @@ void DrawGame(GameScreen* currentScreen)
 
         // Verificar si Mario acaba de aterrizar de un salto (saltó sobre barril)
         if (gamePlayer->HasJustLanded()) {
-            TraceLog(LOG_INFO, "HasJustLanded TRUE, checking %d barrels...", (int)gameEnemy->GetBarrels().size());
             for (auto& barrel : gameEnemy->GetBarrels()) {
                 if (!barrel.IsHit() && !barrel.HasBeenJumped()) {
                     Rectangle barrelRect = barrel.GetPlayerHitbox();
-                    float barrelTopY = barrel.GetPosition().y;
+                    float barrelTopY = barrelRect.y;  // Usar el hitbox, no GetPosition()
 
                     float distX = abs((playerHitbox.x + playerHitbox.width / 2) - (barrelRect.x + barrelRect.width / 2));
                     float distY = abs(playerFeetY - barrelTopY);
 
-                    TraceLog(LOG_INFO, "  Barril: distX=%.1f, distY=%.1f, feetY=%.1f, barrelY=%.1f", distX, playerFeetY, barrelTopY);
-
-                    // Más generoso: 80 píxeles horizontal, 40 vertical
                     if (distX < 80 && distY < 40) {
                         barrel.MarkAsJumped();
                         gamePlayer->AddScore(100);
-                        TraceLog(LOG_INFO, "SALTADO! +100");
                     }
                 }
             }
@@ -564,6 +607,10 @@ void DrawGame(GameScreen* currentScreen)
         for (int i = 0; i < lives; i++) {
             DrawTextureEx(heartTexture, { 15.0f + i * spacing, heartY }, 0.0f, heartScale, WHITE);
         }
+    }
+
+    if (lightningActive) {
+        DrawRectangle(0, 0, GameScene::GetScreenWidth(), GameScene::GetScreenHeight(), Fade(WHITE, 0.9f));
     }
 
     if (shouldReset) {

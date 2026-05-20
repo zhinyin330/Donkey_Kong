@@ -17,7 +17,7 @@ Princess::Princess() {
     showingHelp = false;
     helpTimer = 0.0f;
     helpDuration = 1.0f;   // HELP dura 1 segundo
-    helpChance = 1.0f;     // 30% de probabilidad
+    helpChance = 0.4f;     // probabilidad
     helpCheckInterval = 3.0f;  // Comprobar cada 3 segundos
 
     currentTextureWidth = (float)idle1Texture.width;
