@@ -169,6 +169,7 @@ public:
     void AddScore(int points);  
     int GetScore() const { return score; }  
     void ResetScore(); 
+    void ClearJustLanded() { justLanded = false; }
 
    
     void AddFloatingText(Vector2 worldPos, const std::string& text, int points);

@@ -442,6 +442,7 @@ void DrawGame(GameScreen* currentScreen)
                     if (distX < 80 && distY < 40) {
                         barrel.MarkAsJumped();
                         gamePlayer->AddScore(100);
+                        gamePlayer->ClearJustLanded();
                     }
                 }
             }
