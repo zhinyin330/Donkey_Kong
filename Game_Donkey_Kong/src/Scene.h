@@ -59,6 +59,9 @@ private:
     float rainTimer;
     float rainFrameSpeed;
 
+    float sceneTimer;
+    float sceneTimeLimit;
+
 public:
     Scene();
     ~Scene();
@@ -82,4 +85,8 @@ public:
 
     void UpdateOilCanisters(float deltaTime);
     std::vector<OilCanister>& GetOilCanisters() { return oilCanisters; }
+
+    void UpdateTimer(float deltaTime);
+    float GetTimeLeft() { return sceneTimeLimit - sceneTimer; }
+    void ResetTimer() { sceneTimer = 0.0f; }
 };

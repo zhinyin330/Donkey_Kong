@@ -94,6 +94,9 @@ private:
     float bombSpawnTimer;                // 距离下一次生成炸弹的时间
     float nextSpawnTime;                 // 随机生成的间隔目标（2-7秒）
 
+    float sceneTimer;
+    float sceneTimeLimit;
+
 public:
     Scene2();
     ~Scene2();
@@ -126,6 +129,9 @@ public:
     void DrawDkFalling();
     void TriggerDkLandSequence();
     bool CanDkHurt() { return dkCanHurt; }
+    void UpdateTimer(float deltaTime);
+    float GetTimeLeft() { return sceneTimeLimit - sceneTimer; }
+    void ResetTimer() { sceneTimer = 0.0f; }
 
     // Métodos de transición
     bool transitionReached = false;

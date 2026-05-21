@@ -33,6 +33,9 @@ Scene2::Scene2() {
     dkSequenceDone = false;
     sequenceTriggered = false;
     dkCanHurt = true;
+
+    sceneTimer = 0.0f;
+    sceneTimeLimit = 120.0f;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
 
@@ -505,6 +508,11 @@ void Scene2::AddLadder(int startY, int endY, int x,
         }
     }
 }
+
+void Scene2::UpdateTimer(float deltaTime) {
+    sceneTimer += deltaTime;
+}
+
 void Scene2::Update(float deltaTime, Player* player)
 {
     UpdateMusic();
@@ -776,6 +784,13 @@ void Scene2::Draw() {
     {
         fireEnemy->Draw();
     }
+
+    float timeLeft = sceneTimeLimit - sceneTimer;
+    if (timeLeft < 0) timeLeft = 0;
+    int minutes = (int)timeLeft / 60;
+    int seconds = (int)timeLeft % 60;
+    Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
+    DrawText(TextFormat("%02d:%02d", minutes, seconds), 650, 10, 30, timerColor);
 
 }
 void Scene2::UpdateMusic() {

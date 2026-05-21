@@ -40,6 +40,9 @@ static float lightningDuration = 0.3f;
 static bool lightningActive = false;
 static float lightningFrequencyMin = 10.0f;
 static float lightningFrequencyMax = 20.0f;
+static bool timeUp = false;
+static Texture2D deathOverlay = { 0 };
+static bool deathOverlayLoaded = false;
 
 void InitGame()
 {
@@ -79,9 +82,13 @@ void InitGame()
     if (!heartLoaded) {
         heartTexture = LoadTexture("items/heart.png");
         heartLoaded = true;
-
     }
 
+    timeUp = false;
+    if (!deathOverlayLoaded) {
+        deathOverlay = LoadTexture("VFX/Dk_Motion_Death.png");
+        deathOverlayLoaded = true;
+    }
 }
 
 void InitGameScene2()
@@ -120,6 +127,12 @@ void InitGameScene2()
     hammerActive = true;
     hammerCollected = false;
     hammerPosition = { 383.0f, 300.0f };
+
+    timeUp = false;
+    if (!deathOverlayLoaded) {
+        deathOverlay = LoadTexture("VFX/Dk_Motion_Death.png");
+        deathOverlayLoaded = true;
+    }
 }
 
 void InitLeaderBoard() {
@@ -211,6 +224,7 @@ void DrawGame(GameScreen* currentScreen)
 
     // --- 2. UPDATE ---
     float deltaTime = GetFrameTime();
+
     float barrelFrequency = 1.0f / (1.0f + currentLevel * 0.15f);  
     float lightningFrequencyMin = 10.0f - currentLevel * 1.5f;    
     float lightningFrequencyMax = 20.0f - currentLevel * 2.0f;     
@@ -226,7 +240,7 @@ void DrawGame(GameScreen* currentScreen)
             lightningNextTime = (float)GetRandomValue((int)lightningFrequencyMin, (int)lightningFrequencyMax);
         }
     }
-    else {
+    else { 
         lightningTimer += deltaTime;
         if (lightningTimer >= lightningNextTime) {
             lightningActive = true;
@@ -239,7 +253,7 @@ void DrawGame(GameScreen* currentScreen)
         if (scene1) {
             scene1->UpdatePrincess(deltaTime);
         }
-    }
+    }q
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
@@ -315,7 +329,28 @@ void DrawGame(GameScreen* currentScreen)
                 pauseMenu->Hide();
             }
         }
-        return;
+        return;  // El return evita que se ejecute el código de abajo
+    }
+
+    // Actualizar timer (solo si NO está en pausa)
+    if (!isScene2) {
+        Scene* scene1 = dynamic_cast<Scene*>(gameScene);
+        if (scene1) scene1->UpdateTimer(deltaTime);
+    }
+    else {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2) scene2->UpdateTimer(deltaTime);
+    }
+
+    // Obtener tiempo restante
+    float timeLeft = 120.0f;
+    if (!isScene2) {
+        Scene* scene1 = dynamic_cast<Scene*>(gameScene);
+        if (scene1) timeLeft = scene1->GetTimeLeft();
+    }
+    else {
+        Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+        if (scene2) timeLeft = scene2->GetTimeLeft();
     }
 
     // --- 5. MUERTE DE MARIO ---
@@ -614,6 +649,27 @@ void DrawGame(GameScreen* currentScreen)
         DrawRectangle(0, 0, GameScene::GetScreenWidth(), GameScene::GetScreenHeight(), Fade(WHITE, 0.9f));
     }
 
+ 
+
+    if (timeLeft <= 10.0f && deathOverlay.id != 0) {
+        float alpha;
+        if (timeLeft > 1.0f) {
+            alpha = 0.1f + (10.0f - timeLeft) / 9.0f * 0.5f;
+        }
+        else if (timeLeft > 0.0f) {
+            alpha = 0.6f + (1.0f - timeLeft) * 0.4f;
+        }
+        else {
+            alpha = 1.0f;
+        }
+
+        DrawRectangle(0, 0, GameScene::GetScreenWidth(), GameScene::GetScreenHeight(), Fade(BLACK, alpha * 0.5f));
+        DrawTexturePro(deathOverlay,
+            { 0, 0, (float)deathOverlay.width, (float)deathOverlay.height },
+            { 0, 0, (float)GameScene::GetScreenWidth(), (float)GameScene::GetScreenHeight() },
+            { 0, 0 }, 0.0f, Fade(WHITE, alpha));
+    }
+
     if (shouldReset) {
         CleanupGame();
         shouldReset = false;
@@ -666,6 +722,10 @@ void UnloadGame()
     if (heartLoaded) {
         UnloadTexture(heartTexture);
         heartLoaded = false;
+    }
+    if (deathOverlayLoaded) {
+        UnloadTexture(deathOverlay);
+        deathOverlayLoaded = false;
     }
 }
 

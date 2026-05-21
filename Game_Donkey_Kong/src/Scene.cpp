@@ -55,6 +55,9 @@ Scene::Scene() {
     // 动画速度
     rainFrameSpeed = 0.2f;
 
+    sceneTimer = 0.0f;
+    sceneTimeLimit = 120.0f;
+
     // ========== PRINCESA ==========
     princess.SetPosition(10 * 32, 3 * 32 - 32 * 2.2f + 24);
 
@@ -271,6 +274,10 @@ void Scene::AddLadder(int startY, int endY, int x,
 
 void Scene::UpdatePrincess(float deltaTime) {
     princess.Update(deltaTime);
+}
+
+void Scene::UpdateTimer(float deltaTime) {
+    sceneTimer += deltaTime;
 }
 
 bool Scene::IsSolid(int x, int y) {
@@ -497,9 +504,14 @@ void Scene::Draw() {
         WHITE
     );
 
-
-
     // Dibujar UI
+
+    float timeLeft = sceneTimeLimit - sceneTimer;
+    if (timeLeft < 0) timeLeft = 0;
+    int minutes = (int)timeLeft / 60;
+    int seconds = (int)timeLeft % 60;
+    Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
+    DrawText(TextFormat("%02d:%02d", minutes, seconds), 650, 10, 30, timerColor);
 
     DrawTextureEx(texHighScore, { 300, 8 }, 0.0f, 2.0f, WHITE);
     DrawTextureEx(Level, { 640, 30 }, 0.0f, 2.0f, WHITE);
