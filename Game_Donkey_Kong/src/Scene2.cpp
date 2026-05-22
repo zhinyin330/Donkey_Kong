@@ -38,6 +38,10 @@ Scene2::Scene2() {
     sceneTimeLimit = 120.0f;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
+    // ========== 新增：加载爆炸音效 ==========
+    bombExplosionSound = LoadSound("audio/baozha.mp3");
+    SetSoundVolume(bombExplosionSound, 0.5f);  // 音量50%
+    bombSoundLoaded = true;
 
     //新增：加载炸弹资源与初始化计时器
     // 加载 Bomb1.png 到 Bomb6.png
@@ -188,6 +192,10 @@ Scene2::~Scene2() {
         UnloadTexture(tex);
     }
     delete fireEnemy;
+    if (bombSoundLoaded) {
+        UnloadSound(bombExplosionSound);
+        bombSoundLoaded = false;
+    }
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
     float buttonScale = 2.0f;
@@ -583,7 +591,9 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
             bomb.stage = 1;       // 直接进入爆炸阶段
             bomb.currentFrame = 3;
             bomb.frameTimer = 0.0f;
-
+            if (bombSoundLoaded) {
+                PlaySound(bombExplosionSound);
+            }
         }
         // 计算中心距离
         Vector2 bombCenter = { bomb.position.x + 16, bomb.position.y + 16 };
@@ -614,6 +624,9 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
                         if (bomb.loopCount >= maxLoops) {
                             bomb.stage = 1;      // 进入爆炸阶段
                             bomb.currentFrame = 3; // 跳到爆炸起始帧
+                            if (bombSoundLoaded) {
+                                PlaySound(bombExplosionSound);
+                            }
                         }
                     }
                 }
