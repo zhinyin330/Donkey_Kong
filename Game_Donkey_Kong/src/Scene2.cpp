@@ -71,6 +71,11 @@ Scene2::Scene2() {
     ladderLevel.resize(mapHeight, std::vector<int>(mapWidth, 0));
     ladderHitbox.resize(mapHeight, std::vector<int>(mapWidth, 0));
 
+    sceneTimer = 0.0f;
+    sceneTimeLimit = 120.0f;
+    timeTexture = LoadTexture("UI/Dk_tiempo.png");
+    timeScale = 1.0f;
+
     // ========== PLATAFORMAS SIMPLES ==========
 
     // Suelo (Y=21)
@@ -718,7 +723,7 @@ void Scene2::UpdatePrincess(float deltaTime) {
 
 void Scene2::Draw() {
     int scaledTileSize = tileSize * tileScale;
-    int offsetY = platformHitboxOffsetY * tileScale;;
+    int offsetY = platformHitboxOffsetY * tileScale;
     int visualHeight = 16;
 
     // ===== 更新雨动画 =====
@@ -844,6 +849,40 @@ void Scene2::Draw() {
             DrawTextureEx(bombTextures[bomb.currentFrame], bomb.position, 0.0f, 2.0f, WHITE);
         }
     }
+    // Reloj con sprites
+    float timeLeft = sceneTimeLimit - sceneTimer;
+    if (timeLeft < 0) timeLeft = 0;
+
+    int spriteIndex = 11 - (int)(timeLeft / 10.0f);
+    if (spriteIndex < 0) spriteIndex = 0;
+    if (spriteIndex > 11) spriteIndex = 11;
+
+    int col = spriteIndex % 6;
+    int row = spriteIndex / 6;
+
+    float spriteW = 200.0f / 6.0f;   // ~33.33 px cada reloj
+    float spriteH = 75.0f / 2.0f;    // ~37.5 px cada reloj
+
+    Rectangle sourceRec = {
+        col * spriteW,
+        row * spriteH,
+        spriteW,
+        spriteH
+    };
+    float scale = 1.5f;  // Cambia este valor
+    Rectangle destRec = { 663, 5, spriteW * scale, spriteH * scale };
+    DrawTexturePro(timeTexture, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
+    // Texto del tiempo a la derecha del reloj
+    int secondsLeft = (int)timeLeft;
+    int minutes = secondsLeft / 60;
+    int secs = secondsLeft % 60;
+    Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
+    DrawText(TextFormat("%02d:%02d", minutes, secs),
+        destRec.x + destRec.width + 5,  // A la derecha del reloj
+        destRec.y + destRec.height / 2 - 8,  // Centrado verticalmente
+        25, timerColor);
+
+
     // 绘制火焰敌人
     if (fireEnemy != nullptr)
     {
@@ -869,15 +908,6 @@ void Scene2::Draw() {
         0.0f,
         WHITE
     );
-
-    float timeLeft = sceneTimeLimit - sceneTimer;
-    if (timeLeft < 0) timeLeft = 0;
-    int minutes = (int)timeLeft / 60;
-    int seconds = (int)timeLeft % 60;
-    Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
-    DrawText(TextFormat("%02d:%02d", minutes, seconds), 650, 10, 30, timerColor);
-
-        
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);

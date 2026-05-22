@@ -100,13 +100,16 @@ private:
     float bombSpawnTimer;                // 距离下一次生成炸弹的时间
     float nextSpawnTime;                 // 随机生成的间隔目标（2-7秒）
 
-    float sceneTimer;
-    float sceneTimeLimit;
-
     Texture2D snowTextures[6];
     int currentSnowFrame;
     float snowTimer;
     float snowFrameSpeed;
+
+    float sceneTimer;
+    float sceneTimeLimit;
+    Texture2D timeTexture;
+    Rectangle timeSourceRec;
+    float timeScale;
 
 
 public:
@@ -160,4 +163,5 @@ public:
     // 火焰敌人
     FireSprite* fireEnemy;
     void Update(float deltaTime, Player* player);
+
 };

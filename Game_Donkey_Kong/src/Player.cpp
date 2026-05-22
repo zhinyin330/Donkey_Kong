@@ -1173,7 +1173,7 @@ void Player::Draw() {
    // ========== INDICADORES (estrellas + martillo) ==========
     float iconScale = 1.9f;
     float rightX = GameScene::GetScreenWidth() - 120;
-    float iconY = 60;
+    float iconY = 100;
 
     // Estrellas
     Rectangle starDst = { rightX, iconY, starIconTexture.width * iconScale, starIconTexture.height * iconScale };
