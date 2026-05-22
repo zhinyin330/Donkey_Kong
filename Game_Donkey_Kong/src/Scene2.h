@@ -44,6 +44,9 @@ private:
     bool item3Active;
     std::vector<bool> buttonsActive;
     std::vector<bool> buttonsScored;
+    //baozha.audio
+    Sound bombExplosionSound; 
+    bool bombSoundLoaded;
 
     // princesa
     Princess princess;
