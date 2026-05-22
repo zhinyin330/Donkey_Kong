@@ -47,6 +47,9 @@ private:
     //baozha.audio
     Sound bombExplosionSound; 
     bool bombSoundLoaded;
+//happy eding
+    Sound dkFallSound;       
+    bool dkFallSoundLoaded = false;
 
     // princesa
     Princess princess;
