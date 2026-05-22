@@ -52,7 +52,7 @@ Scene2::Scene2() {
     sceneTimeLimit = 120.0f;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
-    // ========== 新增：加载爆炸音效 ==========
+    //加载爆炸音效
     bombExplosionSound = LoadSound("audio/baozha.mp3");
     SetSoundVolume(bombExplosionSound, 0.5f);  // 音量50%
     bombSoundLoaded = true;
@@ -185,6 +185,13 @@ Scene2::Scene2() {
     fireEnemy = new FireSprite(fireSpawnPos);
     fireEnemy->SetRange(50.0f, 750.0f);
 
+    // ========== 新增：加载音效 ==========
+    dkFallSound = LoadSound("audio/A_Happy_Ending.mp3");
+    dkFallSoundLoaded = dkFallSound.frameCount != 0;
+    if (dkFallSoundLoaded) {
+        SetSoundVolume(dkFallSound, 1.0f);
+    }
+
 }
 
 Scene2::~Scene2() {
@@ -201,7 +208,10 @@ Scene2::~Scene2() {
     for (auto& tex : dkFallFrames) {
         UnloadTexture(tex);
     }
-
+    if (dkFallSoundLoaded) {
+        UnloadSound(dkFallSound);
+        dkFallSoundLoaded = false;
+    }
     //卸载炸弹贴图
     for (auto& tex : bombTextures) {
         UnloadTexture(tex);
@@ -259,6 +269,15 @@ void Scene2::CheckPlatformsStatus() {
 
     if (allButtonsPressed) {
         sequenceTriggered = true;
+        // ========== 播放音效（添加调试输出） ==========
+        if (dkFallSoundLoaded) {
+            TraceLog(LOG_INFO, "Playing DK fall sound NOW!");
+            PlaySound(dkFallSound);
+        }
+        else {
+            TraceLog(LOG_WARNING, "DK fall sound not loaded, cannot play");
+        }
+
         for (int x = 9; x <= 15; x++) {
             hitboxLevel[18][x] = 0;
             level[18][x] = 0;
@@ -287,6 +306,9 @@ void Scene2::CheckPlatformsStatus() {
 
         newPlatformsVisible = true;
         newPlatforms.clear();
+        if (dkFallSoundLoaded) {
+            PlaySound(dkFallSound);
+        }
 
         // X: 10*32=320, ancho: 5*32=160
         float platX = 305;

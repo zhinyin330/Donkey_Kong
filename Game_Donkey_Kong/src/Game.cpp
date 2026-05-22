@@ -44,6 +44,8 @@ static bool timeUp = false;
 static Texture2D deathOverlay = { 0 };
 static bool deathOverlayLoaded = false;
 static Sound lightningSound = { 0 };
+static Sound deadSound = { 0 };        // 死亡音效
+static bool deadSoundLoaded = false;   
 void InitGame()
 {
     CleanupGame();
@@ -56,6 +58,16 @@ void InitGame()
     gameTransition = new Transition();
     pauseMenu = new PauseMenu();
     gameOver = new GameOver();
+    static bool deadSoundPlayed = false;
+    deadSoundPlayed = false;
+
+    if (!deadSoundLoaded) {
+        deadSound = LoadSound("audio/Dead.mp3");
+        SetSoundVolume(deadSound, 1.0f);
+        deadSoundLoaded = true;
+    }
+
+    gameScene = new Scene();
 
     for (int i = 0; i < totalStars; i++) {
         gamePlayer->AddStar();
@@ -136,6 +148,12 @@ void InitGameScene2()
     hammerActive = true;
     hammerCollected = false;
     hammerPosition = { 383.0f, 300.0f };
+
+    if (!deadSoundLoaded) {
+        deadSound = LoadSound("audio/Dead.mp3");
+        SetSoundVolume(deadSound, 0.6f);
+        deadSoundLoaded = true;
+    }
 
     timeUp = false;
     if (!deathOverlayLoaded) {
@@ -400,6 +418,11 @@ void DrawGame(GameScreen* currentScreen)
             // Al terminar la animación, comprobar si murió
             if (gamePlayer->IsDead()) {
                 *currentScreen = GAME_OVER;
+                static bool deadSoundPlayed = false;  // 防止重复播放
+                if (!deadSoundPlayed && deadSoundLoaded) {
+                    PlaySound(deadSound);
+                    deadSoundPlayed = true;
+                }
                 if (gameOver != nullptr) gameOver->Show();
             }
             else {
@@ -753,12 +776,15 @@ void UnloadGame()
         UnloadTexture(deathOverlay);
         deathOverlayLoaded = false;
     }
-    // ========== 新增：卸载闪电音效 ==========
     UnloadSound(lightningSound);
 
     if (heartLoaded) {
         UnloadTexture(heartTexture);
         heartLoaded = false;
+    }
+    if (deadSoundLoaded) {
+        UnloadSound(deadSound);
+        deadSoundLoaded = false;
     }
 }
 
