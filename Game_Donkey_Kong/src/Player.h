@@ -42,6 +42,8 @@ private:
     std::vector<Texture2D> deathTextures;
     std::vector<Rectangle> jumpedBarrels;
     std::vector<Texture2D> hammerSwingTextures; 
+    Texture2D starIconTexture;
+    Texture2D hammerIconTexture;
 
 
     bool hasHammer;
@@ -121,6 +123,7 @@ private:
     float hammerCooldownDuration;  
     bool isHammerOnCooldown;    
  
+    float displayTimeLeft = 120.0f;
 
     int score; 
     
@@ -208,5 +211,7 @@ public:
     bool IsSwingingHammer() const { return isSwingingHammer; }
     void UpdateHammerSwing(float deltaTime);
     Rectangle GetAttackHitbox() const;
+
+    void SetTimeLeft(float t) { displayTimeLeft = t; }
   
 };

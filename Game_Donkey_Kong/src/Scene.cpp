@@ -22,6 +22,7 @@ Scene::Scene() {
 
     texHighScore = LoadTexture("UI/Dk_UI_HighScore.png");
     Level = LoadTexture("UI/Dk_UI_CurrentLevel.png");
+    starIcon = LoadTexture("Items/New_Dk_star1.png");
 
     // 初始化油桶（位置根据你的地图调整）
     OilCanister c1;                           // 声明一个油桶变量
@@ -233,6 +234,7 @@ Scene::~Scene() {
     UnloadTexture(Level);
     UnloadTexture(texHighScore);
     UnloadTexture(timeTexture);
+    UnloadTexture(starIcon);
 
 }
 
@@ -529,13 +531,18 @@ void Scene::Draw() {
         spriteW,
         spriteH
     };
-
     float scale = 1.5f;  // Cambia este valor
-    Rectangle destRec = { 600, 5, spriteW * scale, spriteH * scale };
-
+    Rectangle destRec = { 663, 5, spriteW * scale, spriteH * scale };
     DrawTexturePro(timeTexture, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
-
-
+    // Texto del tiempo a la derecha del reloj
+    int secondsLeft = (int)timeLeft;
+    int minutes = secondsLeft / 60;
+    int secs = secondsLeft % 60;
+    Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
+    DrawText(TextFormat("%02d:%02d", minutes, secs),
+        destRec.x + destRec.width + 5,  // A la derecha del reloj
+        destRec.y + destRec.height / 2 - 8,  // Centrado verticalmente
+        25, timerColor);
 
     // 绘制火焰
     for (int i = 0; i < (int)oilCanisters.size(); i++) {

@@ -30,6 +30,7 @@ private:
     Texture2D texHighScore;
     Texture2D texScore;
     Texture2D Level;
+    Texture2D starIcon;
 
     Princess princess; 
 

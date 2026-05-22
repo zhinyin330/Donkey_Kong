@@ -365,6 +365,8 @@ void DrawGame(GameScreen* currentScreen)
         if (scene2) timeLeft = scene2->GetTimeLeft();
     }
 
+    gamePlayer->SetTimeLeft(timeLeft);
+
     // Últimos 10 segundos: parar rayos
     if (timeLeft <= 10.0f) {
         lightningActive = false;

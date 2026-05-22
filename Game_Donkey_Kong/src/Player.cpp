@@ -42,6 +42,8 @@ Player::Player() {
     hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Up.png"));
     hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Right.png"));
 
+    starIconTexture = LoadTexture("Items/New_Dk_star1.png");
+    hammerIconTexture = LoadTexture("Items/Dk_Hammer_Up.png");
 
     // 初始化变量
     hasHammer = false;
@@ -138,6 +140,8 @@ Player::~Player() {
     for (Texture2D& tex : hammerSwingTextures) UnloadTexture(tex);
     for (Texture2D& tex : deathTextures) UnloadTexture(tex);
     UnloadTexture(deathEndTexture);
+    UnloadTexture(starIconTexture);
+    UnloadTexture(hammerIconTexture);
 }
 
 void Player::HandleInput(GameScene& scene) {
@@ -1166,20 +1170,34 @@ void Player::Draw() {
     }
     // ========== 锤子绘制结束 ==========
 
-    DrawText(TextFormat("Estrellas: %d/%d", starCount, maxStars),
-        GameScene::GetScreenWidth() - 200, 50, 20, YELLOW);
+   // ========== INDICADORES (estrellas + martillo) ==========
+    float iconScale = 1.9f;
+    float rightX = GameScene::GetScreenWidth() - 120;
+    float iconY = 60;
 
-    // 显示锤子提示
+    // Estrellas
+    Rectangle starDst = { rightX, iconY, starIconTexture.width * iconScale, starIconTexture.height * iconScale };
+    DrawTexturePro(starIconTexture, { 0, 0, (float)starIconTexture.width, (float)starIconTexture.height }, starDst, { 0, 0 }, 0.0f, WHITE);
+    DrawText(TextFormat("%d/%d", starCount, maxStars), starDst.x + starDst.width + 8, starDst.y + 5, 20, YELLOW);
+
+    iconY += starDst.height + 3;
+
+    // Martillo
+    Rectangle hammerDst = { rightX, iconY, hammerIconTexture.width * iconScale, hammerIconTexture.height * iconScale };
+    DrawTexturePro(hammerIconTexture, { 0, 0, (float)hammerIconTexture.width, (float)hammerIconTexture.height }, hammerDst, { 0, 0 }, 0.0f, WHITE);
+
+    float textY = hammerDst.y + hammerDst.height / 2 - 5;  // Centrado verticalmente
+
     if (hasHammer) {
         if (isHammerOnCooldown) {
-            // 冷却中显示灰色提示
-            char cooldownText[50];
-            sprintf(cooldownText, "HAMMER: %.1fs", hammerCooldownTimer);
-            DrawText(cooldownText, GameScene::GetScreenWidth() - 180, 70, 20, GRAY);
+            DrawText(TextFormat("%.1fs", hammerCooldownTimer), hammerDst.x + hammerDst.width + 8, textY, 20, GRAY);
         }
         else {
-        DrawText("HAMMER: J", GameScene::GetScreenWidth() - 180, 70, 20, ORANGE);
+            DrawText("READY", hammerDst.x + hammerDst.width + 8, textY, 20, ORANGE);
         }
+    }
+    else {
+        DrawText("NO", hammerDst.x + hammerDst.width + 8, textY, 20, GRAY);
     }
 
     DrawFloatingTexts();   // 绘制浮动文字 
