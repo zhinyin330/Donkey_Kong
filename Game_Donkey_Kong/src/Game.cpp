@@ -63,7 +63,7 @@ void InitGame()
 
     if (!deadSoundLoaded) {
         deadSound = LoadSound("audio/Dead.mp3");
-        SetSoundVolume(deadSound, 0.6f);
+        SetSoundVolume(deadSound, 1.0f);
         deadSoundLoaded = true;
     }
 
