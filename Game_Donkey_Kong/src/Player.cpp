@@ -42,6 +42,7 @@ Player::Player() {
     hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Up.png"));
     hammerSwingTextures.push_back(LoadTexture("Items/Dk_Hammer_Right.png"));
 
+
     // 初始化变量
     hasHammer = false;
     isSwingingHammer = false;
@@ -1182,7 +1183,4 @@ void Player::Draw() {
     }
 
     DrawFloatingTexts();   // 绘制浮动文字 
-
-    DrawText(TextFormat("VIDAS: %d", lives),
-        GameScene::GetScreenWidth() - 785, 40, 20, RED);
 }
