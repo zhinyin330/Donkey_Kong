@@ -34,6 +34,20 @@ Scene2::Scene2() {
     sequenceTriggered = false;
     dkCanHurt = true;
 
+    // ===== 雨动画 =====
+    snowTextures[0] = LoadTexture("UI/Nieve1.png");
+    snowTextures[1] = LoadTexture("UI/Nieve2.png");
+    snowTextures[2] = LoadTexture("UI/Nieve3.png");
+    snowTextures[3] = LoadTexture("UI/Nieve4.png");
+    snowTextures[4] = LoadTexture("UI/Nieve5.png");
+    snowTextures[5] = LoadTexture("UI/Nieve6.png");
+
+    currentSnowFrame = 0;
+    snowTimer = 0.0f;
+
+    // 动画速度
+    snowFrameSpeed = 0.2f;
+
     sceneTimer = 0.0f;
     sceneTimeLimit = 120.0f;
    
@@ -196,6 +210,10 @@ Scene2::~Scene2() {
     if (bombSoundLoaded) {
         UnloadSound(bombExplosionSound);
         bombSoundLoaded = false;
+    }
+
+    for (int i = 0; i < 6; i++) {
+        UnloadTexture(snowTextures[i]);
     }
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
@@ -681,8 +699,19 @@ void Scene2::Draw() {
     int offsetY = platformHitboxOffsetY * tileScale;;
     int visualHeight = 16;
 
+    // ===== 更新雨动画 =====
+    snowTimer += GetFrameTime();
 
-    // ========== 1. PILARES (DETRÁS DE TODO) ==========
+    if (snowTimer >= snowFrameSpeed) {
+        snowTimer = 0.0f;
+        currentSnowFrame++;
+
+        if (currentSnowFrame >= 6) {
+            currentSnowFrame = 0;
+        }
+    }
+
+    // PILARES (DETRÁS DE TODO)
     float pillarScale = 2.0f;
     for (auto& pillar : pillars) {
         DrawTextureEx(pillarTexture, pillar, 0.0f, pillarScale, WHITE);
@@ -798,6 +827,26 @@ void Scene2::Draw() {
     {
         fireEnemy->Draw();
     }
+
+    // ===== 绘制雪 =====
+    DrawTexturePro(
+        snowTextures[currentSnowFrame],
+        Rectangle{
+            0,
+            0,
+            (float)snowTextures[currentSnowFrame].width,
+            (float)snowTextures[currentSnowFrame].height
+        },
+        Rectangle{
+            0,
+            0,
+            (float)GetScreenWidth(),
+            (float)GetScreenHeight()
+        },
+        Vector2{ 0, 0 },
+        0.0f,
+        WHITE
+    );
 
     float timeLeft = sceneTimeLimit - sceneTimer;
     if (timeLeft < 0) timeLeft = 0;
