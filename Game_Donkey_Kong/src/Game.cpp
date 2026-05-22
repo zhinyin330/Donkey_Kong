@@ -253,7 +253,7 @@ void DrawGame(GameScreen* currentScreen)
         if (scene1) {
             scene1->UpdatePrincess(deltaTime);
         }
-    }q
+    }
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
@@ -351,6 +351,20 @@ void DrawGame(GameScreen* currentScreen)
     else {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) timeLeft = scene2->GetTimeLeft();
+    }
+
+    // Últimos 10 segundos: parar rayos
+    if (timeLeft <= 10.0f) {
+        lightningActive = false;
+    }
+
+    // Tiempo agotado
+    if (timeLeft <= 0.0f && !timeUp) {
+        timeUp = true;
+        while (gamePlayer->GetLives() > 0) {
+            gamePlayer->LoseLife();
+        }
+        gamePlayer->StartDeath();
     }
 
     // --- 5. MUERTE DE MARIO ---

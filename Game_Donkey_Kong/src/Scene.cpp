@@ -57,6 +57,8 @@ Scene::Scene() {
 
     sceneTimer = 0.0f;
     sceneTimeLimit = 120.0f;
+    timeTexture = LoadTexture("UI/Dk_tiempo.png");
+    timeScale = 1.0f;
 
     // ========== PRINCESA ==========
     princess.SetPosition(10 * 32, 3 * 32 - 32 * 2.2f + 24);
@@ -230,6 +232,7 @@ Scene::~Scene() {
 
     UnloadTexture(Level);
     UnloadTexture(texHighScore);
+    UnloadTexture(timeTexture);
 
 }
 
@@ -354,7 +357,7 @@ void Scene::Draw() {
         float worldBottomX = mapWidth * tileSize * tileScale;
         float yPos = worldBottomY - oilCanisterTexture.height * oilScale + yOffset;
         float xPos = worldBottomX - oilCanisterTexture.height * oilScale + xOffset;
-        DrawTextureEx(oilCanisterTexture, Vector2{ xPos, yPos }, -0.2f, oilScale, WHITE);
+        DrawTextureEx(oilCanisterTexture, Vector2{ xPos, yPos }, 0.0f, oilScale, WHITE);
     }
 
     
@@ -506,15 +509,34 @@ void Scene::Draw() {
 
     // Dibujar UI
 
+    // Reloj con sprites
     float timeLeft = sceneTimeLimit - sceneTimer;
     if (timeLeft < 0) timeLeft = 0;
-    int minutes = (int)timeLeft / 60;
-    int seconds = (int)timeLeft % 60;
-    Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
-    DrawText(TextFormat("%02d:%02d", minutes, seconds), 650, 10, 30, timerColor);
 
-    DrawTextureEx(texHighScore, { 300, 8 }, 0.0f, 2.0f, WHITE);
-    DrawTextureEx(Level, { 640, 30 }, 0.0f, 2.0f, WHITE);
+    int spriteIndex = 11 - (int)(timeLeft / 10.0f);
+    if (spriteIndex < 0) spriteIndex = 0;
+    if (spriteIndex > 11) spriteIndex = 11;
+
+    int col = spriteIndex % 6;
+    int row = spriteIndex / 6;
+
+    float spriteW = 200.0f / 6.0f;   // ~33.33 px cada reloj
+    float spriteH = 75.0f / 2.0f;    // ~37.5 px cada reloj
+
+    Rectangle sourceRec = {
+        col * spriteW,
+        row * spriteH,
+        spriteW,
+        spriteH
+    };
+
+    float scale = 1.5f;  // Cambia este valor
+    Rectangle destRec = { 600, 5, spriteW * scale, spriteH * scale };
+
+    DrawTexturePro(timeTexture, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
+
+
+
     // 绘制火焰
     for (int i = 0; i < (int)oilCanisters.size(); i++) {
         if (oilCanisters[i].isBurning && oilCanisters[i].currentFrame < 4) {

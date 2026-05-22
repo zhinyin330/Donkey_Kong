@@ -61,6 +61,9 @@ private:
 
     float sceneTimer;
     float sceneTimeLimit;
+    Texture2D timeTexture;
+    Rectangle timeSourceRec;
+    float timeScale;
 
 public:
     Scene();
