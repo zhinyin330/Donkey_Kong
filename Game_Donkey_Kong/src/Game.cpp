@@ -253,12 +253,14 @@ void DrawGame(GameScreen* currentScreen)
         if (scene1) {
             scene1->UpdatePrincess(deltaTime);
         }
-    }q
+    }
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
         if (scene2) {
             scene2->UpdateMusic();
             scene2->UpdatePrincess(deltaTime);
+            // 更新火焰敌人
+            scene2->Update(deltaTime, gamePlayer);
         }
     }
 

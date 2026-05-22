@@ -156,8 +156,8 @@ Scene2::Scene2() {
 
     // 创建火焰敌人
 
-    float fireTileX = 22.0;
-    float fireTileY = 21.0;
+    float fireTileX = 22.0f;
+    float fireTileY = 21.0f;
 
     float fireX = fireTileX * tileSize * tileScale;
     float fireY = fireTileY * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32;
@@ -165,6 +165,7 @@ Scene2::Scene2() {
     Vector2 fireSpawnPos = { fireX, fireY };
 
     fireEnemy = new FireSprite(fireSpawnPos);
+    fireEnemy->SetRange(50.0f, 750.0f);
 
 }
 
@@ -779,7 +780,7 @@ void Scene2::Draw() {
             DrawTextureEx(bombTextures[bomb.currentFrame], bomb.position, 0.0f, 2.0f, WHITE);
         }
     }
-
+    // 绘制火焰敌人
     if (fireEnemy != nullptr)
     {
         fireEnemy->Draw();
@@ -792,6 +793,7 @@ void Scene2::Draw() {
     Color timerColor = (timeLeft <= 10.0f) ? RED : WHITE;
     DrawText(TextFormat("%02d:%02d", minutes, seconds), 650, 10, 30, timerColor);
 
+        
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);
