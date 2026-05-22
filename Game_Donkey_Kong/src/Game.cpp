@@ -683,6 +683,19 @@ void DrawGame(GameScreen* currentScreen)
         DrawText(TextFormat("SCORE: %04d", gamePlayer->GetScore()), 15, 15, 20, WHITE);
     }
 
+    if (leaderBoard != nullptr) {
+        int highScore = leaderBoard->GetHighestScore();
+        DrawRectangle(GameScene::GetScreenWidth() - 130, 10, 120, 30, Fade(BLACK, 0.7f));
+        DrawText(TextFormat("HIGHSCORE: %04d", highScore), GameScene::GetScreenWidth() - 510, 10, 30, WHITE);
+    }
+    else {
+        // Si el leaderBoard no existe, inicialízalo temporalmente para leer
+        LeaderBoard tempBoard;
+        int highScore = tempBoard.GetHighestScore();
+        DrawRectangle(GameScene::GetScreenWidth() - 450, 10, 50, 30, Fade(BLACK, 0.7f));
+        DrawText(TextFormat("HIGHSCORE: %04d", highScore), GameScene::GetScreenWidth() - 510, 10, 30, WHITE);
+    }
+
     if (heartTexture.id != 0 && gamePlayer != nullptr) {
         float heartY = 60.0f;
         float heartScale = 1.3f;

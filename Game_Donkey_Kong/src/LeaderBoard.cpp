@@ -14,6 +14,12 @@ LeaderBoard::~LeaderBoard() {
     UnloadFont(font);
 }
 
+int LeaderBoard::GetHighestScore() const
+{
+    if (scores.empty()) return 0;
+    return scores[0].score;                 // La primera entrada tiene la puntuación más alta
+}
+
 void LeaderBoard::AddScore(const std::string& name, int level, int score) {
     scores.push_back({ name, level, score });
 

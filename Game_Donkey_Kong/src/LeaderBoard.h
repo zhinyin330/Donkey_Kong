@@ -25,6 +25,7 @@ public:
     void Update();
     void Draw();
     int GetSelectedOption() const { return selectedOption; }
+    int GetHighestScore() const;
 
     // Cargar/guardar puntuaciones
     void LoadScores();
