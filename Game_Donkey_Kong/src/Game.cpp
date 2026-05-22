@@ -43,11 +43,10 @@ static float lightningFrequencyMax = 20.0f;
 static bool timeUp = false;
 static Texture2D deathOverlay = { 0 };
 static bool deathOverlayLoaded = false;
-
+static Sound lightningSound = { 0 };
 void InitGame()
 {
     CleanupGame();
-
     gameScene = new Scene();
     gamePlayer = new Player();
     gamePlayer->SetScore(totalScore);
@@ -79,6 +78,16 @@ void InitGame()
     hammerActive = true;
     hammerCollected = false;
     hammerPosition = { 50.0f, 250.0f };
+
+    // ========== 添加闪电音效加载 ==========
+    lightningSound = LoadSound("audio/shandian.mp3");
+    SetSoundVolume(lightningSound, 0.4f);  // 音量40%
+
+    if (!heartLoaded) {
+        heartTexture = LoadTexture("items/heart.png");
+        heartLoaded = true;
+    }
+
     if (!heartLoaded) {
         heartTexture = LoadTexture("items/heart.png");
         heartLoaded = true;
@@ -221,7 +230,7 @@ void DrawGame(GameScreen* currentScreen)
         isScene2 = false;
         isInitialized = true;
     }
-
+  
     // --- 2. UPDATE ---
     float deltaTime = GetFrameTime();
 
@@ -245,6 +254,7 @@ void DrawGame(GameScreen* currentScreen)
         if (lightningTimer >= lightningNextTime) {
             lightningActive = true;
             lightningTimer = 0.0f;
+            PlaySound(lightningSound);
         }
     }
 
@@ -259,6 +269,8 @@ void DrawGame(GameScreen* currentScreen)
         if (scene2) {
             scene2->UpdateMusic();
             scene2->UpdatePrincess(deltaTime);
+            // 更新火焰敌人
+            scene2->Update(deltaTime, gamePlayer);
         }
     }
 
@@ -740,6 +752,13 @@ void UnloadGame()
     if (deathOverlayLoaded) {
         UnloadTexture(deathOverlay);
         deathOverlayLoaded = false;
+    }
+    // ========== 新增：卸载闪电音效 ==========
+    UnloadSound(lightningSound);
+
+    if (heartLoaded) {
+        UnloadTexture(heartTexture);
+        heartLoaded = false;
     }
 }
 

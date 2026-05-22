@@ -30,3 +30,4 @@ void SetHammerPosition(float x, float y);
 void DrawGameOver(GameScreen* currentScreen);
 void InitLeaderBoard();
 void DrawLeaderBoard(GameScreen* currentScreen);
+extern Sound lightningSound;
