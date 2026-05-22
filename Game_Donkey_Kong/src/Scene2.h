@@ -47,6 +47,9 @@ private:
     //baozha.audio
     Sound bombExplosionSound; 
     bool bombSoundLoaded;
+//happy eding
+    Sound dkFallSound;       
+    bool dkFallSoundLoaded = false;
 
     // princesa
     Princess princess;
@@ -99,6 +102,12 @@ private:
 
     float sceneTimer;
     float sceneTimeLimit;
+
+    Texture2D snowTextures[6];
+    int currentSnowFrame;
+    float snowTimer;
+    float snowFrameSpeed;
+
 
 public:
     Scene2();

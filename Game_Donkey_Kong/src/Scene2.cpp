@@ -34,11 +34,25 @@ Scene2::Scene2() {
     sequenceTriggered = false;
     dkCanHurt = true;
 
+    // ===== 雨动画 =====
+    snowTextures[0] = LoadTexture("UI/Nieve1.png");
+    snowTextures[1] = LoadTexture("UI/Nieve2.png");
+    snowTextures[2] = LoadTexture("UI/Nieve3.png");
+    snowTextures[3] = LoadTexture("UI/Nieve4.png");
+    snowTextures[4] = LoadTexture("UI/Nieve5.png");
+    snowTextures[5] = LoadTexture("UI/Nieve6.png");
+
+    currentSnowFrame = 0;
+    snowTimer = 0.0f;
+
+    // 动画速度
+    snowFrameSpeed = 0.2f;
+
     sceneTimer = 0.0f;
     sceneTimeLimit = 120.0f;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
-    // ========== 新增：加载爆炸音效 ==========
+    //加载爆炸音效
     bombExplosionSound = LoadSound("audio/baozha.mp3");
     SetSoundVolume(bombExplosionSound, 0.5f);  // 音量50%
     bombSoundLoaded = true;
@@ -171,6 +185,13 @@ Scene2::Scene2() {
     fireEnemy = new FireSprite(fireSpawnPos);
     fireEnemy->SetRange(50.0f, 750.0f);
 
+    // ========== 新增：加载音效 ==========
+    dkFallSound = LoadSound("audio/A_Happy_Ending.mp3");
+    dkFallSoundLoaded = dkFallSound.frameCount != 0;
+    if (dkFallSoundLoaded) {
+        SetSoundVolume(dkFallSound, 1.0f);
+    }
+
 }
 
 Scene2::~Scene2() {
@@ -187,7 +208,10 @@ Scene2::~Scene2() {
     for (auto& tex : dkFallFrames) {
         UnloadTexture(tex);
     }
-
+    if (dkFallSoundLoaded) {
+        UnloadSound(dkFallSound);
+        dkFallSoundLoaded = false;
+    }
     //卸载炸弹贴图
     for (auto& tex : bombTextures) {
         UnloadTexture(tex);
@@ -196,6 +220,10 @@ Scene2::~Scene2() {
     if (bombSoundLoaded) {
         UnloadSound(bombExplosionSound);
         bombSoundLoaded = false;
+    }
+
+    for (int i = 0; i < 6; i++) {
+        UnloadTexture(snowTextures[i]);
     }
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
@@ -241,6 +269,15 @@ void Scene2::CheckPlatformsStatus() {
 
     if (allButtonsPressed) {
         sequenceTriggered = true;
+        // ========== 播放音效（添加调试输出） ==========
+        if (dkFallSoundLoaded) {
+            TraceLog(LOG_INFO, "Playing DK fall sound NOW!");
+            PlaySound(dkFallSound);
+        }
+        else {
+            TraceLog(LOG_WARNING, "DK fall sound not loaded, cannot play");
+        }
+
         for (int x = 9; x <= 15; x++) {
             hitboxLevel[18][x] = 0;
             level[18][x] = 0;
@@ -269,6 +306,9 @@ void Scene2::CheckPlatformsStatus() {
 
         newPlatformsVisible = true;
         newPlatforms.clear();
+        if (dkFallSoundLoaded) {
+            PlaySound(dkFallSound);
+        }
 
         // X: 10*32=320, ancho: 5*32=160
         float platX = 305;
@@ -681,8 +721,19 @@ void Scene2::Draw() {
     int offsetY = platformHitboxOffsetY * tileScale;;
     int visualHeight = 16;
 
+    // ===== 更新雨动画 =====
+    snowTimer += GetFrameTime();
 
-    // ========== 1. PILARES (DETRÁS DE TODO) ==========
+    if (snowTimer >= snowFrameSpeed) {
+        snowTimer = 0.0f;
+        currentSnowFrame++;
+
+        if (currentSnowFrame >= 6) {
+            currentSnowFrame = 0;
+        }
+    }
+
+    // PILARES (DETRÁS DE TODO)
     float pillarScale = 2.0f;
     for (auto& pillar : pillars) {
         DrawTextureEx(pillarTexture, pillar, 0.0f, pillarScale, WHITE);
@@ -798,6 +849,26 @@ void Scene2::Draw() {
     {
         fireEnemy->Draw();
     }
+
+    // ===== 绘制雪 =====
+    DrawTexturePro(
+        snowTextures[currentSnowFrame],
+        Rectangle{
+            0,
+            0,
+            (float)snowTextures[currentSnowFrame].width,
+            (float)snowTextures[currentSnowFrame].height
+        },
+        Rectangle{
+            0,
+            0,
+            (float)GetScreenWidth(),
+            (float)GetScreenHeight()
+        },
+        Vector2{ 0, 0 },
+        0.0f,
+        WHITE
+    );
 
     float timeLeft = sceneTimeLimit - sceneTimer;
     if (timeLeft < 0) timeLeft = 0;

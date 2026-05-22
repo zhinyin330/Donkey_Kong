@@ -4,7 +4,7 @@
 Scene::Scene() {
     // 加载背景音乐
     backgroundMusic = LoadMusicStream("audio/scene.ogg");
-    SetMusicVolume(backgroundMusic, 0.5f);
+    SetMusicVolume(backgroundMusic, 1.2f);
 
     tileTexture = LoadTexture("Architecture/Dk_FloorPart.png");
     ladderTexture = LoadTexture("Architecture/Dk_Ladder.png");
