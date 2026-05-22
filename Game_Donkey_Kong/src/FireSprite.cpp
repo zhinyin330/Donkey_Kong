@@ -24,7 +24,7 @@ FireSprite::FireSprite(Vector2 startPos)
     frameAccumulator = 0.0f;
 
     // ===== 加载动画帧 =====
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 2; i++)
     {
         frames.push_back(
             LoadTexture(TextFormat("Characters/FireSprites/Dk_FireSprite_Jump%d.png", i))
@@ -196,7 +196,7 @@ void FireSprite::Draw()
     }
 
     Rectangle destRect = {
-        roundf(position.x),  // 四舍五入到整数像素
+        roundf(position.x), 
         roundf(position.y),
         tex.width * 2.0f,
         tex.height * 2.0f
