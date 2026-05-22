@@ -103,6 +103,12 @@ private:
     float sceneTimer;
     float sceneTimeLimit;
 
+    Texture2D snowTextures[6];
+    int currentSnowFrame;
+    float snowTimer;
+    float snowFrameSpeed;
+
+
 public:
     Scene2();
     ~Scene2();

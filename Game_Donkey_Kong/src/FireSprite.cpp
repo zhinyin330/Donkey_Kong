@@ -27,7 +27,7 @@ FireSprite::FireSprite(Vector2 startPos)
     for (int i = 1; i <= 3; i++)
     {
         frames.push_back(
-            LoadTexture(TextFormat("Characters/FireSprites/Dk_FireSprite%d.png", i))
+            LoadTexture(TextFormat("Characters/FireSprites/Dk_FireSprite_Jump%d.png", i))
         );
     }
 
