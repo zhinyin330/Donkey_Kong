@@ -251,8 +251,6 @@ void DrawGame(GameScreen* currentScreen)
   
     // --- 2. UPDATE ---
     float deltaTime = GetFrameTime();
-
-    float barrelFrequency = 1.0f / (1.0f + currentLevel * 0.12f);  
     float lightningFrequencyMin = 10.0f - currentLevel * 1.5f;    
     float lightningFrequencyMax = 20.0f - currentLevel * 2.0f;     
 
@@ -287,11 +285,10 @@ void DrawGame(GameScreen* currentScreen)
         if (scene2) {
             scene2->UpdateMusic();
             scene2->UpdatePrincess(deltaTime);
-            // 更新火焰敌人
+            scene2->SetDifficulty(currentLevel);  // ← AÑADIR AQUÍ
             scene2->Update(deltaTime, gamePlayer);
         }
     }
-
     // ========== CAÍDA DE DK (Scene2) ==========
     if (isScene2) {
         Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
@@ -477,7 +474,7 @@ void DrawGame(GameScreen* currentScreen)
 
     // frecuencia del nivel
     if (gameEnemy != nullptr) {
-        float newSpeed = 1.0f / (1.0f + currentLevel * 0.3f);
+        float newSpeed = 1.0f / (1.0f + currentLevel * 0.15f);
         if (newSpeed < 0.2f) newSpeed = 0.2f;
         gameEnemy->SetFrameSpeed(newSpeed);
     }

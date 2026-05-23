@@ -55,7 +55,7 @@ private:
     bool dkFallSoundEffectLoaded;
     bool hasPlayedFallSound;
 
-//happy eding
+    //happy eding
     Sound dkFallSound;       
     bool dkFallSoundLoaded = false;
 
@@ -86,6 +86,9 @@ private:
     int currentLevel = 1;
     int GetCurrentLevel() override { return currentLevel; }
     void SetCurrentLevel(int level) override { currentLevel = level; }
+    float bombSpawnMin;   // Tiempo mínimo entre bombas
+    float bombSpawnMax;   // Tiempo máximo entre bombas
+    float fireSpawnInterval;  // Tiempo entre fuegos
 
     void CheckPlatformsStatus();
     bool newPlatformsVisible;
@@ -121,7 +124,6 @@ private:
     // ===== 小火人管理系统 =====
     std::vector<FireSprite*> fireSprites;  // 存储所有小火人
     float fireSpawnTimer;                   // 生成计时器
-    float fireSpawnInterval = 10.0f;       // 生成间隔（秒）
     int maxFireSprites = 8;                // 最大同时存在的小火人数量
     // 平台位置数据（从下往上数4个平台）
     struct PlatformInfo {
@@ -166,6 +168,7 @@ public:
     void UpdateTimer(float deltaTime);
     float GetTimeLeft() { return sceneTimeLimit - sceneTimer; }
     void ResetTimer() { sceneTimer = 0.0f; }
+    void SetDifficulty(int level);
 
     // Métodos de transición
     bool transitionReached = false;

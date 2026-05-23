@@ -33,6 +33,9 @@ Scene2::Scene2() {
     dkSequenceDone = false;
     sequenceTriggered = false;
     dkCanHurt = true;
+    bombSpawnMin = 2.0f;
+    bombSpawnMax = 7.0f;
+    fireSpawnInterval = 10.0f;
 
     // ===== 雪动画 =====
     snowTextures[0] = LoadTexture("UI/Nieve1.png");
@@ -81,7 +84,7 @@ Scene2::Scene2() {
         bombTextures.push_back(LoadTexture(TextFormat("Items/Bomb%d.png", i))); // 请确认路径是 Items 还是 Barrel，根据你描述改为正确路径
     }
     bombSpawnTimer = 0.0f;
-    nextSpawnTime = (float)GetRandomValue(2, 7); // 初始随机 2-7 秒
+    nextSpawnTime = (float)GetRandomValue((int)(bombSpawnMin * 10), (int)(bombSpawnMax * 10)) / 10.0f;
 
     // Inicializar vectores
     level.resize(mapHeight, std::vector<int>(mapWidth, 0));
@@ -97,7 +100,7 @@ Scene2::Scene2() {
     // ========== PLATAFORMAS SIMPLES ==========
 
     // Suelo (Y=21)
-    for (int x = 0; x < mapWidth; x++) {
+    for (int x = 0; x < mapWidth; x++) {nextSpawnTime = (float)GetRandomValue((int)(bombSpawnMin * 10), (int)(bombSpawnMax * 10)) / 10.0f;
         level[21][x] = 1;
         hitboxLevel[21][x] = 1;
     }
@@ -895,6 +898,18 @@ void Scene2::DrawDkFalling() {
 
 void Scene2::UpdatePrincess(float deltaTime) {
     princess.Update(deltaTime);
+}
+
+void Scene2::SetDifficulty(int level) {
+    // Bombas: más frecuentes con el nivel
+    bombSpawnMin = 2.0f - level * 0.15f;
+    bombSpawnMax = 7.0f - level * 0.5f;
+    if (bombSpawnMin < 0.5f) bombSpawnMin = 0.5f;
+    if (bombSpawnMax < 2.0f) bombSpawnMax = 2.0f;
+
+    // Fuegos: más frecuentes con el nivel
+    fireSpawnInterval = 10.0f - level * 0.8f;
+    if (fireSpawnInterval < 5.0f) fireSpawnInterval = 5.0f;
 }
 
 void Scene2::Draw() {
