@@ -26,7 +26,7 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     targetPlatformY = -1;
     dropTargetX = 0.0f;
 
-    inDropPhase = false;          //  新增：是否处于下落阶段
+    inDropPhase = false;          //  是否处于下落阶段
     triggerLocked = false;
     triggerLockTimer = 0.0f;
 
@@ -171,7 +171,7 @@ bool Barrel::CheckVerticalDropTrigger()
         return true;
     }
 
-    // ⭐离开区域才重置
+    // 离开区域才重置
     if (!touchingAny)
     {
         hasCheckedTrigger = false;

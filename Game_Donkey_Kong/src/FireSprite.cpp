@@ -64,8 +64,8 @@ Vector2 FireSprite::CalculateParabolaPosition(float t)
 
 void FireSprite::Update(float deltaTime)
 {
-    // 如果小火人未激活，不更新
-    if (!isActive) return;
+    // 如果小火人死亡或未激活，不更新
+    if (isDead || !isActive) return;
     // 限制deltaTime最大值，防止跳跃过大
     if (deltaTime > 0.033f) deltaTime = 0.033f;
 
@@ -120,8 +120,8 @@ void FireSprite::StartNewJump()
     jumpStartY = groundY;
 
     // ===== 随机决定下一次移动方向 =====
-    // 70%几率随机改变方向，30%几率保持原方向
-    if (GetRandomValue(0, 100) < 70)
+    // 70%几率随机改变方向，40%几率保持原方向
+    if (GetRandomValue(0, 100) < 60)
     {
         direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
     }
@@ -169,7 +169,8 @@ void FireSprite::UpdateAnimation(float deltaTime)
 }
 void FireSprite::Draw()
 {
-    if (!isActive) return;
+    // 死亡或未激活时不绘制
+    if (isDead || !isActive) return;
     if (currentFrame < 0 || currentFrame >= (int)frames.size())
         return;
 
@@ -217,6 +218,8 @@ void FireSprite::Draw()
 
 Rectangle FireSprite::GetHitbox()
 {
+    // 死亡或未激活时返回空碰撞箱
+    if (isDead || !isActive) return { -100, -100, 0, 0 };
     if (currentFrame >= 0 && currentFrame < (int)frames.size())
     {
         return {
@@ -256,4 +259,11 @@ void FireSprite::ResetPosition(Vector2 newPos)
 
     // 激活小火人
     isActive = true;
+}
+
+// ===== 新增：小火人死亡 =====
+void FireSprite::Die()
+{
+    isDead = true;
+    isActive = false;
 }

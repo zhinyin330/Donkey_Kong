@@ -60,6 +60,9 @@ private:
     float stepInterval;
     bool wasMovingLeft;
     bool wasMovingRight;
+    // 音效
+    Sound deathSound;
+    bool deathSoundLoaded;
 
     bool wasMoving;
     bool isStepPlaying;
@@ -214,4 +217,6 @@ public:
 
     void SetTimeLeft(float t) { displayTimeLeft = t; }
   
+    // 播放死亡音效
+    void PlayDeathSound();
 };

@@ -47,6 +47,14 @@ private:
     //baozha.audio
     Sound bombExplosionSound; 
     bool bombSoundLoaded;
+    Sound fireKillSound;        // 小火人被击杀音效
+    bool fireKillSoundLoaded = false;
+
+    // DK 掉落音效
+    Sound dkFallSoundEffect;      // 掉落音效（与背景音乐区分）
+    bool dkFallSoundEffectLoaded;
+    bool hasPlayedFallSound;
+
 //happy eding
     Sound dkFallSound;       
     bool dkFallSoundLoaded = false;

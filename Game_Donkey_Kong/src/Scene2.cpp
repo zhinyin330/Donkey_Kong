@@ -42,6 +42,12 @@ Scene2::Scene2() {
     snowTextures[4] = LoadTexture("UI/Nieve5.png");
     snowTextures[5] = LoadTexture("UI/Nieve6.png");
 
+    //  DK 掉落音效
+    dkFallSoundEffect = LoadSound("audio/Fall.mp3");  // 掉落音效
+    dkFallSoundEffectLoaded = dkFallSoundEffect.frameCount != 0;
+    SetSoundVolume(dkFallSoundEffect, 0.8f);
+    hasPlayedFallSound = false;
+
     currentSnowFrame = 0;
     snowTimer = 0.0f;
 
@@ -56,6 +62,17 @@ Scene2::Scene2() {
     bombExplosionSound = LoadSound("audio/baozha.mp3");
     SetSoundVolume(bombExplosionSound, 0.5f);  // 音量50%
     bombSoundLoaded = true;
+
+    // 加载击中音效
+    fireKillSound = LoadSound("audio/jizhong.mp3");  // 替换为你的音效文件路径
+    fireKillSoundLoaded = fireKillSound.frameCount != 0;
+    if (fireKillSoundLoaded) {
+        SetSoundVolume(fireKillSound, 1.0f);
+        TraceLog(LOG_INFO, "Fire kill sound loaded!");
+    }
+    else {
+        TraceLog(LOG_WARNING, "Failed to load fire kill sound!");
+    }
 
     //新增：加载炸弹资源与初始化计时器
     // 加载 Bomb1.png 到 Bomb6.png
@@ -183,7 +200,7 @@ Scene2::Scene2() {
     // 平台0：地面 (Y=21)
     platforms.push_back({
         21 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,  // Y坐标
-        50.0f,   // 最小X
+        250.0f,   // 最小X
         750.0f   // 最大X
         });
 
@@ -259,6 +276,16 @@ Scene2::~Scene2() {
 
     // ===== 清理所有小火人 =====
     ClearAllFireSprites();
+
+    if (fireKillSoundLoaded) {
+        UnloadSound(fireKillSound);
+        fireKillSoundLoaded = false;
+    }
+    // 卸载掉落音效
+    if (dkFallSoundEffectLoaded) {
+        UnloadSound(dkFallSoundEffect);
+        dkFallSoundEffectLoaded = false;
+    }
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
     float buttonScale = 2.0f;
@@ -368,6 +395,8 @@ void Scene2::CheckPlatformsStatus() {
             dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall2.png"));
             dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall3.png"));
             dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall4.png"));
+
+
         }
     }
 }
@@ -448,6 +477,13 @@ void Scene2::UpdateDkFall(float deltaTime) {
     // Mientras cae: solo Fall1 (frame 0)
     dkFallFrame = 0;
 
+    // 播放掉落音效
+    if (!hasPlayedFallSound && dkFallSoundEffectLoaded) {
+        PlaySound(dkFallSoundEffect);
+        hasPlayedFallSound = true;
+        TraceLog(LOG_INFO, "Playing DK fall sound effect!");
+    }
+
     // Gravedad
     dkFallSpeed += 300.0f * deltaTime;
     dkStartPosition.y += dkFallSpeed * deltaTime;
@@ -476,7 +512,7 @@ void Scene2::UpdateDkFall(float deltaTime) {
                 dkFallSpeed = 0.0f;     // Resetear velocidad
                 dkBounceTimer = 0.0f;
                 dkBounceFrame = 0;
-
+                hasPlayedFallSound = false;
                 // Activar secuencia
                 if (!dkSequenceDone) {
                     dkSequenceDone = true;
@@ -496,6 +532,7 @@ void Scene2::UpdateDkFall(float deltaTime) {
         dkFallSpeed = 0.0f;
         dkBounceTimer = 0.0f;
         dkBounceFrame = 0;
+        hasPlayedFallSound = false;
     }
 }
 
@@ -622,10 +659,38 @@ void Scene2::Update(float deltaTime, Player* player)
         FireSprite* fire = fireSprites[i];
         if (fire != nullptr)
         {
+            // 如果小火人已死亡，从列表中移除
+            if (fire->IsDead())
+            {
+                delete fire;
+                fireSprites.erase(fireSprites.begin() + i);
+                TraceLog(LOG_INFO, "FireSprite removed! Remaining: %d", (int)fireSprites.size());
+                continue;
+            }
             fire->Update(deltaTime);
+            // ===== 新增：锤子攻击检测（玩家挥舞锤子时）=====
+            if (player != nullptr && player->IsSwingingHammer())
+            {
+                Rectangle attackHitbox = player->GetAttackHitbox();
+                Rectangle fireHitbox = fire->GetHitbox();
 
-            // 玩家碰撞检测
-            if (fire->IsActive() && CheckCollisionRecs(
+                if (CheckCollisionRecs(attackHitbox, fireHitbox))
+                {
+                    // 小火人死亡
+                    fire->Die();
+                    // 给玩家加分（可选）
+                    player->AddScore(200);
+                    // 播放击杀音效
+                    if (fireKillSoundLoaded) {
+                        PlaySound(fireKillSound);  //播放音效
+                        TraceLog(LOG_INFO, "Playing kill sound!");
+                    }
+                    TraceLog(LOG_INFO, "FireSprite killed by hammer! +200 points");
+                    continue;  // 跳过碰撞检测，避免同时死亡
+                }
+            }
+            // 玩家碰撞检测（仅当小火人活着时）
+            if (fire->IsActive() && !fire->IsDead() && CheckCollisionRecs(
                 fire->GetHitbox(),
                 player->GetHitbox()))
             {

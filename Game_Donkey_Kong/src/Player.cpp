@@ -126,6 +126,16 @@ Player::Player() {
     hammerCooldownDuration = 5.0f;  // 5秒冷却
     isHammerOnCooldown = false;
 
+    // 加载死亡音效
+    deathSound = LoadSound("audio/Dead.mp3");  // 或 .mp3
+    deathSoundLoaded = deathSound.frameCount != 0;
+    if (deathSoundLoaded) {
+        SetSoundVolume(deathSound, 0.8f);
+        TraceLog(LOG_INFO, "Player death sound loaded!");
+    }
+    else {
+        TraceLog(LOG_WARNING, "Failed to load player death sound!");
+    }
 }
 
 Player::~Player() {
@@ -142,6 +152,10 @@ Player::~Player() {
     UnloadTexture(deathEndTexture);
     UnloadTexture(starIconTexture);
     UnloadTexture(hammerIconTexture);
+    // 卸载死亡音效
+    if (deathSoundLoaded) {
+        UnloadSound(deathSound);
+    }
 }
 
 void Player::HandleInput(GameScene& scene) {
@@ -910,6 +924,7 @@ void Player::ActivateStarMode() {
     currentTint = GOLD;
 }
 void Player::StartDeath() {
+    if (isDying) return;
     isDying = true;
     deathTimer = 0.0f;
     deathFrame = 0;
@@ -921,6 +936,8 @@ void Player::StartDeath() {
     onLadder = false;
     isClimbing = false;
     exitingLadder = false;
+    // 播放死亡音效
+    PlayDeathSound();
 }
 
 void Player::UpdateDeath(float deltaTime) {          
@@ -1143,7 +1160,6 @@ void Player::Draw() {
         source.width = -source.width;
     }
 
-    // ... 您原有的绘制马里奥的代码 ...
     DrawTexturePro(currentTexture, source, dest, origin, 0.0f, currentTint);
 
     // ========== 绘制锤子 ==========
@@ -1201,4 +1217,12 @@ void Player::Draw() {
     }
 
     DrawFloatingTexts();   // 绘制浮动文字 
+}
+
+void Player::PlayDeathSound() {
+    if (deathSoundLoaded) {
+        StopSound(deathSound);  // 停止之前的播放（如果有）
+        PlaySound(deathSound);
+        TraceLog(LOG_INFO, "Playing player death sound");
+    }
 }

@@ -18,7 +18,6 @@ public:
     // ===== 获取位置 =====
     Vector2 GetPosition() const { return position; }
     // ===== 激活/禁用小火人 =====
-    bool isActive = true;
     void SetActive(bool active) { isActive = active; }
     bool IsActive() const { return isActive; }
 
@@ -27,6 +26,11 @@ public:
 
     // =====重置位置（用于重生）=====
     void ResetPosition(Vector2 newPos);
+
+    // ===== 新增：小火人死亡 =====
+    void Die();
+    bool IsDead() const { return isDead; }
+
 
 
 private:
@@ -73,7 +77,11 @@ private:
     float idleTimer = 0.0f;
     float idleDuration = 0.25f;  // 落地后等待时间（秒）
 
+    // ===== 是否激活 =====
+    bool isActive = true;
 
+    // ===== 新增：是否死亡 =====
+    bool isDead = false;
     // ===== 辅助方法 =====
     void StartNewJump();
     void UpdateAnimation(float deltaTime);
