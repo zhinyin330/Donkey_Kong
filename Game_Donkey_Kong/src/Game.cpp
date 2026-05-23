@@ -462,7 +462,7 @@ void DrawGame(GameScreen* currentScreen)
             for (auto& barrel : gameEnemy->GetBarrels()) {
                 if (!barrel.IsHit() && !barrel.HasBeenJumped()) {
                     Rectangle barrelRect = barrel.GetPlayerHitbox();
-                    float barrelTopY = barrelRect.y;
+                    float barrelTopY = barrelRect.y; 
                     float distX = abs((playerHitbox.x + playerHitbox.width / 2) - (barrelRect.x + barrelRect.width / 2));
                     float distY = abs(playerFeetY - barrelTopY);
                     if (distX < 80 && distY < 40) {

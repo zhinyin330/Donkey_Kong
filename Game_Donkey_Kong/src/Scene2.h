@@ -188,4 +188,6 @@ public:
     void ClearAllFireSprites();
     void Update(float deltaTime, Player* player);
 
+    bool stopEnemySpawning;
+
 };

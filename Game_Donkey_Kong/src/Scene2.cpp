@@ -56,6 +56,7 @@ Scene2::Scene2() {
 
     sceneTimer = 0.0f;
     sceneTimeLimit = 120.0f;
+    stopEnemySpawning = false;
    
     pillarTexture = LoadTexture("Architecture/Dk_Pillar.png");
     //加载爆炸音效
@@ -565,6 +566,11 @@ void Scene2::TriggerDkLandSequence() {
     princess.SetPosition(367, 6 * 32 + platformHitboxOffsetY * tileScale - 32 * 2.2f + 10);
 
     dkCanHurt = false;
+
+    // 4. Detener enemigos
+    stopEnemySpawning = true;
+    ClearAllBombs();
+    ClearAllFireSprites();
 }
 bool Scene2::IsSolid(int x, int y) {
     if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
@@ -640,6 +646,10 @@ void Scene2::Update(float deltaTime, Player* player)
     UpdateBombs(deltaTime, player);
 
     // ===== 每10秒生成新的小火人 =====
+    if (stopEnemySpawning) {
+        ClearAllFireSprites();
+        return;
+    }
     fireSpawnTimer += deltaTime;
     if (fireSpawnTimer >= fireSpawnInterval)
     {
@@ -750,6 +760,12 @@ void Scene2::ClearAllFireSprites()
 }
 
 void Scene2::UpdateBombs(float deltaTime, Player* player) {
+
+    if (stopEnemySpawning) {
+        activeBombs.clear();  
+        return;               
+    }
+
     if (!player) return;
 
     // === 1. 配置参数 (固定数值，避免重复声明) ===
