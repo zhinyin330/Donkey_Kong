@@ -110,7 +110,18 @@ private:
     Texture2D timeTexture;
     Rectangle timeSourceRec;
     float timeScale;
-
+    // ===== 小火人管理系统 =====
+    std::vector<FireSprite*> fireSprites;  // 存储所有小火人
+    float fireSpawnTimer;                   // 生成计时器
+    float fireSpawnInterval = 10.0f;       // 生成间隔（秒）
+    int maxFireSprites = 8;                // 最大同时存在的小火人数量
+    // 平台位置数据（从下往上数4个平台）
+    struct PlatformInfo {
+        float y;           // Y坐标
+        float minX;        // 最小X
+        float maxX;        // 最大X
+    };
+    std::vector<PlatformInfo> platforms;
 
 public:
     Scene2();
@@ -161,7 +172,11 @@ public:
     void UpdateBombs(float deltaTime, Player* player);
 
     // 火焰敌人
-    FireSprite* fireEnemy;
+    // ===== 新增：生成新小火人 =====
+    void SpawnFireSprite();
+
+    // ===== 新增：清理所有小火人 =====
+    void ClearAllFireSprites();
     void Update(float deltaTime, Player* player);
 
 };

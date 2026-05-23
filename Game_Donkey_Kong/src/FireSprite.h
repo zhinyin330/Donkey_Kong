@@ -17,6 +17,16 @@ public:
 
     // ===== 获取位置 =====
     Vector2 GetPosition() const { return position; }
+    // ===== 激活/禁用小火人 =====
+    bool isActive = true;
+    void SetActive(bool active) { isActive = active; }
+    bool IsActive() const { return isActive; }
+
+    // ===== 设置地面Y坐标 =====
+    void SetGroundY(float y) { groundY = y; }
+
+    // =====重置位置（用于重生）=====
+    void ResetPosition(Vector2 newPos);
 
 
 private:

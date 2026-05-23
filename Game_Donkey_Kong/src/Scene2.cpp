@@ -34,7 +34,7 @@ Scene2::Scene2() {
     sequenceTriggered = false;
     dkCanHurt = true;
 
-    // ===== 雨动画 =====
+    // ===== 雪动画 =====
     snowTextures[0] = LoadTexture("UI/Nieve1.png");
     snowTextures[1] = LoadTexture("UI/Nieve2.png");
     snowTextures[2] = LoadTexture("UI/Nieve3.png");
@@ -179,16 +179,42 @@ Scene2::Scene2() {
 
     // 创建火焰敌人
 
-    float fireTileX = 22.0f;
-    float fireTileY = 21.0f;
+    // ===== 初始化平台信息（从下往上数4个平台）=====
+    // 平台0：地面 (Y=21)
+    platforms.push_back({
+        21 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,  // Y坐标
+        50.0f,   // 最小X
+        750.0f   // 最大X
+        });
 
-    float fireX = fireTileX * tileSize * tileScale;
-    float fireY = fireTileY * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32;
+    // 平台1：第二层 (Y=18)
+    platforms.push_back({
+        18 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,
+        80.0f,
+        720.0f
+        });
 
-    Vector2 fireSpawnPos = { fireX, fireY };
+    // 平台2：第三层 (Y=14)
+    platforms.push_back({
+        14 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,
+        110.0f,
+        690.0f
+        });
 
-    fireEnemy = new FireSprite(fireSpawnPos);
-    fireEnemy->SetRange(50.0f, 750.0f);
+    // 平台3：第四层 (Y=10)
+    platforms.push_back({
+        10 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,
+        140.0f,
+        660.0f
+        });
+
+    // ===== 初始化小火人生成系统 =====
+    fireSpawnTimer = 0.0f;
+    fireSpawnInterval = 10.0f;
+
+    // 开局先生成一个
+    SpawnFireSprite();
+
 
     // ========== 新增：加载音效 ==========
     dkFallSound = LoadSound("audio/A_Happy_Ending.mp3");
@@ -221,7 +247,7 @@ Scene2::~Scene2() {
     for (auto& tex : bombTextures) {
         UnloadTexture(tex);
     }
-    delete fireEnemy;
+
     if (bombSoundLoaded) {
         UnloadSound(bombExplosionSound);
         bombSoundLoaded = false;
@@ -230,6 +256,9 @@ Scene2::~Scene2() {
     for (int i = 0; i < 6; i++) {
         UnloadTexture(snowTextures[i]);
     }
+
+    // ===== 清理所有小火人 =====
+    ClearAllFireSprites();
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
     float buttonScale = 2.0f;
@@ -573,18 +602,37 @@ void Scene2::Update(float deltaTime, Player* player)
 
     UpdateBombs(deltaTime, player);
 
-    if (fireEnemy != nullptr)
+    // ===== 每10秒生成新的小火人 =====
+    fireSpawnTimer += deltaTime;
+    if (fireSpawnTimer >= fireSpawnInterval)
     {
-        fireEnemy->Update(deltaTime);
+        fireSpawnTimer = 0.0f;
 
-        // 玩家碰撞
-        if (CheckCollisionRecs(
-            fireEnemy->GetHitbox(),
-            player->GetHitbox()))
+        // 检查是否超过最大数量限制
+        if ((int)fireSprites.size() < maxFireSprites)
         {
-            if (!player->IsDying())
+            SpawnFireSprite();
+            TraceLog(LOG_INFO, "Spawned new FireSprite! Total: %d", (int)fireSprites.size());
+        }
+    }
+
+    // ===== 更新所有小火人并检测碰撞 =====
+    for (int i = (int)fireSprites.size() - 1; i >= 0; i--)
+    {
+        FireSprite* fire = fireSprites[i];
+        if (fire != nullptr)
+        {
+            fire->Update(deltaTime);
+
+            // 玩家碰撞检测
+            if (fire->IsActive() && CheckCollisionRecs(
+                fire->GetHitbox(),
+                player->GetHitbox()))
             {
-                player->StartDeath();
+                if (!player->IsDying())
+                {
+                    player->StartDeath();
+                }
             }
         }
     }
@@ -726,7 +774,7 @@ void Scene2::Draw() {
     int offsetY = platformHitboxOffsetY * tileScale;
     int visualHeight = 16;
 
-    // ===== 更新雨动画 =====
+    // ===== 更新雪动画 =====
     snowTimer += GetFrameTime();
 
     if (snowTimer >= snowFrameSpeed) {
@@ -883,10 +931,13 @@ void Scene2::Draw() {
         25, timerColor);
 
 
-    // 绘制火焰敌人
-    if (fireEnemy != nullptr)
+    // 绘制所有小火人
+    for (FireSprite* fire : fireSprites)
     {
-        fireEnemy->Draw();
+        if (fire != nullptr)
+        {
+            fire->Draw();
+        }
     }
 
     // ===== 绘制雪 =====
@@ -911,4 +962,49 @@ void Scene2::Draw() {
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);
+}
+
+// ===== 生成新的小火人 =====
+void Scene2::SpawnFireSprite()
+{
+    // 随机选择平台（0-3，从下往上数4个平台）
+    int platformIndex = GetRandomValue(0, (int)platforms.size() - 1);
+    const PlatformInfo& plat = platforms[platformIndex];
+
+    // 计算随机X位置（在平台范围内，留出边缘空间）
+    float minX = plat.minX + 20.0f;
+    float maxX = plat.maxX - 80.0f;  // 减去小火人宽度（约64像素）
+    if (minX >= maxX) {
+        minX = plat.minX;
+        maxX = plat.maxX;
+    }
+
+    float randomX = (float)GetRandomValue((int)minX, (int)maxX);
+
+    // 创建新小火人
+    Vector2 spawnPos = { randomX, plat.y };
+    FireSprite* newFire = new FireSprite(spawnPos);
+
+    // 设置移动范围
+    newFire->SetRange(plat.minX, plat.maxX);
+    newFire->SetGroundY(plat.y);
+
+    // 随机初始方向
+    newFire->SetActive(true);
+
+    // 添加到列表
+    fireSprites.push_back(newFire);
+}
+
+// ===== 清理所有小火人 =====
+void Scene2::ClearAllFireSprites()
+{
+    for (FireSprite* fire : fireSprites)
+    {
+        if (fire != nullptr)
+        {
+            delete fire;
+        }
+    }
+    fireSprites.clear();
 }

@@ -7,7 +7,7 @@ FireSprite::FireSprite(Vector2 startPos)
 {
     position = startPos;
     groundY = startPos.y;           // 保存地面Y坐标
-
+    isActive = true;
     // ===== 移动范围限制 =====
     minX = 0;
     maxX = 800;
@@ -64,6 +64,8 @@ Vector2 FireSprite::CalculateParabolaPosition(float t)
 
 void FireSprite::Update(float deltaTime)
 {
+    // 如果小火人未激活，不更新
+    if (!isActive) return;
     // 限制deltaTime最大值，防止跳跃过大
     if (deltaTime > 0.033f) deltaTime = 0.033f;
 
@@ -167,6 +169,7 @@ void FireSprite::UpdateAnimation(float deltaTime)
 }
 void FireSprite::Draw()
 {
+    if (!isActive) return;
     if (currentFrame < 0 || currentFrame >= (int)frames.size())
         return;
 
@@ -230,4 +233,27 @@ void FireSprite::SetRange(float minX, float maxX)
 {
     this->minX = minX;
     this->maxX = maxX;
+}
+
+// ===== 重置位置 =====
+void FireSprite::ResetPosition(Vector2 newPos)
+{
+    position = newPos;
+    groundY = newPos.y;
+
+    // 重置跳跃状态
+    jumpState = IDLE;
+    idleTimer = 0.0f;
+    jumpTimer = 0.0f;
+    jumpProgress = 0.0f;
+    frameAccumulator = 0.0f;
+    currentFrame = 0;
+    frameTimer = 0.0f;
+
+    // 随机初始方向
+    direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
+    lastDirection = direction;
+
+    // 激活小火人
+    isActive = true;
 }
