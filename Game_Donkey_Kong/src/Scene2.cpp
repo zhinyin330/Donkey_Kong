@@ -905,11 +905,11 @@ void Scene2::SetDifficulty(int level) {
     bombSpawnMin = 2.0f - level * 0.15f;
     bombSpawnMax = 7.0f - level * 0.5f;
     if (bombSpawnMin < 0.5f) bombSpawnMin = 0.5f;
-    if (bombSpawnMax < 2.0f) bombSpawnMax = 2.0f;
+    if (bombSpawnMax < 1.5f) bombSpawnMax = 1.5f;
 
     // Fuegos: más frecuentes con el nivel
     fireSpawnInterval = 10.0f - level * 0.8f;
-    if (fireSpawnInterval < 5.0f) fireSpawnInterval = 5.0f;
+    if (fireSpawnInterval < 3.0f) fireSpawnInterval = 3.0f;
 }
 
 void Scene2::Draw() {

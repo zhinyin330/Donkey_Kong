@@ -474,7 +474,7 @@ void DrawGame(GameScreen* currentScreen)
 
     // frecuencia del nivel
     if (gameEnemy != nullptr) {
-        float newSpeed = 1.0f / (1.0f + currentLevel * 0.15f);
+        float newSpeed = 1.0f / (1.0f + currentLevel * 0.11f);
         if (newSpeed < 0.2f) newSpeed = 0.2f;
         gameEnemy->SetFrameSpeed(newSpeed);
     }
