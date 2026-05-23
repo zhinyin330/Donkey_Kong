@@ -696,11 +696,57 @@ void Scene2::Update(float deltaTime, Player* player)
             {
                 if (!player->IsDying())
                 {
+                    player->LoseLife();
                     player->StartDeath();
                 }
             }
         }
     }
+}
+
+// ===== 生成新的小火人 =====
+void Scene2::SpawnFireSprite()
+{
+    // 随机选择平台（0-3，从下往上数4个平台）
+    int platformIndex = GetRandomValue(0, (int)platforms.size() - 1);
+    const PlatformInfo& plat = platforms[platformIndex];
+
+    // 计算随机X位置（在平台范围内，留出边缘空间）
+    float minX = plat.minX + 20.0f;
+    float maxX = plat.maxX - 80.0f;  // 减去小火人宽度（约64像素）
+    if (minX >= maxX) {
+        minX = plat.minX;
+        maxX = plat.maxX;
+    }
+
+    float randomX = (float)GetRandomValue((int)minX, (int)maxX);
+
+    // 创建新小火人
+    Vector2 spawnPos = { randomX, plat.y };
+    FireSprite* newFire = new FireSprite(spawnPos);
+
+    // 设置移动范围
+    newFire->SetRange(plat.minX, plat.maxX);
+    newFire->SetGroundY(plat.y);
+
+    // 随机初始方向
+    newFire->SetActive(true);
+
+    // 添加到列表
+    fireSprites.push_back(newFire);
+}
+
+// ===== 清理所有小火人 =====
+void Scene2::ClearAllFireSprites()
+{
+    for (FireSprite* fire : fireSprites)
+    {
+        if (fire != nullptr)
+        {
+            delete fire;
+        }
+    }
+    fireSprites.clear();
 }
 
 void Scene2::UpdateBombs(float deltaTime, Player* player) {
@@ -806,6 +852,7 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
                 Rectangle explosionArea = { bomb.position.x - 15, bomb.position.y - 15, 62, 62 };
                 if (CheckCollisionRecs(playerRect, explosionArea)) {
                     if (!player->IsDying()) {
+                        player->LoseLife();
                         player->StartDeath();
                     }
                 }
@@ -1029,47 +1076,3 @@ void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);
 }
 
-// ===== 生成新的小火人 =====
-void Scene2::SpawnFireSprite()
-{
-    // 随机选择平台（0-3，从下往上数4个平台）
-    int platformIndex = GetRandomValue(0, (int)platforms.size() - 1);
-    const PlatformInfo& plat = platforms[platformIndex];
-
-    // 计算随机X位置（在平台范围内，留出边缘空间）
-    float minX = plat.minX + 20.0f;
-    float maxX = plat.maxX - 80.0f;  // 减去小火人宽度（约64像素）
-    if (minX >= maxX) {
-        minX = plat.minX;
-        maxX = plat.maxX;
-    }
-
-    float randomX = (float)GetRandomValue((int)minX, (int)maxX);
-
-    // 创建新小火人
-    Vector2 spawnPos = { randomX, plat.y };
-    FireSprite* newFire = new FireSprite(spawnPos);
-
-    // 设置移动范围
-    newFire->SetRange(plat.minX, plat.maxX);
-    newFire->SetGroundY(plat.y);
-
-    // 随机初始方向
-    newFire->SetActive(true);
-
-    // 添加到列表
-    fireSprites.push_back(newFire);
-}
-
-// ===== 清理所有小火人 =====
-void Scene2::ClearAllFireSprites()
-{
-    for (FireSprite* fire : fireSprites)
-    {
-        if (fire != nullptr)
-        {
-            delete fire;
-        }
-    }
-    fireSprites.clear();
-}

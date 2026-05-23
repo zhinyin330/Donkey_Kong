@@ -178,6 +178,7 @@ public:
 
     //更新炸弹
     void UpdateBombs(float deltaTime, Player* player);
+    void ClearAllBombs() { activeBombs.clear(); }
 
     // 火焰敌人
     // ===== 新增：生成新小火人 =====

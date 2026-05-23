@@ -252,7 +252,7 @@ void DrawGame(GameScreen* currentScreen)
     // --- 2. UPDATE ---
     float deltaTime = GetFrameTime();
 
-    float barrelFrequency = 1.0f / (1.0f + currentLevel * 0.15f);  
+    float barrelFrequency = 1.0f / (1.0f + currentLevel * 0.12f);  
     float lightningFrequencyMin = 10.0f - currentLevel * 1.5f;    
     float lightningFrequencyMax = 20.0f - currentLevel * 2.0f;     
 
@@ -419,6 +419,15 @@ void DrawGame(GameScreen* currentScreen)
 
             // Al terminar la animación, comprobar si murió
             if (gamePlayer->IsDead()) {
+
+                if (isScene2) {
+                    Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+                    if (scene2) {
+                        scene2->ClearAllBombs();
+                        scene2->ClearAllFireSprites();
+                    }
+                }
+
                 *currentScreen = GAME_OVER;
                 static bool deadSoundPlayed = false;  // 防止重复播放
                 if (!deadSoundPlayed && deadSoundLoaded) {
