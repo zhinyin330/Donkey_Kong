@@ -37,7 +37,7 @@ Scene2::Scene2() {
     bombSpawnMax = 7.0f;
     fireSpawnInterval = 10.0f;
 
-    // ===== 雪动画 =====
+    //  雪动画 
     snowTextures[0] = LoadTexture("UI/Nieve1.png");
     snowTextures[1] = LoadTexture("UI/Nieve2.png");
     snowTextures[2] = LoadTexture("UI/Nieve3.png");
@@ -97,11 +97,11 @@ Scene2::Scene2() {
     timeTexture = LoadTexture("UI/Dk_tiempo.png");
     timeScale = 1.0f;
 
-    // ========== PLATAFORMAS SIMPLES ==========
+    //  PLATAFORMAS SIMPLES 
 
     // Suelo (Y=21)
-    for (int x = 0; x < mapWidth; x++) {nextSpawnTime = (float)GetRandomValue((int)(bombSpawnMin * 10), (int)(bombSpawnMax * 10)) / 10.0f;
-        level[21][x] = 1;
+    for (int x = 0; x < mapWidth; x++) {
+         level[21][x] = 1;
         hitboxLevel[21][x] = 1;
     }
 
@@ -135,7 +135,7 @@ Scene2::Scene2() {
         hitboxLevel[3][x] = 1;
     }
 
-    // ========== ESCALERAS ==========
+    //  ESCALERAS 
     // Tramo 1: Suelo (Y=21) a Plataforma 1 (Y=17)
     AddLadder(21, 17, 2, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
     AddLadder(21, 17, 22, { 0, 0, 1, 1 }, { 0, 2, 1, 1 });
@@ -158,7 +158,7 @@ Scene2::Scene2() {
     AddLadder(10, 6, 15, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
     AddLadder(10, 6, 19, { 0, 1, 1, 1 }, { 2, 1, 1, 1 });
 
-    // ========== PILARES ==========
+    //  PILARES 
     //Left
     AddPillar(307, 125);
     AddPillar(307, 145);
@@ -172,7 +172,7 @@ Scene2::Scene2() {
     //princesa
     princess.SetPosition(383, 3 * 32 - 32 * 2.2f + 24);
 
-    // ========== BOTONES DEL SUELO ==========
+    //  BOTONES DEL SUELO 
     buttonTexture = LoadTexture("items/Dk_BottomButton.png");
 
     // 8 botones distribuidos en el suelo (Y=21)
@@ -200,7 +200,7 @@ Scene2::Scene2() {
 
     // 创建火焰敌人
 
-    // ===== 初始化平台信息（从下往上数4个平台）=====
+    //  初始化平台信息（从下往上数4个平台）=====
     // 平台0：地面 (Y=21)
     platforms.push_back({
         21 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,  // Y坐标
@@ -229,7 +229,7 @@ Scene2::Scene2() {
         660.0f
         });
 
-    // ===== 初始化小火人生成系统 =====
+    //  初始化小火人生成系统 
     fireSpawnTimer = 0.0f;
     fireSpawnInterval = 10.0f;
 
@@ -237,7 +237,7 @@ Scene2::Scene2() {
     SpawnFireSprite();
 
 
-    // ========== 新增：加载音效 ==========
+    //  新增：加载音效 
     dkFallSound = LoadSound("audio/A_Happy_Ending.mp3");
     dkFallSoundLoaded = dkFallSound.frameCount != 0;
     if (dkFallSoundLoaded) {
@@ -278,7 +278,7 @@ Scene2::~Scene2() {
         UnloadTexture(snowTextures[i]);
     }
 
-    // ===== 清理所有小火人 =====
+    //  清理所有小火人 
     ClearAllFireSprites();
 
     if (fireKillSoundLoaded) {
@@ -334,7 +334,7 @@ void Scene2::CheckPlatformsStatus() {
 
     if (allButtonsPressed) {
         sequenceTriggered = true;
-        // ========== 播放音效（添加调试输出） ==========
+        //  播放音效（添加调试输出） 
         if (dkFallSoundLoaded) {
             TraceLog(LOG_INFO, "Playing DK fall sound NOW!");
             PlaySound(dkFallSound);
@@ -648,7 +648,7 @@ void Scene2::Update(float deltaTime, Player* player)
 
     UpdateBombs(deltaTime, player);
 
-    // ===== 每10秒生成新的小火人 =====
+    //  每10秒生成新的小火人 
     if (stopEnemySpawning) {
         ClearAllFireSprites();
         return;
@@ -666,7 +666,7 @@ void Scene2::Update(float deltaTime, Player* player)
         }
     }
 
-    // ===== 更新所有小火人并检测碰撞 =====
+    //  更新所有小火人并检测碰撞 
     for (int i = (int)fireSprites.size() - 1; i >= 0; i--)
     {
         FireSprite* fire = fireSprites[i];
@@ -681,7 +681,7 @@ void Scene2::Update(float deltaTime, Player* player)
                 continue;
             }
             fire->Update(deltaTime);
-            // ===== 新增：锤子攻击检测（玩家挥舞锤子时）=====
+            //  新增：锤子攻击检测（玩家挥舞锤子时）=====
             if (player != nullptr && player->IsSwingingHammer())
             {
                 Rectangle attackHitbox = player->GetAttackHitbox();
@@ -703,11 +703,9 @@ void Scene2::Update(float deltaTime, Player* player)
                 }
             }
             // 玩家碰撞检测（仅当小火人活着时）
-            if (fire->IsActive() && !fire->IsDead() && CheckCollisionRecs(
-                fire->GetHitbox(),
-                player->GetHitbox()))
+            if (!player->IsDying() && fire->IsActive() && !fire->IsDead() && fire->CanHurt())
             {
-                if (!player->IsDying())
+                if (CheckCollisionRecs(fire->GetHitbox(), player->GetHitbox()))
                 {
                     player->LoseLife();
                     player->StartDeath();
@@ -717,7 +715,7 @@ void Scene2::Update(float deltaTime, Player* player)
     }
 }
 
-// ===== 生成新的小火人 =====
+//  生成新的小火人 
 void Scene2::SpawnFireSprite()
 {
     // 随机选择平台（0-3，从下往上数4个平台）
@@ -738,6 +736,7 @@ void Scene2::SpawnFireSprite()
     Vector2 spawnPos = { randomX, plat.y };
     FireSprite* newFire = new FireSprite(spawnPos);
 
+
     // 设置移动范围
     newFire->SetRange(plat.minX, plat.maxX);
     newFire->SetGroundY(plat.y);
@@ -749,7 +748,7 @@ void Scene2::SpawnFireSprite()
     fireSprites.push_back(newFire);
 }
 
-// ===== 清理所有小火人 =====
+//  清理所有小火人 
 void Scene2::ClearAllFireSprites()
 {
     for (FireSprite* fire : fireSprites)
@@ -824,14 +823,14 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
         Vector2 playerCenter = { playerRect.x + playerRect.width / 2, playerRect.y + playerRect.height / 2 };
         float dist = Vector2Distance(bombCenter, playerCenter);
 
-        // --- 逻辑 A：靠近触发 ---
+        //  逻辑 A：靠近触发 
         if (!bomb.isTriggered && dist < detectionRange) {
             bomb.isTriggered = true;
             bomb.stage = 0; // 进入准备阶段
             bomb.currentFrame = 0;
         }
 
-        // --- 逻辑 B：动画状态机 (核心增加部分) ---
+        //  逻辑 B：动画状态机 (核心增加部分) 
         if (bomb.isTriggered) {
             bomb.frameTimer += deltaTime;
             float currentSpeed = (bomb.stage == 0) ? speedAnim : speedExplode;
@@ -864,11 +863,12 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
                 }
             }
 
-            // --- 逻辑 C：伤害检测 (修改部分) ---
+            //  逻辑 C：伤害检测 (修改部分) 
             // 只有在爆炸帧（4或5帧）时才产生实际伤害判定
             if (bomb.stage == 1 && bomb.currentFrame >= 4) {
                 // 增大一点判定范围
-                Rectangle explosionArea = { bomb.position.x - 15, bomb.position.y - 15, 62, 62 };
+                //Rectangle explosionArea = { bomb.position.x - 15, bomb.position.y - 15, 62, 62 };
+                Rectangle explosionArea = { bomb.position.x - 8, bomb.position.y - 8, 40, 40 };
                 if (CheckCollisionRecs(playerRect, explosionArea)) {
                     if (!player->IsDying()) {
                         player->LoseLife();
@@ -917,7 +917,7 @@ void Scene2::Draw() {
     int offsetY = platformHitboxOffsetY * tileScale;
     int visualHeight = 16;
 
-    // ===== 更新雪动画 =====
+    //  更新雪动画 
     snowTimer += GetFrameTime();
 
     if (snowTimer >= snowFrameSpeed) {
@@ -951,7 +951,7 @@ void Scene2::Draw() {
         }
     }
 
-    // ========== BOTONES DEL SUELO ==========
+    //  BOTONES DEL SUELO 
     float buttonScale = 2.0f;
     for (int i = 0; i < (int)buttons.size(); i++) {
         if (buttonsActive[i]) {
@@ -1008,7 +1008,7 @@ void Scene2::Draw() {
 
     DrawDkFalling();
 
-    // ========== 加分物品 ==========
+    //  加分物品 
     if (item1Active) {
         DrawTextureEx(item1Texture, item1Pos, 0.0f, 2.5f, WHITE);
     }
@@ -1019,7 +1019,6 @@ void Scene2::Draw() {
     if (item3Active) {
         DrawTextureEx(item3Texture, item3Pos, 0.0f, 2.5f, WHITE);
     }
-    // ====================
 
     // New plataformas
     if (newPlatformsVisible) {
@@ -1083,7 +1082,7 @@ void Scene2::Draw() {
         }
     }
 
-    // ===== 绘制雪 =====
+    //  绘制雪 
     DrawTexturePro(
         snowTextures[currentSnowFrame],
         Rectangle{
