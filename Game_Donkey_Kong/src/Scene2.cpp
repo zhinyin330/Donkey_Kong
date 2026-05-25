@@ -83,7 +83,7 @@ Scene2::Scene2() {
         TraceLog(LOG_WARNING, "Failed to load fire kill sound!");
     }
 
-    //新增：加载炸弹资源与初始化计时器
+    // 加载炸弹资源与初始化计时器
     // 加载 Bomb1.png 到 Bomb6.png
     for (int i = 1; i <= 6; i++) {
         bombTextures.push_back(LoadTexture(TextFormat("Items/Bomb%d.png", i))); // 请确认路径是 Items 还是 Barrel，根据你描述改为正确路径
@@ -210,33 +210,24 @@ Scene2::Scene2() {
     // 创建火焰敌人
 
     //  初始化平台信息（从下往上数4个平台）=====
-    // 平台0：地面 (Y=21)
-    platforms.push_back({
-        21 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,  // Y坐标
-        250.0f,   // 最小X
-        750.0f   // 最大X
-        });
+    // ========= 定义精确的平台分段（连续的平台区域）=========
+    // 地面层 (Y=21) - 完整的一条
+    platformSegments.push_back({ 21 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 0.0f, 800.0f, 0 });
 
-    // 平台1：第二层 (Y=18)
-    platforms.push_back({
-        18 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,
-        80.0f,
-        720.0f
-        });
+    // 第2层 (Y=18) - 分成左、右两段（中间缺口 x=160~256 左右）
+    // 缺口的 x 索引是 5-8，对应像素约 160-256
+    platformSegments.push_back({ 18 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 80.0f, 140.0f, 1 });
+    platformSegments.push_back({ 18 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 300.0f, 720.0f, 1 });
 
-    // 平台2：第三层 (Y=14)
-    platforms.push_back({
-        14 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,
-        110.0f,
-        690.0f
-        });
+    // 第3层 (Y=14) - 分成左、右两段
+    platformSegments.push_back({ 14 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 110.0f, 140.0f, 2 });
+    platformSegments.push_back({ 14 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 300.0f, 690.0f, 2 });
 
-    // 平台3：第四层 (Y=10)
-    platforms.push_back({
-        10 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32,
-        140.0f,
-        660.0f
-        });
+    // 第4层 (Y=10) - 完整的一条
+    platformSegments.push_back({ 10 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 140.0f, 660.0f, 3 });
+
+    // 第5层 (Y=6) - 完整的一条
+    platformSegments.push_back({ 6 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 160.0f, 640.0f, 4 });
 
     //  初始化小火人生成系统 
     fireSpawnTimer = 0.0f;
@@ -246,7 +237,7 @@ Scene2::Scene2() {
     SpawnFireSprite();
 
 
-    //  新增：加载音效 
+    //   加载音效 
     dkFallSound = LoadSound("audio/A_Happy_Ending.mp3");
     dkFallSoundLoaded = dkFallSound.frameCount != 0;
     if (dkFallSoundLoaded) {
@@ -762,7 +753,7 @@ void Scene2::Update(float deltaTime, Player* player)
                 continue;
             }
             fire->Update(deltaTime);
-            //  新增：锤子攻击检测（玩家挥舞锤子时）=====
+            //   锤子攻击检测（玩家挥舞锤子时）=====
             if (player != nullptr && player->IsSwingingHammer())
             {
                 Rectangle attackHitbox = player->GetAttackHitbox();
@@ -799,34 +790,43 @@ void Scene2::Update(float deltaTime, Player* player)
 //  生成新的小火人 
 void Scene2::SpawnFireSprite()
 {
-    // 随机选择平台（0-3，从下往上数4个平台）
-    int platformIndex = GetRandomValue(0, (int)platforms.size() - 1);
-    const PlatformInfo& plat = platforms[platformIndex];
+    if (platformSegments.empty()) return;
 
-    // 计算随机X位置（在平台范围内，留出边缘空间）
-    float minX = plat.minX + 20.0f;
-    float maxX = plat.maxX - 80.0f;  // 减去小火人宽度（约64像素）
+    // 随机选择一个平台分段
+    int segmentIndex = GetRandomValue(0, (int)platformSegments.size() - 1);
+    const PlatformSegment& segment = platformSegments[segmentIndex];
+
+    // 计算随机X位置（在平台分段范围内，留出边缘空间）
+    float minX = segment.minX + 25.0f;
+    float maxX = segment.maxX - 65.0f;  // 减去小火人宽度（约65像素）
+
     if (minX >= maxX) {
-        minX = plat.minX;
-        maxX = plat.maxX;
+        minX = segment.minX + 10.0f;
+        maxX = segment.maxX - 10.0f;
+        if (minX >= maxX) {
+            minX = segment.minX;
+            maxX = segment.maxX;
+        }
     }
 
     float randomX = (float)GetRandomValue((int)minX, (int)maxX);
 
     // 创建新小火人
-    Vector2 spawnPos = { randomX, plat.y };
+    Vector2 spawnPos = { randomX, segment.y };
     FireSprite* newFire = new FireSprite(spawnPos);
 
-
-    // 设置移动范围
-    newFire->SetRange(plat.minX, plat.maxX);
-    newFire->SetGroundY(plat.y);
+    // 设置移动范围（限制在该平台分段内）
+    newFire->SetRange(segment.minX, segment.maxX);
+    newFire->SetGroundY(segment.y);
 
     // 随机初始方向
     newFire->SetActive(true);
 
     // 添加到列表
     fireSprites.push_back(newFire);
+
+    TraceLog(LOG_INFO, "FireSprite spawned at (%.1f, %.1f) in segment %d, range: %.1f - %.1f",
+        randomX, segment.y, segmentIndex, segment.minX, segment.maxX);
 }
 
 //  清理所有小火人 
@@ -1224,6 +1224,30 @@ void Scene2::Draw() {
     DrawGoldenPlatforms();
     //  绘制移动平台 
     DrawMovingPlatforms();
+
+    // ========= 调试：绘制小火人移动范围（绿色框）=========
+#ifdef _DEBUG  // 仅在调试模式下显示
+    for (const auto& segment : platformSegments) {
+        // 绘制平台分段边界（绿色框）
+        DrawRectangleLines(
+            (int)segment.minX,
+            (int)segment.y - 5,  // 稍微抬高一点，避免与平台重叠
+            (int)(segment.maxX - segment.minX),
+            10,
+            GREEN
+        );
+
+        // 显示文字标签
+        char label[50];
+        sprintf(label, "Layer %d", segment.layerIndex);
+        DrawText(label, (int)segment.minX + 5, (int)segment.y - 20, 15, GREEN);
+
+        // 显示范围数值
+        char rangeText[50];
+        sprintf(rangeText, "X: %.0f-%.0f", segment.minX, segment.maxX);
+        DrawText(rangeText, (int)segment.minX + 5, (int)segment.y - 5, 12, GREEN);
+    }
+#endif
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);
@@ -1301,8 +1325,8 @@ void Scene2::SpawnMovingPlatform()
     newPlatform.active = true;
     newPlatform.reachedEnd = false;
     newPlatform.spawnTimer = 0.0f;
-    newPlatform.hasButton = true;        // 新增：标记这个平台是否有按钮
-    newPlatform.buttonCollected = false; // 新增：标记按钮是否已被收集
+    newPlatform.hasButton = true;        //  标记这个平台是否有按钮
+    newPlatform.buttonCollected = false; //  标记按钮是否已被收集
 
     movingPlatforms.push_back(newPlatform);
 

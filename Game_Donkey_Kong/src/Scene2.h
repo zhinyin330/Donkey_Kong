@@ -125,17 +125,18 @@ private:
     Texture2D timeTexture;
     Rectangle timeSourceRec;
     float timeScale;
-    // ===== 小火人管理系统 =====
+    //  小火人管理系统 
     std::vector<FireSprite*> fireSprites;  // 存储所有小火人
     float fireSpawnTimer;                   // 生成计时器
     int maxFireSprites = 8;                // 最大同时存在的小火人数量
     // 平台位置数据（从下往上数4个平台）
-    struct PlatformInfo {
+    struct PlatformSegment {
         float y;           // Y坐标
         float minX;        // 最小X
         float maxX;        // 最大X
+        int layerIndex;    // 层级索引
     };
-    std::vector<PlatformInfo> platforms;
+    std::vector<PlatformSegment> platformSegments;
     bool isPaused = false;
   
 
@@ -228,17 +229,17 @@ public:
     void ClearAllBombs() { activeBombs.clear(); }
 
     // 火焰敌人
-    // ===== 新增：生成新小火人 =====
+    //   生成新小火人 
     void SpawnFireSprite();
 
-    // ===== 新增：清理所有小火人 =====
+    //   清理所有小火人 
     void ClearAllFireSprites();
     void Update(float deltaTime, Player* player);
 
     bool stopEnemySpawning;
 
     void SetPaused(bool p) { isPaused = p; }
-    // ==================== 新增：移动平台相关方法 ====================
+    // 移动平台相关方法
     bool HasMovingPlatforms() override { return true; }
     int CheckMovingPlatformCollision(Rectangle playerHitbox, float& groundY, bool& hasButton, bool& buttonCollected) override;
     Vector2 GetNearestMovingPlatformPosition(Rectangle playerHitbox) override;
