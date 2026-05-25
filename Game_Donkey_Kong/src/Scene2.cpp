@@ -112,23 +112,27 @@ Scene2::Scene2() {
 
     // Plataforma Y=18 
     for (int x = 2; x < mapWidth - 2; x++) {
+        // 如果是第7个平台（X坐标大约对应 baseX + 6 * tileWidth = 32 + 192 = 224），跳过
+        // 简化判断：x从2到22，第7个大约是 x=8
+        if (x == 5 || x == 6 || x==7||x == 8) continue;  // 第7个平台位置，玩家和小火人不可站立
         level[18][x] = 1;
         hitboxLevel[18][x] = 1;
     }
 
-    // Plataforma Y=14 
+    // Plataforma Y=14 (第三层) 
     for (int x = 3; x < mapWidth - 3; x++) {
+        if (x == 5 || x == 6 || x == 7 || x == 8) continue;
         level[14][x] = 1;
         hitboxLevel[14][x] = 1;
     }
 
-    // Plataforma Y=10 
+    // Plataforma Y=10 (第四层)
     for (int x = 4; x < mapWidth - 4; x++) {
         level[10][x] = 1;
         hitboxLevel[10][x] = 1;
     }
 
-    // Plataforma Y=6 
+    // Plataforma Y=6 (第五层)
     for (int x = 5; x < mapWidth - 5; x++) {
         level[6][x] = 1;
         hitboxLevel[6][x] = 1;
@@ -186,9 +190,9 @@ Scene2::Scene2() {
     float buttonW = buttonTexture.width * buttonScale;
     float buttonY = 21 * 32 + platformHitboxOffsetY * tileScale - buttonTexture.height * buttonScale;
 
-    buttons.push_back({ 235, 586 });   // Botón 1
-    buttons.push_back({ 240, 456 });   // Botón 2
-    buttons.push_back({ 235, 328 });   // Botón 3
+    //buttons.push_back({ 235, 586 });   // Botón 1
+    //buttons.push_back({ 240, 456 });   // Botón 2
+    buttons.push_back({ 335, 328 });   // Botón 3
     buttons.push_back({ 240, 200 });   // Botón 4
     buttons.push_back({ 528, 586 });   // Botón 5
     buttons.push_back({ 533, 456 });   // Botón 6
@@ -249,6 +253,17 @@ Scene2::Scene2() {
         SetSoundVolume(dkFallSound, 1.0f);
     }
 
+
+    // 加载金色平台贴图
+    goldenPlatformTexture = LoadTexture("Items/Dk_GoldenPiston.png");
+    // 加载移动平台贴图（使用现有的地板贴图）
+    movingPlatformTexture = LoadTexture("Architecture/Dk_FloorPart1.png");
+
+    // 初始化移动平台生成间隔
+    movingPlatformSpawnInterval = 5.0f;
+
+    // 初始化金色平台
+    InitGoldenPlatforms();
 }
 
 Scene2::~Scene2() {
@@ -296,6 +311,14 @@ Scene2::~Scene2() {
         UnloadSound(dkFallSoundEffect);
         dkFallSoundEffectLoaded = false;
     }
+
+    //  卸载金色平台和移动平台贴图 
+    if (goldenPlatformTexture.id != 0) {
+        UnloadTexture(goldenPlatformTexture);
+    }
+    if (movingPlatformTexture.id != 0) {
+        UnloadTexture(movingPlatformTexture);
+    }
 }
 void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
     float buttonScale = 2.0f;
@@ -312,9 +335,7 @@ void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
                 float playerFeetY = playerHitbox.y + playerHitbox.height;
                 float buttonTopY = buttonRect.y;
 
-                // Rango más amplio para botones superiores (10 píxeles)
                 if (playerFeetY >= buttonTopY - 2 && playerFeetY <= buttonTopY + 12) {
-               
                     if (!buttonsScored[i] && player != nullptr) {
                         buttonsScored[i] = true;      // 标记这个按钮已经给过分数了
                         player->AddScore(100);         // 加100分
@@ -324,21 +345,67 @@ void Scene2::CheckButtonCollision(Rectangle playerHitbox, Player* player) {
             }
         }
     }
+
+    // 2. 检查移动平台上的按钮
+    for (int i = 0; i < (int)movingPlatforms.size(); i++) {
+        MovingPlatform& platform = movingPlatforms[i];
+
+        // 如果平台有按钮且按钮未被收集
+        if (platform.hasButton && !platform.buttonCollected) {
+            // 计算按钮位置（在平台上方）
+            float buttonWidth = buttonTexture.width * buttonScale;
+            float buttonHeight = buttonTexture.height * buttonScale;
+            Rectangle buttonRect = {
+                platform.position.x - buttonWidth / 2,  // 按钮在平台中心
+                platform.position.y - buttonHeight - 5, // 按钮在平台上方5像素
+                buttonWidth,
+                buttonHeight
+            };
+
+            if (CheckCollisionRecs(playerHitbox, buttonRect)) {
+                float playerFeetY = playerHitbox.y + playerHitbox.height;
+                float buttonTopY = buttonRect.y;
+
+                if (playerFeetY >= buttonTopY - 2 && playerFeetY <= buttonTopY + 12) {
+                    // 收集按钮
+                    platform.buttonCollected = true;
+                    if (player != nullptr) {
+                        player->AddScore(100);
+                    }
+                    TraceLog(LOG_INFO, "Button on moving platform collected! Platform %d", i);
+                }
+            }
+        }
+    }
+
     CheckPlatformsStatus();
 }
 
 void Scene2::CheckPlatformsStatus() {
     if (sequenceTriggered) return;
 
-    bool allButtonsPressed = true;
-    for (int i = 0; i < 8; i++) {
-        if (buttonsActive[i]) {
-            allButtonsPressed = false;
-            break;
+    // 计算已收集的按钮总数
+    int collectedButtons = 0;
+
+    // 固定按钮（6个）
+    for (int i = 0; i < (int)buttonsActive.size(); i++) {
+        if (!buttonsActive[i]) {
+            collectedButtons++;
         }
     }
 
-    if (allButtonsPressed) {
+    // 移动平台上的按钮（2个）
+    for (const auto& platform : movingPlatforms) {
+        if (platform.hasButton && platform.buttonCollected) {
+            collectedButtons++;
+        }
+    }
+
+    // 总共需要8个按钮（6个固定 + 2个移动平台）
+    const int totalButtonsNeeded = 8;
+
+    
+    if (collectedButtons >= totalButtonsNeeded && !sequenceTriggered) {
         sequenceTriggered = true;
         //  播放音效（添加调试输出） 
         if (dkFallSoundLoaded) {
@@ -407,6 +474,10 @@ void Scene2::CheckPlatformsStatus() {
             dkFallFrames.push_back(LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_Fall4.png"));
 
 
+        }
+        // 清除所有移动平台上的按钮（防止重复）
+        for (auto& platform : movingPlatforms) {
+            platform.hasButton = false;
         }
     }
 }
@@ -653,8 +724,10 @@ void Scene2::Update(float deltaTime, Player* player)
     if (isPaused) return;
 
     UpdateMusic();
-
+    // 更新移动平台
+    UpdateMovingPlatforms(deltaTime);
     UpdateBombs(deltaTime, player);
+    
 
     //  每10秒生成新的小火人 
     if (stopEnemySpawning) {
@@ -1144,8 +1217,276 @@ void Scene2::Draw() {
         0.0f,
         WHITE
     );
+
+    //  绘制连接红线 
+    DrawConnectionLine();
+    //  绘制金色平台 
+    DrawGoldenPlatforms();
+    //  绘制移动平台 
+    DrawMovingPlatforms();
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);
 }
 
+// Scene2.cpp - 在文件末尾添加以下函数实现
+
+//  初始化金色平台 
+void Scene2::InitGoldenPlatforms()
+{
+    // 清空现有的金色平台列表
+    goldenPlatforms.clear();
+
+    // 获取基础偏移量
+    int scaledTileSize = tileSize * tileScale;  // 32
+    int offsetY = platformHitboxOffsetY * tileScale + 10; 
+
+    // 定义各层的Y坐标
+    float layer4_Y = 10 * scaledTileSize + offsetY;
+    float layer1_Y = 21 * scaledTileSize + offsetY; 
+
+    float baseX = 48.0f;  // 起始X偏移
+    float tileWidth = 32.0f;  // 每个平台宽度
+
+    // 第四层金色平台（不旋转）
+    GoldenPlatform topPlatform;
+    topPlatform.position = Vector2{ baseX + 6 * tileWidth, layer4_Y };  // 第7个平台位置
+    topPlatform.active = true;
+    topPlatform.rotated = false;
+    topPlatform.layerIndex = 4;  // 改为4（第四层）
+    goldenPlatforms.push_back(topPlatform);
+
+   
+    // 第一层（最底层）旋转180度
+    GoldenPlatform bottomPlatform;
+    bottomPlatform.position = Vector2{ baseX + 6 * tileWidth, layer1_Y };
+    bottomPlatform.active = true;
+    bottomPlatform.rotated = true;
+    bottomPlatform.layerIndex = 1;
+    goldenPlatforms.push_back(bottomPlatform);
+
+    // 设置连接线的起点和终点（从最顶层金色平台中心到底层金色平台中心）
+    connectionLineStart = Vector2{
+        topPlatform.position.x,  // 平台中心X（平台宽度32的一半）
+        topPlatform.position.y    // 平台中心Y
+    };
+    connectionLineEnd = Vector2{
+        bottomPlatform.position.x,
+        bottomPlatform.position.y
+    };
+
+    // 清空移动平台列表
+    movingPlatforms.clear();
+
+    TraceLog(LOG_INFO, "Golden platforms initialized: %d platforms", (int)goldenPlatforms.size());
+}
+
+
+//  生成移动平台 
+void Scene2::SpawnMovingPlatform()
+{
+    // 限制最多同时存在2个移动平台
+    if ((int)movingPlatforms.size() >= 2) return;
+
+    MovingPlatform newPlatform;
+
+    // 设置起点和终点（红色连接线的两端）
+    newPlatform.startPos = connectionLineEnd;
+    newPlatform.endPos = connectionLineStart;
+
+    // 初始位置在起点
+    newPlatform.position = newPlatform.startPos;
+    newPlatform.progress = 0.0f;
+    newPlatform.speed = 0.1f;  // 移动速度（每秒移动30%的距离，约3.3秒走完全程）
+    newPlatform.active = true;
+    newPlatform.reachedEnd = false;
+    newPlatform.spawnTimer = 0.0f;
+    newPlatform.hasButton = true;        // 新增：标记这个平台是否有按钮
+    newPlatform.buttonCollected = false; // 新增：标记按钮是否已被收集
+
+    movingPlatforms.push_back(newPlatform);
+
+    TraceLog(LOG_INFO, "Moving platform spawned! Total moving platforms: %d", (int)movingPlatforms.size());
+}
+
+//  更新移动平台 
+void Scene2::UpdateMovingPlatforms(float deltaTime)
+{
+    // 更新生成计时器
+    static float globalSpawnTimer = 0.0f;
+
+    if (!stopEnemySpawning) {  // 如果游戏还在进行中
+        globalSpawnTimer += deltaTime;
+        if ((int)movingPlatforms.size() < 2 && globalSpawnTimer >= movingPlatformSpawnInterval) {
+            globalSpawnTimer = 0.0f;
+            SpawnMovingPlatform();
+        }
+    }
+
+    // 更新所有移动平台的位置
+    for (int i = (int)movingPlatforms.size() - 1; i >= 0; i--) {
+        MovingPlatform& platform = movingPlatforms[i];
+
+        if (!platform.active) {
+            movingPlatforms.erase(movingPlatforms.begin() + i);
+            continue;
+        }
+
+        // 更新移动进度
+        platform.progress += platform.speed * deltaTime;
+
+        if (platform.progress >= 1.0f) {
+            // 到达顶部平台，重置到底部重新开始（循环移动）
+            platform.progress = 0.0f;
+            platform.position = platform.startPos;
+            // 注意：按钮不会重新出现，保持 buttonCollected 状态
+        }
+        else {
+            // 线性插值计算当前位置
+            platform.position.x = platform.startPos.x + (platform.endPos.x - platform.startPos.x) * platform.progress;
+            platform.position.y = platform.startPos.y + (platform.endPos.y - platform.startPos.y) * platform.progress;
+        }
+    }
+}
+
+
+//  移动平台碰撞检测 
+int Scene2::CheckMovingPlatformCollision(Rectangle playerHitbox, float& groundY, bool& hasButton, bool& buttonCollected)
+{
+    
+    // 移动平台的大小
+    float platformWidth = 32.0f;  
+    float platformHeight = 16.0f;  
+
+    for (int i = 0; i < (int)movingPlatforms.size(); i++) {
+        const MovingPlatform& platform = movingPlatforms[i];
+        if (!platform.active) continue;
+
+        // 计算平台的碰撞箱（以中心点为基准）
+        Rectangle platformRect = {
+            platform.position.x - platformWidth / 2,
+            platform.position.y - platformHeight / 2,
+            platformWidth,
+            platformHeight
+        };
+
+        // 检查玩家是否站在平台上
+        if (CheckCollisionRecs(playerHitbox, platformRect)) {
+            // 检查玩家是否从上方接触到平台
+            float playerBottom = playerHitbox.y + playerHitbox.height;
+            float platformTop = platformRect.y;
+
+            // 允许小范围误差
+            if (playerBottom >= platformTop - 2 && playerBottom <= platformTop + 12) {
+                groundY = platformTop;
+                hasButton = platform.hasButton;
+                buttonCollected = platform.buttonCollected;
+                return i;  // 返回平台索引
+            }
+        }
+    }
+
+    return -1;
+}
+
+//  绘制金色平台 
+void Scene2::DrawGoldenPlatforms()
+{
+    float platformWidth = 32.0f;
+    float platformHeight = 16.0f;
+
+    for (const auto& platform : goldenPlatforms) {
+        if (!platform.active) continue;
+
+        Rectangle destRect = {
+            platform.position.x,
+            platform.position.y,
+            platformWidth,
+            platformHeight
+        };
+
+        float rotation = platform.rotated ? 180.0f : 0.0f;
+        Vector2 origin = { platformWidth / 2, platformHeight / 2 };
+
+        DrawTexturePro(goldenPlatformTexture,
+            Rectangle{ 0, 0, (float)goldenPlatformTexture.width, (float)goldenPlatformTexture.height },
+            destRect, origin, rotation, WHITE);
+    }
+}
+
+//  绘制移动平台 
+void Scene2::DrawMovingPlatforms()
+{
+    float platformWidth = 32.0f;   
+    float platformHeight = 16.0f;
+    float buttonScale = 1.5f;
+
+    for (const auto& platform : movingPlatforms) {
+        if (!platform.active || platform.reachedEnd) continue;
+
+        Rectangle destRect = {
+            platform.position.x - platformWidth / 2,
+            platform.position.y - platformHeight / 2,
+            platformWidth,
+            platformHeight
+        };
+
+        // 使用 Dk_FloorPart1 贴图
+        DrawTexturePro(movingPlatformTexture,
+            Rectangle{ 0, 4, 16, 8 },  // 使用和普通平台相同的源区域
+            destRect, Vector2{ 0, 0 }, 0.0f, WHITE);
+
+        // 绘制平台上的按钮（如果存在且未被收集）
+        if (platform.hasButton && !platform.buttonCollected) {
+            Rectangle buttonRect = {
+                platform.position.x - (buttonTexture.width * buttonScale) / 2,
+                platform.position.y - (buttonTexture.height * buttonScale) - 5,
+                buttonTexture.width * buttonScale,
+                buttonTexture.height * buttonScale
+            };
+            DrawTexturePro(buttonTexture,
+                Rectangle{ 0, 0, (float)buttonTexture.width, (float)buttonTexture.height },
+                buttonRect, Vector2{ 0, 0 }, 0.0f, WHITE);
+        }
+    }
+}
+
+//  绘制连接红线 
+void Scene2::DrawConnectionLine()
+{
+    // 绘制从顶部金色平台到底部金色平台的红色连接线
+    DrawLineEx(connectionLineStart, connectionLineEnd, 2.0f, RED);
+}
+
+//获取最近的移动平台位置
+Vector2 Scene2::GetNearestMovingPlatformPosition(Rectangle playerHitbox)
+{
+    float platformWidth = 32.0f;
+    float platformHeight = 16.0f;
+    float minDistance = 100.0f;
+    Vector2 nearestPos = { 0, 0 };
+
+    for (const auto& platform : movingPlatforms) {
+        if (!platform.active) continue;
+
+        Rectangle platformRect = {
+            platform.position.x - platformWidth / 2,
+            platform.position.y - platformHeight / 2,
+            platformWidth,
+            platformHeight
+        };
+
+        if (CheckCollisionRecs(playerHitbox, platformRect)) {
+            float playerCenterX = playerHitbox.x + playerHitbox.width / 2;
+            float platformCenterX = platform.position.x;
+            float distance = fabs(playerCenterX - platformCenterX);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestPos = platform.position;
+            }
+        }
+    }
+
+    return nearestPos;
+}

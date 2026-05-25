@@ -36,6 +36,11 @@ public:
     virtual bool IsTransitionReached() { return false; }
     virtual void SetTransitionReached(bool val) {}
     virtual bool CheckAdjacentTiles() { return true; }
+
+    // ==================== 新增：移动平台相关虚函数 ====================
+    virtual bool HasMovingPlatforms() { return false; }
+    virtual int CheckMovingPlatformCollision(Rectangle playerHitbox, float& groundY, bool& hasButton, bool& buttonCollected) { return -1; }
+    virtual Vector2 GetNearestMovingPlatformPosition(Rectangle playerHitbox) { return { 0, 0 }; }
 };
 // 油桶结构体
 struct OilCanister {

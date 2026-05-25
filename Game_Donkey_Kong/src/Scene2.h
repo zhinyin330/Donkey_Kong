@@ -139,6 +139,44 @@ private:
     bool isPaused = false;
   
 
+    // 金色平台结构体
+    struct GoldenPlatform {
+        Vector2 position;    // 平台位置
+        bool active;         // 是否激活
+        bool rotated;        // 是否旋转180度
+        int layerIndex;      // 层级索引（1-4层）
+    };
+
+    // 移动平台结构体
+    struct MovingPlatform {
+        Vector2 position;    // 当前位置（中心点）
+        Vector2 startPos;    // 起始位置（顶部金色平台）
+        Vector2 endPos;      // 结束位置（底部金色平台）
+        float progress;      // 移动进度 (0-1)
+        float speed;         // 移动速度
+        bool active;         // 是否激活
+        bool reachedEnd;     // 是否到达终点
+        float spawnTimer;    // 生成计时器
+        bool hasButton;      // 是否有按钮
+        bool buttonCollected; // 按钮是否已被收集
+    };
+
+    Texture2D goldenPlatformTexture;  // 金色平台贴图
+    Texture2D movingPlatformTexture;  // 移动平台贴图（使用 Dk_FloorPart1）
+    std::vector<GoldenPlatform> goldenPlatforms;  // 金色平台列表
+    std::vector<MovingPlatform> movingPlatforms;   // 移动平台列表
+
+    float movingPlatformSpawnInterval;  // 移动平台生成间隔（5秒）
+    Vector2 connectionLineStart;        // 连接线起点
+    Vector2 connectionLineEnd;          // 连接线终点
+
+    // 私有方法
+    void InitGoldenPlatforms();          // 初始化金色平台
+    void UpdateMovingPlatforms(float deltaTime);  // 更新移动平台
+    void SpawnMovingPlatform();          // 生成移动平台
+    void DrawGoldenPlatforms();          // 绘制金色平台
+    void DrawMovingPlatforms();          // 绘制移动平台
+    void DrawConnectionLine();           // 绘制连接红线
 public:
     Scene2();
     ~Scene2();
@@ -200,5 +238,8 @@ public:
     bool stopEnemySpawning;
 
     void SetPaused(bool p) { isPaused = p; }
-
+    // ==================== 新增：移动平台相关方法 ====================
+    bool HasMovingPlatforms() override { return true; }
+    int CheckMovingPlatformCollision(Rectangle playerHitbox, float& groundY, bool& hasButton, bool& buttonCollected) override;
+    Vector2 GetNearestMovingPlatformPosition(Rectangle playerHitbox) override;
 };
