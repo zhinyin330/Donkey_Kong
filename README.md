@@ -14,9 +14,15 @@ El [Donkey Kong 1981](https://www.mariowiki.com/Donkey_Kong_(game)) Un clásico 
 ## How to play (not final version)
 The main goal of the game is to navigate each stage, avoid enemies and obstacles, and reach the top where Pauline is being held. If Mario touches an enemy or falls from a height, the player loses a life, when you use up all your lifes, game over.
 
-To control the main character, you would need to: 
-- use the arrow keys to move left or right across platforms, and move up or down when standing in front of a ladder to climb between levels.
-- use the space bar to jump to avoid hazards or to jump over barrels thrown by Donkey Kong. Sometimes you can also jump near a barrel to earn bonus points.
+Controles:
+|Tecla |	Acción |
+| ← → / A D |	Moverse horizontalmente |
+| ↑ ↓	/ W S | Subir/Bajar escaleras |
+| ESPACIO | Saltar |
+| J	| Usar martillo (golpear barriles o duendes de fuego) |
+| K	| Activar poder de estrella (inmunidad temporal) |
+| P	| Pausa |
+| ESC	| Salir del juego |
 
 ## List of features implemented
 ### v.01
