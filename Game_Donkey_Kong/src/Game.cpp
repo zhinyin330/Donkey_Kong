@@ -11,6 +11,7 @@
 #include "GameOver.h"
 #include "LeaderBoard.h"
 #include "Princess.h"
+#include <fstream>
 
 static GameScene* gameScene = nullptr;
 static Player* gamePlayer = nullptr;
@@ -46,6 +47,13 @@ static bool deathOverlayLoaded = false;
 static Sound lightningSound = { 0 };
 static Sound deadSound = { 0 };        // 死亡音效
 static bool deadSoundLoaded = false;   
+
+static Texture2D numberTexture = { 0 };             // Textura de números 0-9
+static Texture2D highScoreTexture = { 0 };          // Textura "HIGHSCORE"
+static Texture2D levelTexture = { 0 };              // Textura LEVEL
+static Texture2D ScoreTexture = { 0 };              // Textura Score
+static bool uiTexturesLoaded = false;
+
 void InitGame()
 {
     CleanupGame();
@@ -60,6 +68,14 @@ void InitGame()
     gameOver = new GameOver();
     static bool deadSoundPlayed = false;
     deadSoundPlayed = false;
+
+    if (!uiTexturesLoaded) {
+        numberTexture = LoadTexture("UI/Dk_UI_Numbers.png");                    // NUMBERS  
+        highScoreTexture = LoadTexture("UI/Dk_UI_HighScore.png");               // HIGHSCORE
+        levelTexture = LoadTexture("UI/Dk_UI_CurrentLevel.png");                // LEVEL
+        ScoreTexture = LoadTexture("UI/Dk_UI_1up.png");                         // Score
+        uiTexturesLoaded = true;
+    }
 
     if (!deadSoundLoaded) {
         deadSound = LoadSound("audio/Dead.mp3");
@@ -109,6 +125,88 @@ void InitGame()
     if (!deathOverlayLoaded) {
         deathOverlay = LoadTexture("VFX/Dk_Motion_Death.png");
         deathOverlayLoaded = true;
+    }
+}
+
+void DrawNumberWithTexture(int value, int x, int y, float scale) {              //FUNCION PARA DIBUJAR NUMEROS CON LA TEXTURA
+    if (numberTexture.id == 0) return;
+
+    int texWidth = numberTexture.width;         // 35
+    int texHeight = numberTexture.height;       // 14
+
+    float digitWidth = (float)texWidth / 5.0f;          // 7.0f
+    float digitHeight = (float)texHeight / 2.0f;        // 7.0f
+
+    char str[16];
+    sprintf(str, "%06d", value);
+
+    float currentX = x;
+
+    for (int i = 0; i < (int)strlen(str); i++)
+    {
+        int digit = str[i] - '0';
+
+        int row = (digit < 5) ? 0 : 1;                  // 0-4 → fila 0, 5-9 → fila 1
+        int col = (digit < 5) ? digit : digit - 5;      // 0,1,2,3,4 o 5→0,6→1, ...
+
+        // Posición en la textura
+        float srcX = col * digitWidth;
+        float srcY = row * digitHeight;
+
+        Rectangle srcRect = {
+            srcX,
+            srcY,
+            digitWidth,
+            digitHeight
+        };
+
+        Rectangle dstRect = {
+            currentX,
+            (float)y,
+            digitWidth * scale,
+            digitHeight * scale
+        };
+
+        DrawTexturePro(numberTexture, srcRect, dstRect, { 0, 0 }, 0.0f, WHITE);
+
+        currentX += digitWidth * scale;
+    }
+}
+
+void DrawTwoDigitNumber(int value, int x, int y, float scale) {
+    if (numberTexture.id == 0) return;
+
+    float digitWidth = (float)numberTexture.width / 5.0f;           // 7.0f
+    float digitHeight = (float)numberTexture.height / 2.0f;         // 7.0f
+
+    char str[3];
+    sprintf(str, "%02d", value);                        // "01", "02", ..., "99"
+
+    float currentX = x;
+
+    for (int i = 0; i < 2; i++) {
+        int digit = str[i] - '0';
+
+        int row = (digit < 5) ? 0 : 1;
+        int col = (digit < 5) ? digit : digit - 5;
+
+        Rectangle srcRect = {
+            col * digitWidth,
+            row * digitHeight,
+            digitWidth,
+            digitHeight
+        };
+
+        Rectangle dstRect = {
+            currentX,
+            (float)y,
+            digitWidth * scale,
+            digitHeight * scale
+        };
+
+        DrawTexturePro(numberTexture, srcRect, dstRect, { 0, 0 }, 0.0f, WHITE);
+
+        currentX += digitWidth * scale;
     }
 }
 
@@ -689,24 +787,46 @@ void DrawGame(GameScreen* currentScreen)
 
     if (hammerActive && !hammerCollected) {
         DrawTextureEx(hammerTexture, hammerPosition, 0.0f, hammerScale, WHITE);
+    }        
+
+    // DIBUJAR HIGHSCORE
+
+    if (highScoreTexture.id != 0) {
+        float hsLabelX = (GameScene::GetScreenWidth() - highScoreTexture.width * 2.0f) / 2.0f;
+        DrawTextureEx(highScoreTexture, { hsLabelX, 8 }, 0.0f, 2.5f, WHITE);
+    }
+    if (numberTexture.id != 0) {
+        int highScore = 0;
+        if (leaderBoard != nullptr) {
+            highScore = leaderBoard->GetHighestScore();
+        }
+        else {
+            std::ifstream file("scores.txt");
+            if (file.is_open()) {
+                std::string name;
+                int level, score;
+                while (file >> name >> level >> score) {
+                    if (score > highScore) highScore = score;
+                }
+                file.close();
+            }
+        }
+        float hsNumX = (GameScene::GetScreenWidth() - 4 * 7 * 3.0f) / 2.0f;
+        DrawNumberWithTexture(highScore, hsNumX, 26, 3.0f);
     }
 
-    if (gamePlayer != nullptr) {
-        DrawRectangle(10, 10, 120, 30, Fade(BLACK, 0.7f));
-        DrawText(TextFormat("SCORE: %04d", gamePlayer->GetScore()), 15, 15, 20, WHITE);
+    // DIBUJAR SCORE
+
+    if (gamePlayer != nullptr && numberTexture.id != 0) {
+        DrawText("1UP", 60, 5, 25, RED);
+        DrawNumberWithTexture(gamePlayer->GetScore(), 10, 26, 3.0f);
     }
 
-    if (leaderBoard != nullptr) {
-        int highScore = leaderBoard->GetHighestScore();
-        DrawRectangle(GameScene::GetScreenWidth() - 130, 10, 120, 30, Fade(BLACK, 0.7f));
-        DrawText(TextFormat("HIGHSCORE: %04d", highScore), GameScene::GetScreenWidth() - 510, 10, 30, WHITE);
-    }
-    else {
-        // Si el leaderBoard no existe, inicialízalo temporalmente para leer
-        LeaderBoard tempBoard;
-        int highScore = tempBoard.GetHighestScore();
-        DrawRectangle(GameScene::GetScreenWidth() - 450, 10, 50, 30, Fade(BLACK, 0.7f));
-        DrawText(TextFormat("HIGHSCORE: %04d", highScore), GameScene::GetScreenWidth() - 510, 10, 30, WHITE);
+    // DIBUJAR LEVEL
+
+    if (levelTexture.id != 0) {
+        DrawTextureEx(levelTexture, { 690, 180 }, 0.0f, 2.0f, WHITE);
+        DrawTwoDigitNumber(currentLevel, 725, 180, 2.0f);
     }
 
     if (heartTexture.id != 0 && gamePlayer != nullptr) {
