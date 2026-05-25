@@ -11,7 +11,6 @@
 #include "GameOver.h"
 #include "LeaderBoard.h"
 #include "Princess.h"
-#include "DebugMenu.h"
 #include <fstream>
 
 static GameScene* gameScene = nullptr;
@@ -24,7 +23,6 @@ static bool isScene2 = false;
 static Transition* gameTransition = nullptr;
 static PauseMenu* pauseMenu = nullptr;
 static GameOver* gameOver = nullptr;
-static DebugMenu* debugMenu = nullptr;
 static int currentLevel = 1;
 static int totalScore = 0;
 static int totalStars = 0;
@@ -49,7 +47,7 @@ static bool deathOverlayLoaded = false;
 static Sound lightningSound = { 0 };
 static Sound deadSound = { 0 };        // 死亡音效
 static bool deadSoundLoaded = false;   
-static bool debugMode = false;
+
 static Texture2D numberTexture = { 0 };             // Textura de números 0-9
 static Texture2D highScoreTexture = { 0 };          // Textura "HIGHSCORE"
 static Texture2D levelTexture = { 0 };              // Textura LEVEL
@@ -70,8 +68,6 @@ void InitGame()
     gameOver = new GameOver();
     static bool deadSoundPlayed = false;
     deadSoundPlayed = false;
-    debugMenu = new DebugMenu();
-    debugMode = false;
 
     if (!uiTexturesLoaded) {
         numberTexture = LoadTexture("UI/Dk_UI_Numbers.png");                    // NUMBERS  
@@ -237,8 +233,6 @@ void InitGameScene2()
     shouldReset = false;
     gameTransition = new Transition();
     gameInProgress = true;
-    debugMenu = new DebugMenu();
-    debugMode = false;
 
     lightningTimer = 0.0f;
     lightningNextTime = (float)GetRandomValue(10, 15);
@@ -285,7 +279,6 @@ void CleanupGame()
         if (pauseMenu != nullptr) { delete pauseMenu; pauseMenu = nullptr; }
         if (gameOver != nullptr) { delete gameOver; gameOver = nullptr; }
         if (leaderBoard != nullptr) { delete leaderBoard; leaderBoard = nullptr; }
-        if (debugMenu != nullptr) { delete debugMenu; debugMenu = nullptr; }
 
         gameInProgress = false;
         isInitialized = false;
@@ -339,41 +332,6 @@ void DrawLeaderBoard(GameScreen* currentScreen) {
 
 void DrawGame(GameScreen* currentScreen)
 {
-    // --- 0. DEBUG MENU ---
-    if (IsKeyPressed(KEY_F1)) {
-        debugMode = !debugMode;
-    }
-
-    if (debugMode && debugMenu != nullptr) {
-        debugMenu->Update();
-
-        gameScene->Draw();
-        gamePlayer->Draw();
-        gameEnemy->Draw();
-        gameStars->Draw();
-        debugMenu->Draw();
-
-        if (debugMenu->ShouldContinue() && IsKeyPressed(KEY_ENTER)) {
-            debugMode = false;
-        }
-        return;
-    }
-
-    // Aplicar debug
-    if (debugMenu != nullptr) {
-        if (debugMenu->IsInfiniteStars()) {
-            while (gamePlayer->GetStarCount() < gamePlayer->GetMaxStars()) {
-                gamePlayer->AddStar();
-            }
-        }
-        if (debugMenu->IsNoHammerCooldown()) {
-            gamePlayer->SetHammerNoCooldown(true);
-        }
-        else {
-            gamePlayer->SetHammerNoCooldown(false);
-        }
-    }
-
     // --- 1. Inicialización ---
     if (!isInitialized)
     {

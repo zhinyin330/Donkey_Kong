@@ -1144,8 +1144,7 @@ void Player::DrawFloatingTexts()
 
 //锤子系统方法实现 
 void Player::StartSwingHammer() {
-    if (!hasHammer) return;
-    if (!hammerNoCooldown && isHammerOnCooldown) return;  // ← Modificado
+    if (!hasHammer) return;  // 没有锤子就不能挥
     if (isHammerOnCooldown) return;   // 冷却中不能挥锤
     isSwingingHammer = true;
     swingHammerTimer = swingHammerDuration;  // 设置挥锤时间为0.3秒
@@ -1170,10 +1169,9 @@ void Player::UpdateHammerSwing(float deltaTime) {
         isSwingingHammer = false;
         swingFrame = 0;
         // ========== 挥锤结束，进入冷却 ==========
-        if (!hammerNoCooldown) { 
-            isHammerOnCooldown = true;
-            hammerCooldownTimer = hammerCooldownDuration;
-        }
+        isHammerOnCooldown = true;
+        hammerCooldownTimer = hammerCooldownDuration;
+
         if (currentState == PlayerState::HAMMER_SWING) {
             ChangeState(PlayerState::IDLE);
         }
