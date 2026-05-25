@@ -29,6 +29,10 @@ private:
     Texture2D pillarTexture;
     Texture2D buttonTexture;
 
+    Music hurryMusic;        // 紧急音乐
+    bool hurryMusicPlaying;  // 是否正在播放
+    bool hurryMusicTriggered; // 是否已触发
+
     // 背景音乐
     Music backgroundMusic;
 

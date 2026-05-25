@@ -6,6 +6,12 @@
 
 class Scene : public GameScene {
 private:
+
+    // hurry音乐
+    Music hurryMusic;        // 紧急音乐
+    bool hurryMusicPlaying;  // 是否正在播放
+    bool hurryMusicTriggered; // 是否已触发
+
     static const int tileSize = 16;
     static const int tileScale = 2;
     static const int mapWidth = 25;

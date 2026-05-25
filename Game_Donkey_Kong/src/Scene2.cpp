@@ -37,6 +37,11 @@ Scene2::Scene2() {
     bombSpawnMax = 7.0f;
     fireSpawnInterval = 10.0f;
 
+    hurryMusic = LoadMusicStream("audio/hurry.ogg");
+    SetMusicVolume(hurryMusic, 0.8f);
+    hurryMusicPlaying = false;
+    hurryMusicTriggered = false;
+
     //  雪动画 
     snowTextures[0] = LoadTexture("UI/Nieve1.png");
     snowTextures[1] = LoadTexture("UI/Nieve2.png");
@@ -257,6 +262,7 @@ Scene2::~Scene2() {
     UnloadTexture(item2Texture);
     UnloadTexture(item3Texture);
     UnloadTexture(buttonTexture);
+    UnloadMusicStream(hurryMusic);
     for (auto& tex : dkFallFrames) {
         UnloadTexture(tex);
     }
@@ -919,6 +925,41 @@ void Scene2::Draw() {
     int offsetY = platformHitboxOffsetY * tileScale;
     int visualHeight = 16;
 
+    float timeLeft = sceneTimeLimit - sceneTimer;
+
+    // 倒计时 ≤ 10秒 且 未触发紧急音乐 且 时间>0
+    if (timeLeft <= 10.0f && timeLeft > 0.0f && !hurryMusicTriggered) {
+        // 停止背景音乐
+        if (IsMusicStreamPlaying(backgroundMusic)) {
+            StopMusicStream(backgroundMusic);
+        }
+        // 播放紧急音乐
+        PlayMusicStream(hurryMusic);
+        hurryMusicTriggered = true;
+        hurryMusicPlaying = true;
+        TraceLog(LOG_INFO, "Scene2: Hurry music triggered! Time left: %.1f", timeLeft);
+    }
+
+    // 更新紧急音乐流
+    if (hurryMusicPlaying) {
+        UpdateMusicStream(hurryMusic);
+        if (!IsMusicStreamPlaying(hurryMusic)) {
+            // 如果紧急音乐播放完毕且时间还没结束，继续循环播放
+            if (timeLeft > 0.0f) {
+                PlayMusicStream(hurryMusic);
+            }
+            else {
+                hurryMusicPlaying = false;
+            }
+        }
+    }
+
+    // 如果时间耗尽，停止紧急音乐
+    if (timeLeft <= 0.0f && hurryMusicPlaying) {
+        StopMusicStream(hurryMusic);
+        hurryMusicPlaying = false;
+    }
+
     //  更新雪动画 
     snowTimer += GetFrameTime();
 
@@ -1042,7 +1083,7 @@ void Scene2::Draw() {
         }
     }
     // Reloj con sprites
-    float timeLeft = sceneTimeLimit - sceneTimer;
+  
     if (timeLeft < 0) timeLeft = 0;
 
     int spriteIndex = 11 - (int)(timeLeft / 10.0f);
