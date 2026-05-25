@@ -505,7 +505,6 @@ void DrawGame(GameScreen* currentScreen)
                         cans[i].isActive = false;
                         cans[i].isBurning = true;
                         cans[i].burnTimer = 0;
-                        gamePlayer->AddScore(50);
                         break;
                     }
                 }
