@@ -9,9 +9,7 @@
 - [Daniel Castillero](https://github.com/DaniCasti42)
 
 ## Description of the game:
-Donkey Kong is a classic arcade platform game released in 1981 by Nintendo. In the game, players control Mario, who must climb platforms, dodge obstacles like barrels and fireballs, and rescue a woman named Pauline from the giant ape Donkey Kong.
-
-It was designed by [Shigeru Miyamoto](https://nintendo.fandom.com/es/wiki/Shigeru_Miyamoto) and became one of the most influential arcade games ever, helping establish Nintendo as a major video game company and introducing Mario, who later became one of the most famous characters in gaming.
+El [Donkey Kong 1981](https://www.mariowiki.com/Donkey_Kong_(game)) Un clásico juego de plataformas donde Mario debe rescatar a la princesa de Donkey Kong. Salta sobre barriles, sube escaleras, recoge estrellas y usa un martillo para destruir obstáculos. Sobrevive a dos niveles desafiantes con dificultad creciente, tormentas eléctricas, enemigos de fuego y bombas. Vence el tiempo para alcanzar a la princesa y avanzar de nivel. Incluye una tabla de clasificación con los 5 mejores jugadores.
 
 ## How to play (not final version)
 The main goal of the game is to navigate each stage, avoid enemies and obstacles, and reach the top where Pauline is being held. If Mario touches an enemy or falls from a height, the player loses a life, when you use up all your lifes, game over.
