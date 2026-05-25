@@ -333,6 +333,10 @@ void DrawGame(GameScreen* currentScreen)
     if (IsKeyPressed(KEY_P)) {
         if (pauseMenu != nullptr && !pauseMenu->IsActive()) {
             pauseMenu->Show();
+            if (isScene2) {
+                Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+                if (scene2) scene2->SetPaused(true);
+            }
         }
     }
 
@@ -354,9 +358,13 @@ void DrawGame(GameScreen* currentScreen)
             }
             else {
                 pauseMenu->Hide();
+                if (isScene2) {
+                    Scene2* scene2 = dynamic_cast<Scene2*>(gameScene);
+                    if (scene2) scene2->SetPaused(false);
+                }
             }
         }
-        return;  // El return evita que se ejecute el código de abajo
+        return;
     }
 
     // Actualizar timer (solo si NO está en pausa)

@@ -359,7 +359,7 @@ void Scene::Draw() {
         float worldBottomX = mapWidth * tileSize * tileScale;
         float yPos = worldBottomY - oilCanisterTexture.height * oilScale + yOffset;
         float xPos = worldBottomX - oilCanisterTexture.height * oilScale + xOffset;
-        DrawTextureEx(oilCanisterTexture, Vector2{ xPos, yPos }, 0.0f, oilScale, WHITE);
+        DrawTextureEx(oilCanisterTexture, Vector2{ xPos, yPos }, -0.2f, oilScale, WHITE);
     }
 
     

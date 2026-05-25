@@ -1184,7 +1184,7 @@ void Player::Draw() {
         }
 
     }
-    // ========== 锤子绘制结束 ==========
+
 
    // ========== INDICADORES (estrellas + martillo) ==========
     float iconScale = 1.9f;
@@ -1202,7 +1202,7 @@ void Player::Draw() {
     Rectangle hammerDst = { rightX, iconY, hammerIconTexture.width * iconScale, hammerIconTexture.height * iconScale };
     DrawTexturePro(hammerIconTexture, { 0, 0, (float)hammerIconTexture.width, (float)hammerIconTexture.height }, hammerDst, { 0, 0 }, 0.0f, WHITE);
 
-    float textY = hammerDst.y + hammerDst.height / 2 - 5;  // Centrado verticalmente
+    float textY = hammerDst.y + hammerDst.height / 2 - 4.5;  // Centrado verticalmente
 
     if (hasHammer) {
         if (isHammerOnCooldown) {

@@ -644,6 +644,8 @@ void Scene2::UpdateTimer(float deltaTime) {
 
 void Scene2::Update(float deltaTime, Player* player)
 {
+    if (isPaused) return;
+
     UpdateMusic();
 
     UpdateBombs(deltaTime, player);

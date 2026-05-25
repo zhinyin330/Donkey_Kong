@@ -132,6 +132,8 @@ private:
         float maxX;        // 最大X
     };
     std::vector<PlatformInfo> platforms;
+    bool isPaused = false;
+  
 
 public:
     Scene2();
@@ -192,5 +194,7 @@ public:
     void Update(float deltaTime, Player* player);
 
     bool stopEnemySpawning;
+
+    void SetPaused(bool p) { isPaused = p; }
 
 };
