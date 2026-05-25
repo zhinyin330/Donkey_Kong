@@ -334,17 +334,6 @@ void Barrel::Draw()
             WHITE
         );
     }
-
-    // DEBUG: Hitbox de física (verde)
-    DrawRectangleLines(
-        position.x, position.y,
-        GetWidth(), GetHeight(),
-        GREEN
-    );
-
-    // DEBUG: Hitbox de jugador (azul, más pequeño)
-    Rectangle playerHb = GetPlayerHitbox();
-    DrawRectangleLines(playerHb.x, playerHb.y, playerHb.width, playerHb.height, BLUE);
 }
 
 //  被攻击 

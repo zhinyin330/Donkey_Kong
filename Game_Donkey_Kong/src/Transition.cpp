@@ -48,42 +48,63 @@ void Transition::Draw() {
     const char* levelText = TextFormat("NIVEL %d", levelNumber);
     int levelWidth = MeasureTextEx(font, levelText, 50, 2).x;
     DrawTextEx(font, levelText,
-        { (float)(screenWidth / 2 - levelWidth / 2), 180 }, 50, 2, YELLOW);
+        { (float)(screenWidth / 2 - levelWidth / 2), 150 }, 50, 2, YELLOW);
 
     // Puntuación
     const char* scoreText = TextFormat("PUNTOS  %d", score);
     int scoreWidth = MeasureTextEx(font, scoreText, 25, 2).x;
     DrawTextEx(font, scoreText,
-        { (float)(screenWidth / 2 - scoreWidth / 2), 280 }, 25, 2, WHITE);
+        { (float)(screenWidth / 2 - scoreWidth / 2), 230 }, 25, 2, WHITE);
 
-    // Estrellas
-    const char* starText = TextFormat("ESTRELLAS  %d", stars);
-    int starWidth = MeasureTextEx(font, starText, 25, 2).x;
-    DrawTextEx(font, starText,
-        { (float)(screenWidth / 2 - starWidth / 2), 330 }, 25, 2, GOLD);
+    // Frase de Mario (una sola por transición, basada en el número de nivel)
+    const char* marioPhrases[] = {
+        "MAMMA MIA!",
+        "YAHOO!",
+        "MARIO TIME!",
+        "LET'S-A GO",
+        "HERE WE GO!",
+        "IT'S-A ME, MARIO!",
+        "WAHOO!",
+        "OKIE DOKIE!",
+        "THANK YOU SO MUCH!",
+        "SO LONG, KINGA BOWSER!"
+    };
+
+    // Seleccionar frase según el nivel (cíclico)
+    int phraseIndex = (levelNumber - 1) % 10;
+
+    // Colores diferentes para cada frase
+    Color colors[] = {
+        RED, ORANGE, YELLOW, GREEN, BLUE,
+        PURPLE, PINK, SKYBLUE, VIOLET, BEIGE
+    };
+
+    Color marioColor = colors[phraseIndex];
+    const char* marioText = marioPhrases[phraseIndex];
+
+    // Frase más grande: tamaño 60 con espaciado 4
+    int marioFontSize = 60;
+    int marioWidth = MeasureTextEx(font, marioText, marioFontSize, 4).x;
+    DrawTextEx(font, marioText,
+        { (float)(screenWidth / 2 - marioWidth / 2), 340 }, marioFontSize, 4, marioColor);
 
     // Continuar (parpadeante)
     float alpha = 0.5f + sinf(timer * 4.0f) * 0.5f;
     Color blinkColor = Fade(WHITE, alpha);
     const char* continueText = "PULSA CUALQUIER TECLA";
-    int continueWidth = MeasureTextEx(font, continueText, 18, 2).x;
+    int continueFontSize = 18;
+    int continueWidth = MeasureTextEx(font, continueText, continueFontSize, 2).x;
     DrawTextEx(font, continueText,
-        { (float)(screenWidth / 2 - continueWidth / 2), 440 }, 18, 2, blinkColor);
+        { (float)(screenWidth / 2 - continueWidth / 2), 520 }, continueFontSize, 2, blinkColor);
 
     // Cuenta atrás
     int secondsLeft = (int)(duration - timer) + 1;
     const char* countdownText = TextFormat("CAMBIO EN %d...", secondsLeft);
-    int countdownWidth = MeasureTextEx(font, countdownText, 16, 2).x;
+    int countdownFontSize = 16;
+    int countdownWidth = MeasureTextEx(font, countdownText, countdownFontSize, 2).x;
     DrawTextEx(font, countdownText,
-        { (float)(screenWidth / 2 - countdownWidth / 2), 490 }, 16, 2, GRAY);
-
-    // Copyright
-    const char* copyright = "© 1981 NINTENDO";
-    int copyrightWidth = MeasureTextEx(font, copyright, 14, 2).x;
-    DrawTextEx(font, copyright,
-        { (float)(screenWidth / 2 - copyrightWidth / 2), 580 }, 14, 2, DARKGRAY);
+        { (float)(screenWidth / 2 - countdownWidth / 2), 570 }, countdownFontSize, 2, GRAY);
 }
-
 
 bool Transition::IsFinished() {
     return !isActive;

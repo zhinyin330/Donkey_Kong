@@ -813,27 +813,27 @@ void DrawGame(GameScreen* currentScreen)
             }
         }
         float hsNumX = (GameScene::GetScreenWidth() - 4 * 7 * 3.0f) / 2.0f;
-        DrawNumberWithTexture(highScore, hsNumX, 26, 3.0f);
+        DrawNumberWithTexture(highScore, hsNumX, 28, 2.6f);
     }
 
     // DIBUJAR SCORE
 
     if (gamePlayer != nullptr && numberTexture.id != 0) {
-        DrawText("1UP", 60, 5, 25, RED);
-        DrawNumberWithTexture(gamePlayer->GetScore(), 10, 26, 3.0f);
+        DrawText("1 UP", 40, 5, 25, RED);
+        DrawNumberWithTexture(gamePlayer->GetScore(), 10, 26, 2.7f);
     }
 
     // DIBUJAR LEVEL
 
     if (levelTexture.id != 0) {
-        DrawTextureEx(levelTexture, { 690, 180 }, 0.0f, 2.0f, WHITE);
-        DrawTwoDigitNumber(currentLevel, 725, 180, 2.0f);
+        DrawTextureEx(levelTexture, { 688, 68 }, 0.0f, 2.4f, WHITE);
+        DrawTwoDigitNumber(currentLevel, 728, 68, 2.4f);
     }
 
     if (heartTexture.id != 0 && gamePlayer != nullptr) {
-        float heartY = 60.0f;
-        float heartScale = 1.3f;
-        float spacing = 23.0f;
+        float heartY = 55.0f;
+        float heartScale = 1.5f;
+        float spacing = 25.0f;
 
         int lives = gamePlayer->GetLives();
 
@@ -847,7 +847,6 @@ void DrawGame(GameScreen* currentScreen)
         DrawRectangle(0, 0, GameScene::GetScreenWidth(), GameScene::GetScreenHeight(), Fade(WHITE, 0.9f));
     }
 
- 
 
     if (timeLeft <= 10.0f && deathOverlay.id != 0) {
         float alpha;
