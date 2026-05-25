@@ -59,6 +59,10 @@ int main()
                 DrawGameOver(&currentScreen);
                 break;
 
+            case DEBUG_MENU:
+                DrawGame(&currentScreen);
+                break;
+
             default:
                 break;
         }
