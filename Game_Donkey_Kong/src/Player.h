@@ -133,6 +133,8 @@ private:
     int score; 
     
     std::vector<FloatingText> floatingTexts;
+    bool hammerNoCooldown = false;
+
 
 public:
     Player();
@@ -221,4 +223,6 @@ public:
   
     // 播放死亡音效
     void PlayDeathSound();
+
+    void SetHammerNoCooldown(bool val) { hammerNoCooldown = val; }
 };
