@@ -45,6 +45,8 @@ private:
     Texture2D starIconTexture;
     Texture2D hammerIconTexture;
 
+    Sound bonusSound;        // 得分音效
+    bool bonusSoundLoaded;   // 标记音效是否已加载
 
     bool hasHammer;
     bool isSwingingHammer;

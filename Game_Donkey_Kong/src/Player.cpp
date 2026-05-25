@@ -8,6 +8,16 @@ const float Player::starModeDuration = 10.0f;
 int Player::lives = 3;
 
 Player::Player() {
+    bonusSound = LoadSound("audio/bonus.mp3");
+    if (bonusSound.frameCount != 0) {
+        SetSoundVolume(bonusSound, 0.6f);  // 音量60%
+        bonusSoundLoaded = true;
+    }
+    else {
+        bonusSoundLoaded = false;
+        TraceLog(LOG_WARNING, "Failed to load bonus sound");
+    }
+
     // Cargar texturas
     idleTexture = LoadTexture("Characters/Mario/Dk_Mario_Idle1.png");
     jumpTexture = LoadTexture("Characters/Mario/Dk_Mario_Jump.png");
@@ -155,6 +165,10 @@ Player::~Player() {
     // 卸载死亡音效
     if (deathSoundLoaded) {
         UnloadSound(deathSound);
+    }
+    if (bonusSoundLoaded) {
+        UnloadSound(bonusSound);
+        bonusSoundLoaded = false;
     }
 }
 
@@ -1012,6 +1026,10 @@ void Player::UpdateStarMode() {
 void Player::AddScore(int points)
 {
     score += points;
+
+    if (bonusSoundLoaded) {
+        PlaySound(bonusSound);
+    }
 
     // 添加浮动文字 
     Vector2 textPos = GetFeetWorldPos();
