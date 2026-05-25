@@ -210,7 +210,7 @@ Scene2::Scene2() {
     // 创建火焰敌人
 
     //  初始化平台信息（从下往上数4个平台）=====
-    // ========= 定义精确的平台分段（连续的平台区域）=========
+    // ====== 定义精确的平台分段（连续的平台区域）=========
     // 地面层 (Y=21) - 完整的一条
     platformSegments.push_back({ 21 * tileSize * tileScale + platformHitboxOffsetY * tileScale - 32, 0.0f, 800.0f, 0 });
 
@@ -851,37 +851,52 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
 
     if (!player) return;
 
-    // === 1. 配置参数 (固定数值，避免重复声明) ===
+    // 1. 配置参数 (固定数值，避免重复声明) 
     const float detectionRange = 40.0f; // 触发范围
     const float speedAnim = 0.15f;      // 0-2帧（闪烁/准备）的速度
     const float speedExplode = 0.10f;   // 3-5帧（爆炸）的速度
     const int maxLoops = 2;             // 第一阶段循环次数
 
-    // === 2. 生成逻辑 (基本保持不变) ===
+    // 2. 生成逻辑
     bombSpawnTimer += deltaTime;
     if (bombSpawnTimer >= nextSpawnTime) {
         bombSpawnTimer = 0.0f;
         nextSpawnTime = (float)GetRandomValue(2, 7);
 
-        int platformYRows[] = { 21, 18, 14, 10 };
-        int rowIndex = GetRandomValue(0, 3);
-        int selectedYRow = platformYRows[rowIndex];
+        // 如果没有平台分段，使用默认值
+        if (platformSegments.empty()) {
+            activeBombs.push_back({ {400.0f, 100.0f}, 0, 0.0f, true, 0, 0, false, 0.0f });
+            return;
+        }
 
-        float randomX = 400.0f;
-        if (selectedYRow == 21) randomX = (float)GetRandomValue(40, 760);
-        else if (selectedYRow == 18) randomX = (float)GetRandomValue(80, 720);
-        else if (selectedYRow == 14) randomX = (float)GetRandomValue(110, 690);
-        else if (selectedYRow == 10) randomX = (float)GetRandomValue(140, 660);
+        // 随机选择一个平台分段
+        int segmentIndex = GetRandomValue(0, (int)platformSegments.size() - 1);
+        const PlatformSegment& segment = platformSegments[segmentIndex];
 
+        // 在选中的平台分段范围内随机生成X坐标
+        float minX = segment.minX + 10.0f;   // 留出边缘空间
+        float maxX = segment.maxX - 30.0f;   // 减去炸弹宽度
+
+        if (minX >= maxX) {
+            minX = segment.minX;
+            maxX = segment.maxX;
+        }
+
+        float randomX = (float)GetRandomValue((int)minX, (int)maxX);
+
+        // 计算Y坐标（炸弹放在平台上方）
         float visualOffsetY = (float)platformHitboxOffsetY * tileScale;
-        float bombHeight = 16.0f * 2.0f;
-        float spawnY = (float)(selectedYRow * 32) + visualOffsetY - bombHeight;
+        float bombHeight = 16.0f * 2.0f;  // 炸弹高度（缩放后）
+        float spawnY = segment.y ; 
 
-        // 【增加/修正】：初始化所有结构体成员
-        activeBombs.push_back({ {randomX, spawnY}, 0, 0.0f, true, 0, 0, false,0.0f });
+        // 创建新炸弹
+        activeBombs.push_back({{randomX, spawnY},  0,0.0f,true,0,0,false,0.0f});
+
+        TraceLog(LOG_INFO, "Bomb spawned at (%.1f, %.1f) in segment %d (Layer %d, range: %.1f-%.1f)",
+            randomX, spawnY, segmentIndex, segment.layerIndex, segment.minX, segment.maxX);
     }
 
-    // === 3. 状态更新与碰撞检测 ===
+    // 3. 状态更新与碰撞检测 
     Rectangle playerRect = player->GetHitbox();
 
     for (int i = (int)activeBombs.size() - 1; i >= 0; i--) {
@@ -1225,29 +1240,6 @@ void Scene2::Draw() {
     //  绘制移动平台 
     DrawMovingPlatforms();
 
-    // ========= 调试：绘制小火人移动范围（绿色框）=========
-#ifdef _DEBUG  // 仅在调试模式下显示
-    for (const auto& segment : platformSegments) {
-        // 绘制平台分段边界（绿色框）
-        DrawRectangleLines(
-            (int)segment.minX,
-            (int)segment.y - 5,  // 稍微抬高一点，避免与平台重叠
-            (int)(segment.maxX - segment.minX),
-            10,
-            GREEN
-        );
-
-        // 显示文字标签
-        char label[50];
-        sprintf(label, "Layer %d", segment.layerIndex);
-        DrawText(label, (int)segment.minX + 5, (int)segment.y - 20, 15, GREEN);
-
-        // 显示范围数值
-        char rangeText[50];
-        sprintf(rangeText, "X: %.0f-%.0f", segment.minX, segment.maxX);
-        DrawText(rangeText, (int)segment.minX + 5, (int)segment.y - 5, 12, GREEN);
-    }
-#endif
 }
 void Scene2::UpdateMusic() {
     UpdateMusicStream(backgroundMusic);
