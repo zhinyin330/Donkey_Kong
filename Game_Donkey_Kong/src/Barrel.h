@@ -87,6 +87,15 @@ private:
     //mario & barril
     float playerCollisionScale;
 
+    // ===== 新增：油桶投掷相关 =====
+    bool isThrownToOilCan = false;  // 是否被投掷到油桶
+    Vector2 oilCanTargetPos;        // 油桶目标位置
+    Vector2 startThrowPos;        // 初始位置
+    float throwProgress = 0.0f;
+    float throwSpeed = 400.0f;      // 投掷速度
+    bool isThrowMode = false;       // 是否为投掷模式（不滚动，直接飞）
+    bool isFlyingToOilCan = false;  // 是否正在飞向油桶
+
 public:
     // 以下3个为新增
     Vector2 GetPosition() const { return position; }
@@ -139,4 +148,10 @@ public:
             GetHeight()
         };
     }
+
+    // ===== 新增：油桶投掷相关方法 =====
+    void SetThrowMode(Vector2 targetPos);
+    bool IsThrowMode() const { return isThrowMode; }
+    bool IsFlyingToOilCan() const { return isFlyingToOilCan; }
+    bool IsThrownToOilCan() const { return isThrownToOilCan; }
 };

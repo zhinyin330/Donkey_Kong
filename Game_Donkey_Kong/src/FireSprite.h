@@ -2,39 +2,14 @@
 #include "raylib.h"
 #include <vector>
 
+// 火人动画类型
+enum class FireAnimationType {
+    SCENE1,    
+    SCENE2      
+};
+
 class FireSprite
 {
-public:
-    FireSprite(Vector2 startPos);
-    ~FireSprite();
-
-    void Update(float deltaTime);
-    void Draw();
-    Rectangle GetHitbox();
-
-    //  设置移动范围  
-    void SetRange(float minX, float maxX);
-
-    //  获取位置  
-    Vector2 GetPosition() const { return position; }
-    //  激活/禁用小火人  
-    void SetActive(bool active) { isActive = active; }
-    bool IsActive() const { return isActive; }
-
-    //  设置地面Y坐标  
-    void SetGroundY(float y) { groundY = y; }
-
-    //  重置位置（用于重生） 
-    void ResetPosition(Vector2 newPos);
-
-    //  小火人死亡  
-    void Die();
-    bool IsDead() const { return isDead; }
-    // 获取是否可以对玩家造成伤害
-    bool CanHurt() const { return !isWaiting; }
-
-
-
 private:
 
     //  动画帧  
@@ -85,16 +60,52 @@ private:
     // 是否死亡  
     bool isDead = false;
 
-    // ===== 等待系统（生成后原地等待2秒）=====
+    //   等待系统（生成后原地等待2秒） 
     bool isWaiting = true;       // 是否在等待状态
     float waitTimer = 2.0f;      // 等待计时器（2秒）
     float blinkTimer = 0.0f;     // 闪烁计时器
     bool visible = true;         // 当前是否可见（用于闪烁效果）
 
-    // ===== 辅助方法 =====
+    // 动画类型
+    FireAnimationType animationType;
+    // 根据类型加载贴图
+    void LoadFramesByType();
+
+    //   辅助方法  
     void StartNewJump();
     void UpdateAnimation(float deltaTime);
 
     // 计算平滑的抛物线位置
     Vector2 CalculateParabolaPosition(float t);
+
+public:
+    // 构造函数：默认使用 SCENE1 类型
+    FireSprite(Vector2 startPos, FireAnimationType type = FireAnimationType::SCENE1);
+    ~FireSprite();
+
+    void Update(float deltaTime);
+    void Draw();
+    Rectangle GetHitbox();
+
+    //  设置移动范围  
+    void SetRange(float minX, float maxX);
+
+    //  获取位置  
+    Vector2 GetPosition() const { return position; }
+    //  激活/禁用小火人  
+    void SetActive(bool active) { isActive = active; }
+    bool IsActive() const { return isActive; }
+
+    //  设置地面Y坐标  
+    void SetGroundY(float y) { groundY = y; }
+
+    //  重置位置（用于重生） 
+    void ResetPosition(Vector2 newPos);
+
+    //  小火人死亡  
+    void Die();
+    bool IsDead() const { return isDead; }
+    // 获取是否可以对玩家造成伤害
+    bool CanHurt() const { return !isWaiting; }
+
 };

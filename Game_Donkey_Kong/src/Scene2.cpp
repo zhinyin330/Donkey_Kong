@@ -699,7 +699,7 @@ void Scene2::Update(float deltaTime, Player* player)
                 {
                     // 小火人死亡
                     fire->Die();
-                    // 给玩家加分（可选）
+                    // 给玩家加分
                     player->AddScore(200);
                     // 播放击杀音效
                     if (fireKillSoundLoaded) {
@@ -742,7 +742,7 @@ void Scene2::SpawnFireSprite()
 
     // 创建新小火人
     Vector2 spawnPos = { randomX, plat.y };
-    FireSprite* newFire = new FireSprite(spawnPos);
+    FireSprite* newFire = new FireSprite(spawnPos, FireAnimationType::SCENE2);
 
 
     // 设置移动范围
@@ -780,8 +780,8 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
 
     // === 1. 配置参数 (固定数值，避免重复声明) ===
     const float detectionRange = 40.0f; // 触发范围
-    const float speedAnim = 0.15f;      // 0-2帧（闪烁/准备）的速度
-    const float speedExplode = 0.10f;   // 3-5帧（爆炸）的速度
+    const float speedAnim = 0.2f;      // 0-2帧（闪烁/准备）的速度
+    const float speedExplode = 0.50f;   // 3-5帧（爆炸）的速度
     const int maxLoops = 2;             // 第一阶段循环次数
 
     // === 2. 生成逻辑 (基本保持不变) ===
@@ -816,8 +816,8 @@ void Scene2::UpdateBombs(float deltaTime, Player* player) {
         // 累计存在时间
         bomb.lifeTimer += deltaTime;
 
-        // 如果2秒还没触发，自动爆炸
-        if (!bomb.isTriggered && bomb.lifeTimer >= 5.0f) {
+        // 如果8秒还没触发，自动爆炸
+        if (!bomb.isTriggered && bomb.lifeTimer >= 8.0f) {
             bomb.isTriggered = true;
             bomb.stage = 1;       // 直接进入爆炸阶段
             bomb.currentFrame = 3;

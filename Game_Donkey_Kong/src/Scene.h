@@ -3,6 +3,8 @@
 #include <vector>
 #include "GameScene.h"
 #include "Princess.h"
+#include "FireSprite.h" 
+#include "Barrel.h" 
 
 class Scene : public GameScene {
 private:
@@ -72,6 +74,11 @@ private:
     Rectangle timeSourceRec;
     float timeScale;
 
+    // ===== 新增：火人相关成员 =====
+    std::vector<FireSprite*> fireSprites;      // 火人列表
+    int blueBarrelsThrownCount;                // 已扔进油桶的蓝色桶数量
+    static const int MAX_BLUE_BARREL_THROWS = 2;  // 最多扔2次
+
 public:
     Scene();
     ~Scene();
@@ -99,4 +106,14 @@ public:
     void UpdateTimer(float deltaTime);
     float GetTimeLeft() { return sceneTimeLimit - sceneTimer; }
     void ResetTimer() { sceneTimer = 0.0f; }
+
+
+    // ===== 新增：火人相关方法 =====
+    void UpdateFireSprites(float deltaTime);
+    void DrawFireSprites();
+    void SpawnFireSprite(Vector2 position);
+    void CheckBarrelOilCanCollision(class Barrel* barrel);  // 前向声明，需要包含 Barrel.h
+    void CleanupFireSprites();
+    std::vector<FireSprite*>& GetFireSprites() { return fireSprites; }
+    int GetBlueBarrelsThrownCount() const { return blueBarrelsThrownCount; }
 };

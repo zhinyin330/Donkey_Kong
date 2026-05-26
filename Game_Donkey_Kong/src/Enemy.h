@@ -59,6 +59,14 @@ private:
     static std::vector<Texture2D> blueRollingFrames;     // 蓝桶侧面
     static std::vector<Texture2D> blueFallingFrames;     // 蓝桶正面
     static bool texturesLoaded;  // ⭐ 标记贴图是否已加载
+
+    // ===== 新增：跟踪蓝桶投掷成功次数 =====
+    static int blueBarrelHitCount;  // 静态成员，所有敌人共享
+    static const int MAX_BLUE_BARREL_HITS = 2;  // 最大投掷成功次数
+    // ===== 新增：投掷模式标志 =====
+    bool isThrowModeActive = false;
+    Vector2 throwTargetPos;
+
 public:
     Enemy();
     ~Enemy();
@@ -106,4 +114,14 @@ public:
     static const std::vector<Texture2D>& GetNormalFallingFrames() { return normalFallingFrames; }
     static const std::vector<Texture2D>& GetBlueRollingFrames() { return blueRollingFrames; }
     static const std::vector<Texture2D>& GetBlueFallingFrames() { return blueFallingFrames; }
+
+    // ===== 新增：重置蓝桶投掷计数器 =====
+    static void ResetBlueBarrelHitCount() { blueBarrelHitCount = 0; }
+    static void IncrementBlueBarrelHitCount() {
+        if (blueBarrelHitCount < MAX_BLUE_BARREL_HITS) {
+            blueBarrelHitCount++;
+        }
+    }
+    static int GetBlueBarrelHitCount() { return blueBarrelHitCount; }
+    static bool CanUseThrowMode() { return blueBarrelHitCount < MAX_BLUE_BARREL_HITS; }
 };

@@ -9,6 +9,7 @@ std::vector<Texture2D> Enemy::normalFallingFrames;
 std::vector<Texture2D> Enemy::blueRollingFrames;
 std::vector<Texture2D> Enemy::blueFallingFrames;
 bool Enemy::texturesLoaded = false;
+int Enemy::blueBarrelHitCount = 0;
 
 Enemy::Enemy()
     : currentState(EnemyState::BARREL_GRAB),
@@ -61,11 +62,19 @@ Enemy::~Enemy() {
 void Enemy::SpawnBarrel()
 {
     Vector2 spawnPos = {
-        position.x + 120.0f, 
+        position.x + 95.0f,  
         position.y + 45.0f
     };
 
+    // ===== 新增：判断是否为投掷模式 =====
     Barrel newBarrel(currentBarrelType, spawnPos);
+
+    // 如果是投掷模式的蓝桶，设置飞向油桶
+    if (currentBarrelType == BarrelType::BLUE_BARREL && isThrowModeActive)
+    {
+        newBarrel.SetThrowMode(throwTargetPos);
+        TraceLog(LOG_INFO, "Setting barrel to fly to oil can!");
+    }
 
     barrels.push_back(newBarrel);
 }
@@ -99,37 +108,66 @@ void Enemy::UpdateAnimation() {
     if (frameCounter >= frameSpeed) {
         frameCounter = 0.0f;
 
-        // --- 逻辑修正：先处理状态切换，再更新帧 ---
         int maxFrame = (int)dkWithBarrelTextures.size() - 1;
 
-        // 丢桶时机（中 → 右）
+        // 丢桶逻辑
         if (currentFrame == 1 && isGoingForward && animDirection == 1) {
             hasBarrel = false;
 
-            SpawnBarrel();  //  生成桶
-        }
-        // 到右侧，开始回程
-        if (currentFrame == maxFrame && isGoingForward) {
-            isGoingForward = false;
-            animDirection = -1;
-        }
-        // 回到左侧，重新拿桶
-        else if (currentFrame == 0 && !isGoingForward) {
-            isGoingForward = true;
-            animDirection = 1;
+            isThrowModeActive = false;
 
-            hasBarrel = true;
+            if (currentBarrelType == BarrelType::BLUE_BARREL)
+            {
+                if (blueBarrelHitCount < MAX_BLUE_BARREL_HITS)
+                {
+                    int throwChance = GetRandomValue(0, 100);
+                    if (throwChance < 50)
+                    {
+                        isThrowModeActive = true;
+                        throwTargetPos = { 120, 560 };
+                        TraceLog(LOG_INFO, "Blue barrel THROW mode activated! Target: (120, 560)");
+                    }
+                }
+            }
 
-            //  随机桶
-            currentBarrelType = (GetRandomValue(0, 1) == 0)
-                ? BarrelType::NORMAL
-                : BarrelType::BLUE_BARREL;
+            SpawnBarrel();
         }
 
+        // 正常增加帧
         currentFrame += animDirection;
 
-        if (currentFrame >= maxFrame) currentFrame = maxFrame;
-        if (currentFrame <= 0) currentFrame = 0;
+        // 边界检查 - 右侧
+        if (currentFrame >= maxFrame) {
+            currentFrame = maxFrame;
+            if (isGoingForward) {
+                isGoingForward = false;
+                animDirection = -1;
+            }
+        }
+
+        // 边界检查 - 左侧
+        if (currentFrame <= 0) {
+            currentFrame = 0;
+            if (!isGoingForward) {
+                isGoingForward = true;
+                animDirection = 1;
+                hasBarrel = true;
+                isThrowModeActive = false;
+
+                currentBarrelType = (GetRandomValue(0, 1) == 0)
+                    ? BarrelType::NORMAL
+                    : BarrelType::BLUE_BARREL;
+            }
+        }
+
+        // ===== 投掷模式：丢完桶后立即返回 =====
+        // 当处于投掷模式、没拿桶、正在向右走时，强制回程
+        if (isThrowModeActive && !hasBarrel && isGoingForward) {
+            isGoingForward = false;
+            animDirection = -1;
+            currentFrame = maxFrame;  // 跳到最右帧
+            TraceLog(LOG_INFO, "Throw mode: immediate return!");
+        }
     }
 }
 
@@ -253,3 +291,4 @@ void Enemy::ChangeState(EnemyState newState)
     hasBarrel = true;
     isGoingForward = true;
 }
+

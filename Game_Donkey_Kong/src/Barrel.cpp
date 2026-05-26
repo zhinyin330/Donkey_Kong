@@ -3,6 +3,15 @@
 
 #define MAP_HEIGHT 22
 
+// 静态计数器：记录已成功扔进油桶的蓝色桶数量
+static int blueBarrelsThrownToOilCan = 0;
+static const int MAX_BLUE_BARRELS_TO_OIL_CAN = 2;
+
+// 油桶碰撞区域（与Scene.cpp中定义的保持一致）
+static const Rectangle OIL_CAN_COLLIDERECT = { 30, 600, 80, 80 };
+
+// 火人生成位置（油桶右侧）
+static const Vector2 FIRE_SPAWN_OFFSET = { 90, 560 };
  
 //  构造函数 初始化所有参数 + 触发点
  
@@ -33,6 +42,15 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     hasBeenJumped = false;
 
     playerCollisionScale = 0.7f;
+
+    // ===== 新增：初始化投掷相关 =====
+    isThrownToOilCan = false;
+    isFlyingToOilCan = false;
+    isThrowMode = false;
+    throwSpeed = 400.0f;
+    // ===== 修改：起始位置使用传入的 pos =====
+    startThrowPos = pos;  // 使用 DK 手中的位置 (95, 130)
+    oilCanTargetPos = { 120, 560 };  // 油桶目标位置
 
     LoadFrames();
 
@@ -199,6 +217,36 @@ void Barrel::Update(GameScene& scene)
             triggerLocked = false;
     }
 
+    //投掷模式逻辑
+    if (isThrowMode && isFlyingToOilCan)
+    {
+        // 使用成员变量 throwProgress，而不是 static
+        throwProgress += dt * 3.0f;  // 投掷速度
+
+        if (throwProgress >= 1.0f)
+        {
+            // 到达目标
+            position = oilCanTargetPos;
+            isFlyingToOilCan = false;
+            isThrownToOilCan = true;
+            throwProgress = 0.0f;
+            TraceLog(LOG_INFO, "Blue barrel REACHED oil can!");
+        }
+        else
+        {
+            // 抛物线运动 - 从 startThrowPos 开始
+            float x = startThrowPos.x + (oilCanTargetPos.x - startThrowPos.x) * throwProgress;
+            float arcHeight = 100.0f;
+            float y = startThrowPos.y + (oilCanTargetPos.y - startThrowPos.y) * throwProgress
+                - sinf(throwProgress * PI) * arcHeight;
+            position = { x, y };
+        }
+        return;
+    }
+
+    // 投掷模式完成后不再更新滚动逻辑
+    if (isThrowMode) return;
+
     //  ROLLING 状态 
     if (state == BarrelState::ROLLING)
     {
@@ -343,4 +391,21 @@ void Barrel::Hit()
     {
         isHit = true;
     }
+}
+
+// ===== 新增：投掷到油桶 =====
+
+void Barrel::SetThrowMode(Vector2 targetPos)
+{
+    isThrowMode = true;
+    isFlyingToOilCan = true;
+    oilCanTargetPos = targetPos;
+    state = BarrelState::FALLING;  // 使用下落状态
+    currentAnimationFrames = fallingFrames;
+    currentFrame = 0;
+    startThrowPos = position;
+    throwProgress = 0.0f;
+
+
+    TraceLog(LOG_INFO, "Barrel set to THROW mode! Target: (%.0f, %.0f)", targetPos.x, targetPos.y);
 }

@@ -12,6 +12,7 @@
 #include "LeaderBoard.h"
 #include "Princess.h"
 #include "DebugMenu.h"
+#include "FireSprite.h"  
 #include <fstream>
 
 static GameScene* gameScene = nullptr;
@@ -72,6 +73,8 @@ void InitGame()
     deadSoundPlayed = false;
     debugMenu = new DebugMenu();
     debugMode = false;
+    // ===== 重置蓝桶投掷计数器 =====
+    Enemy::ResetBlueBarrelHitCount();
 
     if (!uiTexturesLoaded) {
         numberTexture = LoadTexture("UI/Dk_UI_Numbers.png");                    // NUMBERS  
@@ -637,6 +640,30 @@ void DrawGame(GameScreen* currentScreen)
     if (scene1 != nullptr) {
         scene1->UpdateOilCanisters(deltaTime);
         std::vector<OilCanister>& cans = scene1->GetOilCanisters();
+
+        // ===== 新增：更新火人 =====
+        scene1->UpdateFireSprites(deltaTime);
+
+        // ===== 新增：检测火人与玩家的碰撞 =====
+        for (FireSprite* fire : scene1->GetFireSprites()) {
+            if (fire != nullptr && fire->CanHurt() && !fire->IsDead() && !gamePlayer->IsInStarMode()) {
+                if (CheckCollisionRecs(fire->GetHitbox(), gamePlayer->GetHitbox())) {
+                    gamePlayer->LoseLife();
+                    gamePlayer->StartDeath();
+                    TraceLog(LOG_INFO, "Player hit by fire sprite!");
+                    break;  // 一次只触发一次伤害
+                }
+            }
+        }
+
+        // ===== 新增：检测蓝色桶与油桶的碰撞（用于生成火人）=====
+        for (auto& barrel : gameEnemy->GetBarrels()) {
+            if (!barrel.IsHit() && barrel.GetType() == BarrelType::BLUE_BARREL) {
+                scene1->CheckBarrelOilCanCollision(&barrel);
+            }
+        }
+
+        // 原有的桶与油桶碰撞逻辑（普通桶引爆油桶）
         for (auto& barrel : gameEnemy->GetBarrels()) {
             if (!barrel.IsHit()) {
                 Rectangle barrelRect = { barrel.GetPosition().x, barrel.GetPosition().y, barrel.GetWidth(), barrel.GetHeight() };
@@ -813,6 +840,16 @@ void DrawGame(GameScreen* currentScreen)
 
     // --- 10. DRAW ---
     gameScene->Draw();
+
+    // ===== 新增：绘制火人（在场景之后，玩家之前）=====
+    if (!isScene2) {
+        Scene* scene1 = dynamic_cast<Scene*>(gameScene);
+        if (scene1 != nullptr) {
+            scene1->DrawFireSprites();
+        }
+    }
+
+
     gamePlayer->Draw();
 
     bool drawOldDk = true;

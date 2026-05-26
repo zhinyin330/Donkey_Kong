@@ -3,12 +3,13 @@
 #include "raymath.h"
 #include <cmath>
 
-FireSprite::FireSprite(Vector2 startPos)
+FireSprite::FireSprite(Vector2 startPos, FireAnimationType type)
 {
     position = startPos;
     groundY = startPos.y;
     isActive = true;
     isDead = false;
+    animationType = type;
 
     //  初始化
     isWaiting = true;
@@ -30,17 +31,35 @@ FireSprite::FireSprite(Vector2 startPos)
     jumpProgress = 0.0f;
     jumpTimer = 0.0f;
     frameAccumulator = 0.0f;
-
-    //  加载动画帧 
-    for (int i = 1; i <= 2; i++)
-    {
-        frames.push_back(
-            LoadTexture(TextFormat("Characters/FireSprites/Dk_FireSprite_Jump%d.png", i))
-        );
-    }
+    // 根据类型加载动画帧
+    LoadFramesByType();
 
     currentFrame = 0;
     frameTimer = 0.0f;
+}
+
+void FireSprite::LoadFramesByType()
+{
+    if (animationType == FireAnimationType::SCENE1)
+    {
+        // Scene 使用的贴图：Dk_FireSprite1, Dk_FireSprite2
+        for (int i = 1; i <= 2; i++)
+        {
+            frames.push_back(
+                LoadTexture(TextFormat("Characters/FireSprites/Dk_FireSprite%d.png", i))
+            );
+        }
+    }
+    else
+    {
+        // Scene2 使用的贴图：Dk_FireSprite_Jump1, Dk_FireSprite_Jump2
+        for (int i = 1; i <= 2; i++)
+        {
+            frames.push_back(
+                LoadTexture(TextFormat("Characters/FireSprites/Dk_FireSprite_Jump%d.png", i))
+            );
+        }
+    }
 }
 
 FireSprite::~FireSprite()

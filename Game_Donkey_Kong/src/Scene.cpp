@@ -1,5 +1,6 @@
 ﻿#include "Scene.h"
 #include "resource_dir.h" 
+#include "Enemy.h" 
 
 Scene::Scene() {
     // 加载背景音乐
@@ -30,7 +31,7 @@ Scene::Scene() {
     hurryMusicPlaying = false;
     hurryMusicTriggered = false;
 
-    // 初始化油桶（位置根据你的地图调整）
+    // 初始化油桶
     OilCanister c1;                           // 声明一个油桶变量
     c1.position = { 100, 600 };               // 设置绘制位置 X=100像素，Y=600像素
     c1.rect = { 30, 600, 80, 80 };          // 设置碰撞箱 X=100, Y=600, 宽80, 高80
@@ -38,6 +39,9 @@ Scene::Scene() {
     c1.isBurning = false;                     // 初始不在燃烧状态
     c1.burnTimer = 0;                         // 燃烧计时器初始为0
     c1.currentFrame = 0;
+
+    // ===== 新增：初始化火人相关成员 =====
+    blueBarrelsThrownCount = 0;
 
     oilCanisters.push_back(c1);
 
@@ -242,6 +246,7 @@ Scene::~Scene() {
     UnloadTexture(timeTexture);
     UnloadTexture(starIcon);
     UnloadMusicStream(hurryMusic);
+    CleanupFireSprites();
 }
 
 void Scene::AddLadder(int startY, int endY, int x,
@@ -497,6 +502,9 @@ void Scene::Draw() {
         }
     }
 
+
+
+
     // Barriles decorativos
     int platformY = mapHeight - 16;
     int startX = -1;
@@ -592,4 +600,163 @@ void Scene::Draw() {
             DrawTextureEx(fireFrames[oilCanisters[i].currentFrame], firePos, 0, 2.5f, WHITE);
         }
     }
+
+    // ===== 新增：调试模式 - 显示火人移动范围（绿色框）=====
+#ifdef _DEBUG
+    for (FireSprite* fire : fireSprites)
+    {
+        if (fire != nullptr && !fire->IsDead())
+        {
+            // 获取火人的位置和移动范围
+            Vector2 pos = fire->GetPosition();
+
+            // 火人的碰撞箱
+            Rectangle hitbox = fire->GetHitbox();
+            DrawRectangleLinesEx(hitbox, 2.0f, GREEN);
+
+            // 绘制火人移动范围（绿色半透明框）
+            // 注意：FireSprite 没有直接暴露 minX/maxX，需要添加 getter 方法
+            // 临时方案：从火人位置推断范围（火人移动距离是 45 像素）
+            float rangeMinX = pos.x - 150;  // 从 SpawnFireSprite 中看到的范围
+            float rangeMaxX = pos.x + 200;
+            float groundY = pos.y + 32;
+
+            DrawRectangleLines(rangeMinX, groundY - 32, rangeMaxX - rangeMinX, 32, GREEN);
+            DrawRectangle(rangeMinX, groundY - 32, rangeMaxX - rangeMinX, 32, Fade(GREEN, 0.2f));
+        }
+    }
+#endif
+}
+
+
+// ===== 新增：火人相关方法实现 =====
+
+void Scene::UpdateFireSprites(float deltaTime)
+{
+    for (int i = (int)fireSprites.size() - 1; i >= 0; i--)
+    {
+        FireSprite* fire = fireSprites[i];
+        if (fire != nullptr)
+        {
+            // 如果小火人已死亡，从列表中移除
+            if (fire->IsDead())
+            {
+                delete fire;
+                fireSprites.erase(fireSprites.begin() + i);
+                TraceLog(LOG_INFO, "FireSprite removed! Remaining: %d", (int)fireSprites.size());
+                continue;
+            }
+            fire->Update(deltaTime);
+        }
+    }
+}
+
+void Scene::DrawFireSprites()
+{
+    for (FireSprite* fire : fireSprites)
+    {
+        if (fire != nullptr && !fire->IsDead())
+        {
+            fire->Draw();
+        }
+    }
+}
+
+void Scene::SpawnFireSprite(Vector2 position)
+{
+    // 检查是否已达到最大生成数量（可选，最多生成2个火人）
+    if ((int)fireSprites.size() >= MAX_BLUE_BARREL_THROWS)
+    {
+        TraceLog(LOG_INFO, "Max fire sprites reached, cannot spawn more");
+        return;
+    }
+
+    // 底部平台的地面 Y 坐标
+    float groundLevel = 21 * 32 + 16;  // = 688
+
+    // 限制出生 X 坐标在 100-800 之间
+    float spawnX = position.x;
+    if (spawnX < 100) spawnX = 100;
+    if (spawnX > 800) spawnX = 800;
+
+    Vector2 spawnPos = { spawnX, groundLevel - 32 };  // 32 是火人高度偏移
+
+    FireSprite* newFire = new FireSprite(spawnPos, FireAnimationType::SCENE1);
+
+    // 固定移动范围
+    newFire->SetRange(100.0f, 800.0f);
+    newFire->SetGroundY(groundLevel - 32);
+    newFire->SetActive(true);
+
+    fireSprites.push_back(newFire);
+
+    TraceLog(LOG_INFO, "FireSprite (SCENE1) spawned at (%.1f, %.1f). Total: %d",
+        position.x, position.y, (int)fireSprites.size());
+}
+
+void Scene::CheckBarrelOilCanCollision(Barrel* barrel)
+{
+    if (barrel == nullptr) return;
+    if (barrel->GetType() != BarrelType::BLUE_BARREL) return;
+
+    // 只有投掷模式且成功到达油桶的蓝桶才能生成火人
+    if (!barrel->IsThrowMode())
+    {
+        return;
+    }
+
+    if (!barrel->IsThrownToOilCan())
+    {
+        return;
+    }
+
+    if (barrel->IsHit()) return;
+
+    // ===== 检查是否已达到最大投掷次数 =====
+    if (blueBarrelsThrownCount >= MAX_BLUE_BARREL_THROWS)
+    {
+        TraceLog(LOG_INFO, "Max fire spawns reached (%d/%d), ignoring this barrel",
+            blueBarrelsThrownCount, MAX_BLUE_BARREL_THROWS);
+        return;
+    }
+
+    // 投掷成功，计数器+1
+    blueBarrelsThrownCount++;
+
+    // ===== 同步更新 Enemy 的静态计数器 =====
+    Enemy::IncrementBlueBarrelHitCount();
+
+    TraceLog(LOG_INFO, "THROW MODE blue barrel hit oil can! Fire spawned! Count: %d/%d",
+        blueBarrelsThrownCount, MAX_BLUE_BARREL_THROWS);
+
+    // 油桶开始燃烧
+    if (!oilCanisters[0].isBurning)
+    {
+        oilCanisters[0].isBurning = true;
+        oilCanisters[0].burnTimer = 0.0f;
+        oilCanisters[0].currentFrame = 0;
+        TraceLog(LOG_INFO, "Oil canister starts burning!");
+    }
+
+    // 生成火人
+    Rectangle oilCanRect = oilCanisters[0].rect;
+    Vector2 firePos = { oilCanRect.x + oilCanRect.width + 10, oilCanRect.y - 20 };
+    SpawnFireSprite(firePos);
+
+    // 标记桶为已处理
+    barrel->Hit();
+}
+
+
+void Scene::CleanupFireSprites()
+{
+    for (FireSprite* fire : fireSprites)
+    {
+        if (fire != nullptr)
+        {
+            delete fire;
+        }
+    }
+    fireSprites.clear();
+    TraceLog(LOG_INFO, "All fire sprites cleaned up");
 }

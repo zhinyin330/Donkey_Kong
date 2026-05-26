@@ -196,9 +196,12 @@ public:
     // ===== 新增：清理所有小火人 =====
     void ClearAllFireSprites();
     void Update(float deltaTime, Player* player);
+    void UpdateFireSprites(float deltaTime);
+    void DrawFireSprites();
 
     bool stopEnemySpawning;
 
     void SetPaused(bool p) { isPaused = p; }
+
 
 };
