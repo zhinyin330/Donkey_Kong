@@ -91,7 +91,17 @@ Vector2 FireSprite::CalculateParabolaPosition(float t)
 
     // ===== 从 groundY 向上跳起，再落回 groundY =====
     float parabolaY = sinf(t * PI) * jumpHeight;
-    result.y = groundY - parabolaY - 32;
+    // ===== 根据动画类型使用不同的 Y 轴计算 =====
+    if (animationType == FireAnimationType::SCENE2)
+    {
+        // Scene2: 火人位置 Y = groundY - parabolaY（不需要减去32，因为 Scene2 的 groundY 已经是火人站立位置）
+        result.y = groundY - parabolaY;
+    }
+    else
+    {
+        // Scene1: 需要减去火人高度偏移
+        result.y = groundY - parabolaY - 32;
+    }
 
     return result;
 }
@@ -110,7 +120,18 @@ void FireSprite::Update(float deltaTime)
         {
             // 飞出结束，到达目标位置
             position = flyTargetPos;
-            groundY = flyTargetPos.y + 32;  // 设置地面高度
+            // ===== 根据动画类型设置地面高度 =====
+            if (animationType == FireAnimationType::SCENE2)
+            {
+                // Scene2: groundY 就是火人站立位置
+                groundY = flyTargetPos.y;
+            }
+            else
+            {
+                // Scene1: groundY 需要加上火人高度
+                groundY = flyTargetPos.y + 32;
+            }
+
             isFlyingFromOilCan = false;
 
             // 开始等待状态
@@ -119,7 +140,8 @@ void FireSprite::Update(float deltaTime)
             blinkTimer = 0.0f;
             visible = true;
 
-            TraceLog(LOG_INFO, "FireSprite landed at (%.0f,%.0f)", position.x, position.y);
+            TraceLog(LOG_INFO, "FireSprite landed at (%.0f,%.0f) groundY=%.0f type=%d",
+                position.x, position.y, groundY, (int)animationType);
             return;
         }
 
@@ -192,8 +214,18 @@ void FireSprite::Update(float deltaTime)
             if (jumpProgress >= 1.0f)
             {
                 position.x = jumpTargetX;
-                // ===== 落地时站在地面上 =====
-                position.y = groundY - 32;  // 减去火人高度
+                // ===== 根据动画类型设置落地位置 =====
+                if (animationType == FireAnimationType::SCENE2)
+                {
+                    // Scene2: groundY 已经是火人站立位置
+                    position.y = groundY;
+                }
+                else
+                {
+                    // Scene1: 减去火人高度
+                    position.y = groundY - 32;
+                }
+
                 jumpState = IDLE;
                 idleTimer = 0.0f;
                 currentFrame = 0;
@@ -253,8 +285,17 @@ void FireSprite::StartNewJump()
     jumpTimer = 0.0f;
     jumpProgress = 0.0f;
 
-    // ===== 修正：确保位置正确贴合地面 =====
-    position.y = groundY - 32;  // 减去火人高度，站在地面上
+    // ===== 根据动画类型确保起始位置正确 =====
+    if (animationType == FireAnimationType::SCENE2)
+    {
+        // Scene2: groundY 已经是火人站立位置
+        position.y = groundY;
+    }
+    else
+    {
+        // Scene1: 减去火人高度
+        position.y = groundY - 32;
+    }
 }
 void FireSprite::UpdateAnimation(float deltaTime)
 {
