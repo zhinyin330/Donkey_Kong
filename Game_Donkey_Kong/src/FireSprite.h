@@ -78,6 +78,15 @@ private:
     // 计算平滑的抛物线位置
     Vector2 CalculateParabolaPosition(float t);
 
+    // ===== 新增：爆炸飞出状态 =====
+    bool isFlyingFromOilCan = false;  // 是否正在从油桶飞出
+    float flyProgress = 0.0f;         // 飞出进度
+    float flyDuration = 0.3f;         // 飞出持续时间
+    Vector2 flyStartPos;              // 飞出起始位置（油桶位置）
+    Vector2 flyTargetPos;             // 飞出目标位置（最终站立位置）
+    float flyArcHeight = 80.0f;       // 飞出弧线高度
+
+
 public:
     // 构造函数：默认使用 SCENE1 类型
     FireSprite(Vector2 startPos, FireAnimationType type = FireAnimationType::SCENE1);
@@ -112,4 +121,7 @@ public:
     void SetPosition(Vector2 pos) { position = pos; }
     bool IsWaiting() const { return isWaiting; }
 
+    // ===== 新增：从油桶飞出到目标位置 =====
+    void StartFlyFromOilCan(Vector2 startPos, Vector2 targetPos);
+    bool IsFlying() const { return isFlyingFromOilCan; }
 };

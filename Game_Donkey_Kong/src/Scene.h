@@ -129,4 +129,7 @@ public:
     // 获取指定位置的平台地面高度（考虑倾斜）
     float GetPlatformGroundY(float x, int platformYLevel);
     void InitFireSpawnPlatforms(); 
+
+    void SpawnFireSprite(Vector2 position, bool useFlyEffect = false);
+
 };

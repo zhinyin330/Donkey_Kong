@@ -36,6 +36,14 @@ FireSprite::FireSprite(Vector2 startPos, FireAnimationType type)
 
     currentFrame = 0;
     frameTimer = 0.0f;
+
+    // ===== 新增：初始化飞出状态 =====
+    isFlyingFromOilCan = false;
+    flyProgress = 0.0f;
+    flyDuration = 1.0f;
+    flyArcHeight = 80.0f;
+
+
 }
 
 void FireSprite::LoadFramesByType()
@@ -92,6 +100,51 @@ void FireSprite::Update(float deltaTime)
 {
     // 如果小火人死亡或未激活，不更新
     if (isDead || !isActive) return;
+
+    // ===== 新增：飞出状态（优先级最高）=====
+    if (isFlyingFromOilCan)
+    {
+        flyProgress += deltaTime / flyDuration;
+
+        if (flyProgress >= 1.0f)
+        {
+            // 飞出结束，到达目标位置
+            position = flyTargetPos;
+            groundY = flyTargetPos.y + 32;  // 设置地面高度
+            isFlyingFromOilCan = false;
+
+            // 开始等待状态
+            isWaiting = true;
+            waitTimer = 2.0f;
+            blinkTimer = 0.0f;
+            visible = true;
+
+            TraceLog(LOG_INFO, "FireSprite landed at (%.0f,%.0f)", position.x, position.y);
+            return;
+        }
+
+        // 抛物线飞出效果
+        float smoothT = flyProgress * flyProgress * (3.0f - 2.0f * flyProgress);
+
+        // 水平移动
+        float x = flyStartPos.x + (flyTargetPos.x - flyStartPos.x) * smoothT;
+
+        // 抛物线 Y 移动（先上升后下降）
+        float parabolaY = sinf(flyProgress * PI) * flyArcHeight;
+        float y = flyStartPos.y + (flyTargetPos.y - flyStartPos.y) * smoothT - parabolaY;
+
+        position = { x, y };
+
+        // 飞出时播放动画
+        frameAccumulator += deltaTime;
+        if (frameAccumulator >= frameDelay) {
+            frameAccumulator -= frameDelay;
+            currentFrame = (currentFrame + 1) % (int)frames.size();
+        }
+        return;
+    }
+
+
     // ===== 等待2秒期间（闪烁，不移动）=====
     if (isWaiting)
     {
@@ -340,4 +393,20 @@ void FireSprite::Die()
     isDead = true;
     isActive = false;
     isWaiting = false;
+}
+
+void FireSprite::StartFlyFromOilCan(Vector2 startPos, Vector2 targetPos)
+{
+    isFlyingFromOilCan = true;
+    isWaiting = false;  // 飞出期间不等待
+    visible = true;
+    flyProgress = 0.0f;
+    flyStartPos = startPos;
+    flyTargetPos = targetPos;
+
+    // 临时设置位置为起始点
+    position = startPos;
+
+    TraceLog(LOG_INFO, "FireSprite flying from oil can! Start(%.0f,%.0f) Target(%.0f,%.0f)",
+        startPos.x, startPos.y, targetPos.x, targetPos.y);
 }

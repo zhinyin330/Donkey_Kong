@@ -682,7 +682,7 @@ void Scene::DrawFireSprites()
         }
     }
 }
-void Scene::SpawnFireSprite(Vector2 position)
+void Scene::SpawnFireSprite(Vector2 position, bool useFlyEffect)
 {
     if ((int)fireSprites.size() >= MAX_BLUE_BARREL_THROWS)
     {
@@ -713,19 +713,37 @@ void Scene::SpawnFireSprite(Vector2 position)
     // 根据 X 位置计算平台的实际地面高度
     float groundY = GetPlatformGroundY(randomX, platform.tileY);
 
-    // 火人位置：站在地面上（减去火人高度）
-    Vector2 spawnPos = { randomX, groundY - 32.0f };
+    // 最终站立位置
+    Vector2 targetPos = { randomX, groundY - 32 };
 
-    FireSprite* newFire = new FireSprite(spawnPos, FireAnimationType::SCENE1);
+    // 创建火人（先放在油桶位置）
+    FireSprite* newFire = new FireSprite(position, FireAnimationType::SCENE1);
 
     // 设置移动范围
     newFire->SetRange(platform.minX, platform.maxX);
     newFire->SetGroundY(groundY);
     newFire->SetActive(true);
 
-    fireSprites.push_back(newFire);
-}
+    // ===== 添加飞出效果 =====
+    if (useFlyEffect)
+    {
+        // 油桶位置作为飞出起点
+        Vector2 oilCanPos = { oilCanisters[0].rect.x + oilCanisters[0].rect.width / 2,
+                              oilCanisters[0].rect.y - 20 };
+        newFire->StartFlyFromOilCan(oilCanPos, targetPos);
+        TraceLog(LOG_INFO, "FireSprite flying from oil can to platform %d!", platform.platformIndex);
+    }
+    else
+    {
+        // 直接生成在目标位置
+        newFire->SetPosition(targetPos);
+    }
 
+    fireSprites.push_back(newFire);
+
+    TraceLog(LOG_INFO, "FireSprite on platform %d: Target=(%.0f,%.0f) GroundY=%.0f Range=[%.0f,%.0f]",
+        platform.platformIndex, targetPos.x, targetPos.y, groundY, platform.minX, platform.maxX);
+}
 
 void Scene::CheckBarrelOilCanCollision(Barrel* barrel)
 {
@@ -773,8 +791,10 @@ void Scene::CheckBarrelOilCanCollision(Barrel* barrel)
 
     // 生成火人
     Rectangle oilCanRect = oilCanisters[0].rect;
-    Vector2 firePos = { oilCanRect.x + oilCanRect.width + 10, oilCanRect.y - 20 };
-    SpawnFireSprite(firePos);
+    Vector2 oilCanCenter = { oilCanRect.x + oilCanRect.width / 2, oilCanRect.y - 20 };
+
+    // 传入 true 启用飞出效果
+    SpawnFireSprite(oilCanCenter, true);
 
     // 标记桶为已处理
     barrel->Hit();

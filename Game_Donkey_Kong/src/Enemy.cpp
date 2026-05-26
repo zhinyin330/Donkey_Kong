@@ -18,7 +18,7 @@ Enemy::Enemy()
     hasBarrel(true),
     isGoingForward(true),
     frameCounter(0.0f),
-    frameSpeed(1.0f),
+    frameSpeed(3.0f),
     position({ 95.0f, 130.0f }),
     scale(2.5f),
     currentBarrelType(BarrelType::NORMAL),

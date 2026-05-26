@@ -47,7 +47,7 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     isThrownToOilCan = false;
     isFlyingToOilCan = false;
     isThrowMode = false;
-    throwSpeed = 400.0f;
+    throwSpeed = 200.0f;
     // ===== 修改：起始位置使用传入的 pos =====
     startThrowPos = pos; 
     oilCanTargetPos = { 70, 560 };  // 油桶目标位置
@@ -221,7 +221,7 @@ void Barrel::Update(GameScene& scene)
     if (isThrowMode && isFlyingToOilCan)
     {
         // 使用成员变量 throwProgress，而不是 static
-        throwProgress += dt * 3.0f;  // 投掷速度
+        throwProgress += dt * 1.0f;  // 投掷速度
 
         if (throwProgress >= 1.0f)
         {
