@@ -51,10 +51,10 @@ static Sound lightningSound = { 0 };
 static Sound deadSound = { 0 };        // 死亡音效
 static bool deadSoundLoaded = false;   
 static bool debugMode = false;
-static Texture2D numberTexture = { 0 };             // Textura de números 0-9
-static Texture2D highScoreTexture = { 0 };          // Textura "HIGHSCORE"
-static Texture2D levelTexture = { 0 };              // Textura LEVEL
-static Texture2D ScoreTexture = { 0 };              // Textura Score
+static Texture2D numberTexture = { 0 };          
+static Texture2D highScoreTexture = { 0 };       
+static Texture2D levelTexture = { 0 };              
+static Texture2D ScoreTexture = { 0 };           
 static bool uiTexturesLoaded = false;
 
 void InitGame()
@@ -898,8 +898,8 @@ void DrawGame(GameScreen* currentScreen)
     // DIBUJAR SCORE
 
     if (gamePlayer != nullptr && numberTexture.id != 0) {
-        DrawText("1 UP", 40, 5, 25, RED);
-        DrawNumberWithTexture(gamePlayer->GetScore(), 10, 26, 2.7f);
+        DrawText("1 UP", 40, 5, 26, RED);
+        DrawNumberWithTexture(gamePlayer->GetScore(), 10, 28, 2.7f);
     }
 
     // DIBUJAR LEVEL

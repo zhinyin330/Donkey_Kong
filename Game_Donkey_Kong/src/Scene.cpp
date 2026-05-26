@@ -560,6 +560,9 @@ void Scene::Draw() {
 
     // Dibujar UI
 
+    DrawText("Pausa: P", 145, 28, 14, GRAY);
+    DrawText("Cheats: F1", 145, 10, 14, GRAY);
+
     // Reloj con sprites
   
     if (timeLeft < 0) timeLeft = 0;
