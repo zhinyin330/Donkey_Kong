@@ -77,7 +77,17 @@ private:
     // ===== 新增：火人相关成员 =====
     std::vector<FireSprite*> fireSprites;      // 火人列表
     int blueBarrelsThrownCount;                // 已扔进油桶的蓝色桶数量
-    static const int MAX_BLUE_BARREL_THROWS = 2;  // 最多扔2次
+    static const int MAX_BLUE_BARREL_THROWS = 8;  // 最多扔2次
+
+    // ===== 平台信息结构 =====
+    struct PlatformInfo {
+        int tileY;           // 平台地面的 Y 坐标
+        float minX;        // 最小 X 范围
+        float maxX;        // 最大 X 范围
+        int platformIndex; // 平台索引 (1-5)
+    };
+
+    std::vector<PlatformInfo> fireSpawnPlatforms;  // 火人生成平台列表
 
 public:
     Scene();
@@ -116,4 +126,7 @@ public:
     void CleanupFireSprites();
     std::vector<FireSprite*>& GetFireSprites() { return fireSprites; }
     int GetBlueBarrelsThrownCount() const { return blueBarrelsThrownCount; }
+    // 获取指定位置的平台地面高度（考虑倾斜）
+    float GetPlatformGroundY(float x, int platformYLevel);
+    void InitFireSpawnPlatforms(); 
 };

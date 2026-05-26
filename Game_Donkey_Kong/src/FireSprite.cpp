@@ -81,10 +81,9 @@ Vector2 FireSprite::CalculateParabolaPosition(float t)
     // 水平移动
     result.x = jumpStartX + (jumpTargetX - jumpStartX) * smoothT;
 
-    // 完整抛物线（使用正弦曲线使跳跃更自然）
+    // ===== 从 groundY 向上跳起，再落回 groundY =====
     float parabolaY = sinf(t * PI) * jumpHeight;
-
-    result.y = groundY - parabolaY;
+    result.y = groundY - parabolaY - 32;
 
     return result;
 }
@@ -140,7 +139,8 @@ void FireSprite::Update(float deltaTime)
             if (jumpProgress >= 1.0f)
             {
                 position.x = jumpTargetX;
-                position.y = groundY;
+                // ===== 落地时站在地面上 =====
+                position.y = groundY - 32;  // 减去火人高度
                 jumpState = IDLE;
                 idleTimer = 0.0f;
                 currentFrame = 0;
@@ -164,8 +164,7 @@ void FireSprite::StartNewJump()
     jumpStartX = position.x;
     jumpStartY = groundY;
 
-    //  随机决定下一次移动方向 
-    // 70%几率随机改变方向，40%几率保持原方向
+    // 随机决定下一次移动方向
     if (GetRandomValue(0, 100) < 60)
     {
         direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
@@ -174,35 +173,36 @@ void FireSprite::StartNewJump()
     // 计算跳跃目标X坐标
     jumpTargetX = position.x + (direction * jumpDistance);
 
-    // 边界限制：如果超出范围，则反弹方向
+    // 边界限制
     if (jumpTargetX < minX)
     {
         jumpTargetX = minX;
-        direction = 1;  // 反弹向右
+        direction = 1;
     }
     else if (jumpTargetX > maxX)
     {
         jumpTargetX = maxX;
-        direction = -1; // 反弹向左
+        direction = -1;
     }
 
-    // 根据边界修正后的目标位置重新确定方向
+    // 根据边界修正方向
     if (jumpTargetX > position.x)
         direction = 1;
     else if (jumpTargetX < position.x)
         direction = -1;
     else
-        direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;  // 如果不动，随机选方向
+        direction = (GetRandomValue(0, 1) == 0) ? -1 : 1;
 
-    // 更新上一帧方向
     lastDirection = direction;
 
     // 重置跳跃变量
     jumpState = JUMPING;
     jumpTimer = 0.0f;
     jumpProgress = 0.0f;
-}
 
+    // ===== 修正：确保位置正确贴合地面 =====
+    position.y = groundY - 32;  // 减去火人高度，站在地面上
+}
 void FireSprite::UpdateAnimation(float deltaTime)
 {
     // 跳跃时循环播放动画
@@ -298,6 +298,7 @@ Rectangle FireSprite::GetHitbox()
     return { position.x, position.y, 32.0f, 32.0f };
 }
 
+
 void FireSprite::SetRange(float minX, float maxX)
 {
     this->minX = minX;
@@ -308,7 +309,6 @@ void FireSprite::SetRange(float minX, float maxX)
 void FireSprite::ResetPosition(Vector2 newPos)
 {
     position = newPos;
-    groundY = newPos.y;
 
     // 重置跳跃状态
     jumpState = IDLE;

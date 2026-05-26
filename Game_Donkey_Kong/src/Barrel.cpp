@@ -49,8 +49,8 @@ Barrel::Barrel(BarrelType t, Vector2 pos)
     isThrowMode = false;
     throwSpeed = 400.0f;
     // ===== 修改：起始位置使用传入的 pos =====
-    startThrowPos = pos;  // 使用 DK 手中的位置 (95, 130)
-    oilCanTargetPos = { 120, 560 };  // 油桶目标位置
+    startThrowPos = pos; 
+    oilCanTargetPos = { 70, 560 };  // 油桶目标位置
 
     LoadFrames();
 

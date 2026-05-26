@@ -23,7 +23,8 @@ Enemy::Enemy()
     scale(2.5f),
     currentBarrelType(BarrelType::NORMAL),
     behavior(EnemyBehavior::THROW_BARRELS),
-    currentTexture({ 0 })
+    currentTexture({ 0 }),
+    throwTargetPos({ 90, 560 })
 {
     dkWithBarrelTextures = {
         LoadTexture("Characters/DonkeyKong/Dk_DonkeyKong_BarrelGrab_L.png"),
@@ -61,19 +62,25 @@ Enemy::~Enemy() {
 }
 void Enemy::SpawnBarrel()
 {
-    Vector2 spawnPos = {
-        position.x + 95.0f,  
-        position.y + 45.0f
-    };
+    Vector2 spawnPos;
+    // ===== 区分投掷模式和普通模式的起始位置 =====
+    if (currentBarrelType == BarrelType::BLUE_BARREL && isThrowModeActive)
+    {
+        // 投掷模式蓝桶：从 DK 手部中心飞出
+        spawnPos = { position.x + 55.0f, position.y + 50.0f };
+    }
+    else
+    {
+        // 普通桶：原来的位置
+        spawnPos = { position.x + 120.0f, position.y + 45.0f };
+    }
 
-    // ===== 新增：判断是否为投掷模式 =====
     Barrel newBarrel(currentBarrelType, spawnPos);
 
-    // 如果是投掷模式的蓝桶，设置飞向油桶
     if (currentBarrelType == BarrelType::BLUE_BARREL && isThrowModeActive)
     {
         newBarrel.SetThrowMode(throwTargetPos);
-        TraceLog(LOG_INFO, "Setting barrel to fly to oil can!");
+        TraceLog(LOG_INFO, "Blue barrel THROW from (%.0f, %.0f)", spawnPos.x, spawnPos.y);
     }
 
     barrels.push_back(newBarrel);
@@ -124,7 +131,7 @@ void Enemy::UpdateAnimation() {
                     if (throwChance < 50)
                     {
                         isThrowModeActive = true;
-                        throwTargetPos = { 120, 560 };
+                        throwTargetPos = { 90, 560 };
                         TraceLog(LOG_INFO, "Blue barrel THROW mode activated! Target: (120, 560)");
                     }
                 }

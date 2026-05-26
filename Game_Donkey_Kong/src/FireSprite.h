@@ -108,4 +108,8 @@ public:
     // 获取是否可以对玩家造成伤害
     bool CanHurt() const { return !isWaiting; }
 
+    float GetGroundY() const { return groundY; }
+    void SetPosition(Vector2 pos) { position = pos; }
+    bool IsWaiting() const { return isWaiting; }
+
 };

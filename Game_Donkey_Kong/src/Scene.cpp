@@ -230,6 +230,23 @@ Scene::Scene() {
     // Zona de transición 
     transitionZone = { 0, 0, 0, 0 };
     transitionReached = false;
+
+
+    // ===== 初始化火人生成平台 (平台1-5，从下往上) =====
+    // 平台1: Y=21 (地面)
+    fireSpawnPlatforms.push_back({ 21, 100.0f, 750.0f, 1 });
+
+    // 平台2: Y=18
+    fireSpawnPlatforms.push_back({ 18, 80.0f, 720.0f, 2 });
+
+    // 平台3: Y=15
+    fireSpawnPlatforms.push_back({ 15, 110.0f, 690.0f, 3 });
+
+    // 平台4: Y=12
+    fireSpawnPlatforms.push_back({ 12, 140.0f, 660.0f, 4 });
+
+    // 平台5: Y=9
+    fireSpawnPlatforms.push_back({ 9, 170.0f, 630.0f, 5 });
 }
 
 Scene::~Scene() {
@@ -604,31 +621,7 @@ void Scene::Draw() {
         }
     }
 
-    // ===== 新增：调试模式 - 显示火人移动范围（绿色框）=====
-#ifdef _DEBUG
-    for (FireSprite* fire : fireSprites)
-    {
-        if (fire != nullptr && !fire->IsDead())
-        {
-            // 获取火人的位置和移动范围
-            Vector2 pos = fire->GetPosition();
 
-            // 火人的碰撞箱
-            Rectangle hitbox = fire->GetHitbox();
-            DrawRectangleLinesEx(hitbox, 2.0f, GREEN);
-
-            // 绘制火人移动范围（绿色半透明框）
-            // 注意：FireSprite 没有直接暴露 minX/maxX，需要添加 getter 方法
-            // 临时方案：从火人位置推断范围（火人移动距离是 45 像素）
-            float rangeMinX = pos.x - 150;  // 从 SpawnFireSprite 中看到的范围
-            float rangeMaxX = pos.x + 200;
-            float groundY = pos.y + 32;
-
-            DrawRectangleLines(rangeMinX, groundY - 32, rangeMaxX - rangeMinX, 32, GREEN);
-            DrawRectangle(rangeMinX, groundY - 32, rangeMaxX - rangeMinX, 32, Fade(GREEN, 0.2f));
-        }
-    }
-#endif
 }
 
 
@@ -641,7 +634,6 @@ void Scene::UpdateFireSprites(float deltaTime)
         FireSprite* fire = fireSprites[i];
         if (fire != nullptr)
         {
-            // 如果小火人已死亡，从列表中移除
             if (fire->IsDead())
             {
                 delete fire;
@@ -649,11 +641,37 @@ void Scene::UpdateFireSprites(float deltaTime)
                 TraceLog(LOG_INFO, "FireSprite removed! Remaining: %d", (int)fireSprites.size());
                 continue;
             }
+
             fire->Update(deltaTime);
+
+            // ===== 新增：修正火人 Y 位置，贴合倾斜平台 =====
+            if (!fire->IsWaiting() && !fire->IsDead())
+            {
+                Vector2 firePos = fire->GetPosition();
+                float currentGroundY = fire->GetGroundY();
+
+                // 检查火人当前所在的平台行
+                int tileX = (int)(firePos.x / (tileSize * tileScale));
+                int tileY = (int)(currentGroundY / (tileSize * tileScale));
+
+                // 边界检查
+                if (tileX >= 0 && tileX < mapWidth && tileY >= 0 && tileY < mapHeight)
+                {
+                    // 获取该位置的视觉偏移
+                    int offsetY = visualOffsetY[tileY][tileX];
+                    float correctGroundY = tileY * tileSize * tileScale + offsetY;
+
+                    // 如果地面高度有变化，修正火人位置
+                    if (abs(correctGroundY - currentGroundY) > 1.0f)
+                    {
+                        fire->SetGroundY(correctGroundY);
+                        fire->SetPosition({ firePos.x, correctGroundY - 32 });
+                    }
+                }
+            }
         }
     }
 }
-
 void Scene::DrawFireSprites()
 {
     for (FireSprite* fire : fireSprites)
@@ -664,38 +682,50 @@ void Scene::DrawFireSprites()
         }
     }
 }
-
 void Scene::SpawnFireSprite(Vector2 position)
 {
-    // 检查是否已达到最大生成数量（可选，最多生成2个火人）
     if ((int)fireSprites.size() >= MAX_BLUE_BARREL_THROWS)
     {
         TraceLog(LOG_INFO, "Max fire sprites reached, cannot spawn more");
         return;
     }
 
-    // 底部平台的地面 Y 坐标
-    float groundLevel = 21 * 32 + 16;  // = 688
+    if (fireSpawnPlatforms.empty())
+    {
+        TraceLog(LOG_WARNING, "No platforms defined for fire spawn!");
+        return;
+    }
 
-    // 限制出生 X 坐标在 100-800 之间
-    float spawnX = position.x;
-    if (spawnX < 100) spawnX = 100;
-    if (spawnX > 800) spawnX = 800;
+    int platformIndex = GetRandomValue(0, (int)fireSpawnPlatforms.size() - 1);
+    const PlatformInfo& platform = fireSpawnPlatforms[platformIndex];
 
-    Vector2 spawnPos = { spawnX, groundLevel - 32 };  // 32 是火人高度偏移
+    // 计算随机 X 位置
+    float minX = platform.minX + 30.0f;
+    float maxX = platform.maxX - 80.0f;
+
+    if (minX >= maxX) {
+        minX = platform.minX;
+        maxX = platform.maxX;
+    }
+
+    float randomX = (float)GetRandomValue((int)minX, (int)maxX);
+
+    // 根据 X 位置计算平台的实际地面高度
+    float groundY = GetPlatformGroundY(randomX, platform.tileY);
+
+    // 火人位置：站在地面上（减去火人高度）
+    Vector2 spawnPos = { randomX, groundY - 32.0f };
 
     FireSprite* newFire = new FireSprite(spawnPos, FireAnimationType::SCENE1);
 
-    // 固定移动范围
-    newFire->SetRange(100.0f, 800.0f);
-    newFire->SetGroundY(groundLevel - 32);
+    // 设置移动范围
+    newFire->SetRange(platform.minX, platform.maxX);
+    newFire->SetGroundY(groundY);
     newFire->SetActive(true);
 
     fireSprites.push_back(newFire);
-
-    TraceLog(LOG_INFO, "FireSprite (SCENE1) spawned at (%.1f, %.1f). Total: %d",
-        position.x, position.y, (int)fireSprites.size());
 }
+
 
 void Scene::CheckBarrelOilCanCollision(Barrel* barrel)
 {
@@ -762,4 +792,21 @@ void Scene::CleanupFireSprites()
     }
     fireSprites.clear();
     TraceLog(LOG_INFO, "All fire sprites cleaned up");
+}
+
+float Scene::GetPlatformGroundY(float x, int tileY)
+{
+    int tileX = (int)(x / (float)(tileSize * tileScale));  // 添加 float 转换
+
+    // 边界检查
+    if (tileX < 0 || tileX >= mapWidth || tileY < 0 || tileY >= mapHeight)
+        return (float)(tileY * tileSize * tileScale + platformHitboxOffsetY * tileScale);
+
+    // 获取该位置的视觉偏移
+    int offsetY = visualOffsetY[tileY][tileX];
+
+    // 计算地面 Y 坐标
+    float groundY = (float)(tileY * tileSize * tileScale + offsetY);
+
+    return groundY;
 }
