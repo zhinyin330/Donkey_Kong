@@ -115,7 +115,7 @@ Controles:
 ### Interfaz:
 * Corazones mostrando vidas restantes
 * Iconos de estrellas y martillo con texto
-* Reloj de tiempo con sprites (12 estados)
+* Reloj de tiempo con sprites 
 * High Score en pantalla
 * Texto de nivel en transiciones
 
