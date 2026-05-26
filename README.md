@@ -1,6 +1,6 @@
 ## Link of the [wiki](https://github.com/zhinyin330/Donkey_Kong/wiki)
 
-## Link of the [video](https://www.youtube.com/watch?v=q95jSyicAiY)
+## Link of the [video](https://www.youtube.com/shorts/RtC9i5QvrCU)
 
 ## Members:
 - [Diyang Zhou](https://github.com/tomDyzu)
