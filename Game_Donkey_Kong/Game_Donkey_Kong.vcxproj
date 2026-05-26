@@ -342,7 +342,6 @@
     <ClCompile Include="src\Transition.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\oilCaniterFire.cpp" />
-    <ClCompile Include="src\prova11.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\audio\SFXjump.mp3" />

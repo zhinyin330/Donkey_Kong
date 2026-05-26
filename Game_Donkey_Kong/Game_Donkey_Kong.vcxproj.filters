@@ -161,9 +161,6 @@
     <ClCompile Include="src\oilCaniterFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\prova11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\GameOver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

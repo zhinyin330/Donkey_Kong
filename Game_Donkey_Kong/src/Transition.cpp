@@ -63,11 +63,8 @@ void Transition::Draw() {
         "MARIO TIME!",
         "LET'S-A GO",
         "HERE WE GO!",
-        "IT'S-A ME, MARIO!",
         "WAHOO!",
         "OKIE DOKIE!",
-        "THANK YOU SO MUCH!",
-        "SO LONG, KINGA BOWSER!"
     };
 
     // Seleccionar frase según el nivel (cíclico)
@@ -76,7 +73,7 @@ void Transition::Draw() {
     // Colores diferentes para cada frase
     Color colors[] = {
         RED, ORANGE, YELLOW, GREEN, BLUE,
-        PURPLE, PINK, SKYBLUE, VIOLET, BEIGE
+        PURPLE, PINK
     };
 
     Color marioColor = colors[phraseIndex];
