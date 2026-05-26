@@ -712,6 +712,38 @@ void DrawGame(GameScreen* currentScreen)
         }
     }
 
+    // ===== 新增：锤子攻击火人（Scene1）=====
+    if (gamePlayer != nullptr && gamePlayer->IsSwingingHammer())
+    {
+        Rectangle attackHitbox = gamePlayer->GetAttackHitbox();
+
+        Scene* scene1 = dynamic_cast<Scene*>(gameScene);
+        if (scene1 != nullptr)
+        {
+            for (FireSprite* fire : scene1->GetFireSprites())
+            {
+                if (fire != nullptr && !fire->IsDead() && fire->CanHurt())
+                {
+                    if (CheckCollisionRecs(attackHitbox, fire->GetHitbox()))
+                    {
+                        // 火人死亡
+                        fire->Die();
+
+                        // 给玩家加分
+                        gamePlayer->AddScore(200);
+
+                        // ===== 关键：减少计数器，让蓝桶可以再次投掷 =====
+                        scene1->DecrementBlueBarrelCounter();
+                        Enemy::DecrementBlueBarrelHitCount();
+
+                        TraceLog(LOG_INFO, "FireSprite killed by hammer! +200 points. Remaining fire: %d, Blue hits left: %d",
+                            scene1->GetBlueBarrelsThrownCount(), Enemy::GetBlueBarrelHitCount());
+                        break;  // 一次挥锤只杀一个火人
+                    }
+                }
+            }
+        }
+    }
     // Colisión daño (barriles + DK) — Scene 1
     if (!isScene2 && gameEnemy != nullptr && !gamePlayer->IsInStarMode()) {
         Rectangle playerHitbox = gamePlayer->GetHitbox();

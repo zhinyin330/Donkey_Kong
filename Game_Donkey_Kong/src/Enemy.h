@@ -62,7 +62,7 @@ private:
 
     // ===== 新增：跟踪蓝桶投掷成功次数 =====
     static int blueBarrelHitCount;  // 静态成员，所有敌人共享
-    static const int MAX_BLUE_BARREL_HITS = 8;  // 最大投掷成功次数
+    static const int MAX_BLUE_BARREL_HITS = 10;  // 最大投掷成功次数
     // ===== 新增：投掷模式标志 =====
     bool isThrowModeActive = false;
     Vector2 throwTargetPos;
@@ -124,4 +124,11 @@ public:
     }
     static int GetBlueBarrelHitCount() { return blueBarrelHitCount; }
     static bool CanUseThrowMode() { return blueBarrelHitCount < MAX_BLUE_BARREL_HITS; }
+    
+    static void DecrementBlueBarrelHitCount() {
+        if (blueBarrelHitCount > 0) {
+            blueBarrelHitCount--;
+        }
+    }
+
 };

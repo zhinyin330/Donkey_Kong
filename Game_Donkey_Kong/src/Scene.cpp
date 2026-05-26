@@ -234,19 +234,19 @@ Scene::Scene() {
 
     // ===== 初始化火人生成平台 (平台1-5，从下往上) =====
     // 平台1: Y=21 (地面)
-    fireSpawnPlatforms.push_back({ 21, 100.0f, 750.0f, 1 });
+    fireSpawnPlatforms.push_back({ 21, 100.0f, 800.0f, 1 });
 
     // 平台2: Y=18
-    fireSpawnPlatforms.push_back({ 18, 80.0f, 720.0f, 2 });
+    fireSpawnPlatforms.push_back({ 18, 50.0f, 680.0f, 2 });
 
     // 平台3: Y=15
-    fireSpawnPlatforms.push_back({ 15, 110.0f, 690.0f, 3 });
+    fireSpawnPlatforms.push_back({ 15, 110.0f, 750.0f, 3 });
 
     // 平台4: Y=12
-    fireSpawnPlatforms.push_back({ 12, 140.0f, 660.0f, 4 });
+    fireSpawnPlatforms.push_back({ 12, 50.0f, 660.0f, 4 });
 
     // 平台5: Y=9
-    fireSpawnPlatforms.push_back({ 9, 170.0f, 630.0f, 5 });
+    fireSpawnPlatforms.push_back({ 9, 170.0f, 750.0f, 5 });
 }
 
 Scene::~Scene() {
@@ -620,7 +620,6 @@ void Scene::Draw() {
             DrawTextureEx(fireFrames[oilCanisters[i].currentFrame], firePos, 0, 2.5f, WHITE);
         }
     }
-
 
 }
 

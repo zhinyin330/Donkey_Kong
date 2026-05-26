@@ -77,7 +77,7 @@ private:
     // ===== 新增：火人相关成员 =====
     std::vector<FireSprite*> fireSprites;      // 火人列表
     int blueBarrelsThrownCount;                // 已扔进油桶的蓝色桶数量
-    static const int MAX_BLUE_BARREL_THROWS = 8;  // 最多扔2次
+    static const int MAX_BLUE_BARREL_THROWS = 10;  // 最多扔2次
 
     // ===== 平台信息结构 =====
     struct PlatformInfo {
@@ -131,5 +131,10 @@ public:
     void InitFireSpawnPlatforms(); 
 
     void SpawnFireSprite(Vector2 position, bool useFlyEffect = false);
+    void DecrementBlueBarrelCounter() {
+        if (blueBarrelsThrownCount > 0) {
+            blueBarrelsThrownCount--;
+        }
+    }
 
 };
