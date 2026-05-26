@@ -133,10 +133,8 @@ private:
     int score; 
     
     std::vector<FloatingText> floatingTexts;
+    bool hammerNoCooldown = false;
 
-    // ==================== 新增：移动平台相关 ====================
-    bool isOnMovingPlatform;     // 是否站在移动平台上
-    Vector2 lastMovingPlatformPos; // 上一帧移动平台的位置（用于跟随移动）
 
 public:
     Player();
@@ -225,7 +223,6 @@ public:
   
     // 播放死亡音效
     void PlayDeathSound();
-    // 移动平台相关方法
-    void SetOnMovingPlatform(bool on, const Vector2& platformPos = { 0, 0 });
-    bool IsOnMovingPlatform() const { return isOnMovingPlatform; }
+
+    void SetHammerNoCooldown(bool val) { hammerNoCooldown = val; }
 };

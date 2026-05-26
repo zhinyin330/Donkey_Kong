@@ -146,10 +146,6 @@ Player::Player() {
     else {
         TraceLog(LOG_WARNING, "Failed to load player death sound!");
     }
-
-    // 新增：移动平台变量初始化 
-    isOnMovingPlatform = false;
-    lastMovingPlatformPos = { 0, 0 };
 }
 
 Player::~Player() {
@@ -465,31 +461,6 @@ void Player::Update(GameScene& scene) {
         if (hammerCooldownTimer <= 0.0f) {
             isHammerOnCooldown = false;
             hammerCooldownTimer = 0.0f;
-        }
-    }
-
-    // 移动平台跟随逻辑 
-    // 如果站在移动平台上，根据平台的移动来更新玩家位置
-    if (isOnMovingPlatform && scene.HasMovingPlatforms()) {
-        float newPlatY;
-        bool hasButton = false;
-        bool buttonCollected = false;
-        if (scene.CheckMovingPlatformCollision(GetHitbox(), newPlatY, hasButton, buttonCollected) >= 0) {
-            // 仍然站在平台上，更新位置跟随平台移动
-            // 注意：平台碰撞检测会处理垂直位置，水平跟随需要额外处理
-            Vector2 platformPos = scene.GetNearestMovingPlatformPosition(GetHitbox());
-            if (platformPos.x != 0 || platformPos.y != 0) {
-                // 水平跟随：计算平台移动的差值
-                float deltaX = platformPos.x - lastMovingPlatformPos.x;
-                if (fabs(deltaX) < 50.0f) {  // 限制最大移动距离，防止异常
-                    position.x += deltaX;
-                }
-                lastMovingPlatformPos = platformPos;
-            }
-        }
-        else {
-            // 不再站在平台上
-            isOnMovingPlatform = false;
         }
     }
 
@@ -880,33 +851,6 @@ void Player::Update(GameScene& scene) {
             }
         }
 
-        //移动平台碰撞检测
-         // 检查是否站在移动平台上
-        if (!landed && scene.HasMovingPlatforms()) {
-            float movingPlatY;
-            Rectangle feetHitbox = {
-                position.x,
-                nextY + (currentOffsetY + currentHeight) * scale - 4,
-                currentTexture.width * scale,
-                4
-            };
-
-            // 传递4个参数 
-            bool hasButton = false;
-            bool buttonCollected = false;
-            int platformIndex = scene.CheckMovingPlatformCollision(feetHitbox, movingPlatY, hasButton, buttonCollected);
-
-            if (platformIndex >= 0) {
-                if (nextFeetY >= movingPlatY && hitboxBottomY <= movingPlatY + 5) {
-                    groundY = movingPlatY - (currentOffsetY + currentHeight) * scale;
-                    landed = true;
-                    isOnMovingPlatform = true;
-                    // 记录平台位置用于水平跟随
-                    lastMovingPlatformPos = scene.GetNearestMovingPlatformPosition(GetHitbox());
-                }
-            }
-        }
-
         //scene 2
         if (!landed) {
             float newPlatY;
@@ -1144,7 +1088,8 @@ void Player::DrawFloatingTexts()
 
 //锤子系统方法实现 
 void Player::StartSwingHammer() {
-    if (!hasHammer) return;  // 没有锤子就不能挥
+    if (!hasHammer) return;
+    if (!hammerNoCooldown && isHammerOnCooldown) return;  // ← Modificado
     if (isHammerOnCooldown) return;   // 冷却中不能挥锤
     isSwingingHammer = true;
     swingHammerTimer = swingHammerDuration;  // 设置挥锤时间为0.3秒
@@ -1169,9 +1114,10 @@ void Player::UpdateHammerSwing(float deltaTime) {
         isSwingingHammer = false;
         swingFrame = 0;
         // ========== 挥锤结束，进入冷却 ==========
-        isHammerOnCooldown = true;
-        hammerCooldownTimer = hammerCooldownDuration;
-
+        if (!hammerNoCooldown) { 
+            isHammerOnCooldown = true;
+            hammerCooldownTimer = hammerCooldownDuration;
+        }
         if (currentState == PlayerState::HAMMER_SWING) {
             ChangeState(PlayerState::IDLE);
         }
@@ -1298,15 +1244,5 @@ void Player::PlayDeathSound() {
         StopSound(deathSound);  // 停止之前的播放（如果有）
         PlaySound(deathSound);
         TraceLog(LOG_INFO, "Playing player death sound");
-    }
-}
-
-
-// 新增：移动平台相关方法 
-void Player::SetOnMovingPlatform(bool on, const Vector2& platformPos)
-{
-    isOnMovingPlatform = on;
-    if (on) {
-        lastMovingPlatformPos = platformPos;
     }
 }

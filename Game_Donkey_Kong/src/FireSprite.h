@@ -85,13 +85,13 @@ private:
     // 是否死亡  
     bool isDead = false;
 
-    //等待系统（生成后原地等待2秒
+    // ===== 等待系统（生成后原地等待2秒）=====
     bool isWaiting = true;       // 是否在等待状态
     float waitTimer = 2.0f;      // 等待计时器（2秒）
     float blinkTimer = 0.0f;     // 闪烁计时器
     bool visible = true;         // 当前是否可见（用于闪烁效果）
 
-    //辅助方法
+    // ===== 辅助方法 =====
     void StartNewJump();
     void UpdateAnimation(float deltaTime);
 
