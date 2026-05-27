@@ -9,125 +9,116 @@
 - [Daniel Castillero](https://github.com/DaniCasti42)
 
 ## Description of the game:
-El [Donkey Kong 1981](https://www.mariowiki.com/Donkey_Kong_(game)) Un clásico juego de plataformas donde Mario debe rescatar a la princesa de Donkey Kong. Salta sobre barriles, sube escaleras, recoge estrellas y usa un martillo para destruir obstáculos. Sobrevive a dos niveles desafiantes con dificultad creciente, tormentas eléctricas, enemigos de fuego y bombas. Vence el tiempo para alcanzar a la princesa y avanzar de nivel. Incluye una tabla de clasificación con los 5 mejores jugadores.
+The [Donkey Kong 1981](https://www.mariowiki.com/Donkey_Kong_(game)) a classic platform game where Mario must rescue the princess from Donkey Kong. Jump over barrels, climb ladders, collect stars, and use a hammer to destroy obstacles. Survive two challenging levels with increasing difficulty, lightning storms, fire enemies, and bombs. Beat the clock to reach the princess and advance to the next level. Includes a leaderboard featuring the top 5 players
 
 ## How to play
 The main goal of the game is to navigate each stage, avoid enemies and obstacles, and reach the top where Pauline is being held. If Mario touches an enemy or falls from a height, the player loses a life, when you use up all your lifes, game over.
 
 Controles:
-|Tecla |	Acción |
+|Controls|	Action |
 | ------------- | ------------- |
-| ← → / A D |	Moverse horizontalmente |
-| ↑ ↓	/ W S | Subir/Bajar escaleras |
-| ESPACIO | Saltar |
-| J	| Usar martillo (golpear barriles o duendes de fuego) |
-| K	| Activar poder de estrella (inmunidad temporal) |
-| P	| Pausa |
+| ← → / A D |	Move horizontally |
+| ↑ ↓	/ W S | Go up/down stairs |
+| ESPACIO | Jump |
+| J	| Use a hammer (hit barrels or fire goblins) |
+| K	| Activate Star Power (temporary immunity) |
+| P	| Pause |
 | F1	| Cheats |
-| ESC	| Salir del juego |
+| ESC	| Exit the game|
 
 ## List of features implemented
-### Jugabilidad:
-* Control completo de Mario: movimiento horizontal, saltos, escaleras
-* Física de plataformas con colisiones precisas
-* Sistema de hitbox independiente para barriles (más pequeño)
-* Salto sobre barriles (+100 puntos) con detección mejorada
-* Sistema de vidas (3 vidas, Game Over al perderlas)
-* Respawn después de perder una vida (mantiene puntuación)
-* Animación de muerte de Mario con secuencia de 5 frames
-* Martillo para destruir barriles (+100/500 pts) con cooldown de 5s
-* Poder de estrella con inmunidad temporal (10s, tecla K) 
-* Sonidos de pasos, saltos, escaleras y ambiente
+### Gameplay:
+* Full Mario controls: horizontal movement, jumping, and climbing ladders
+* Platform physics with precise collision detection
+* Independent hitbox system for barrels (smaller hitbox)
+* Jump over barrels (+100 points) with improved detection
+* Life system (3 lives, Game Over when all are lost)
+* Respawn after losing a life (score is preserved)
+* Mario death animation with a 5-frame sequence
+* Hammer power-up to destroy barrels (+100/+500 pts) with a 5-second cooldown
+* Star power-up with temporary invincibility (10s, K key)
+* Footstep, jump, ladder, and ambient sound effects
 
-### Niveles:
-* Nivel 1: Clásico con plataformas inclinadas, lluvia y bidones de aceite
-* Nivel 2: Plataformas rectas, nieve, botones que destruyen plataformas
-* Transición con pantalla de puntuación entre niveles
-* Temporizador de 2 minutos por nivel
-* Reloj con sprites animados 
-* Dificultad creciente con el nivel (barriles, bombas, fuegos, rayos)
-* Música diferente por nivel
+### Levels:
+* Level 1: Classic stage with sloped platforms, rain, and oil barrels
+* Level 2: Straight platforms, snow, and buttons that destroy platforms
+* Score screen transition between levels
+* 2-minute timer per level
+* Clock with animated sprites
+* Increasing difficulty with each level (barrels, bombs, fire enemies, lightning)
+* Different music for each level
 
-### Enemigos:
+### Enemies:
 * Donkey Kong:
-  - Nivel 1: Lanza barriles con barril en manos, animación de ciclo
-  - Nivel 2: Ciclo decorativo (Idle → Emote1 → Emote2)
-  - Colisión quita una vida
-* Barriles:
-  - Ruedan, caen en triggers, tipo normal y azul (500 pts)
-  - Frecuencia aumentable con nivel
-  - Destruibles con martillo
-* Bombas:
-  - Explotan al acercarse (Nivel 2), daño en frames 4-5
-  - Frecuencia aumentable con nivel
-  - Efecto de sonido de explosión
-* Fuegos:
-  - Enemigos de fuego (Nivel 2)
-  - Eliminables con martillo (+200 puntos)
-  - Frecuencia aumentable con nivel
-  - Se generan en plataformas aleatorias
-  - Efecto de sonido al eliminar
-  - Caída dramática de DK al pisar todos los botones (Nivel 2)
-  - Las bombas y fuegos desaparecen tras la caída
+  - Level 1: Throws barrels while holding a barrel, with looping animation
+  - Level 2: Decorative cycle (Idle → Emote1 → Emote2)
+  - Collision removes one life
 
-### Princesa:
-* Animación idle con cambio de frames (Idle1 ↔ Idle2)
-* Efecto "HELP!" aleatorio (30% probabilidad)
-* Cambio de posición tras eventos del juego
+* Barrels:
+  - Roll, fall through triggers, available in normal and blue types (+500 pts)
+  - Spawn frequency increases with level difficulty
+  - Can be destroyed with the hammer
 
-### Efectos:
-* Tormenta de rayos (flash blanco) en ambas escenas
-  - Frecuencia aumentable con nivel
-  - Sonido de trueno
-* Lluvia animada (Nivel 1)
-* Nieve animada (Nivel 2)
-* Overlay de muerte al acabarse el tiempo
-* Textos flotantes de puntuación (+100, +300, etc.)
-* Sonido de muerte
+* Bombs:
+  - Explode when approached (Level 2), damage active on frames 4–5
+  - Spawn frequency increases with level difficulty
+  - Explosion sound effect
 
-### Sistema de Puntuación:
-* Recoger estrellas, saltar barriles (+100)
-* Martillo: barril normal (+100), azul (+500)
-* Items del Nivel 2 (+300 cada uno)
-* Botones (+100 cada uno)
-* High Score persistente mostrado en pantalla
-* Leaderboard con top 5 (nombre, nivel, puntuación)
-* Ordenado por nivel y puntuación
-* Guardado en archivo scores.txt
+* Fire Enemies:
+  - Fire enemies appear in Level 2
+  - Can be eliminated with the hammer (+200 points)
+  - Spawn frequency increases with level difficulty
+  - Spawn on random platforms
+  - Sound effect when defeated
+  - Dramatic DK fall after stepping on all buttons (Level 2)
+  - Bombs and fire enemies disappear after DK falls
 
-### Gestión de Partida:
-* Pantalla de Game Over con:
-  - Mario triste (Mario_sad.png)
-  - Entrada de nombre (máx 10 caracteres)
-* Menú de pausa (tecla P) con:
-  - Continuar partida
-  - Menú principal (Leaderboard)
-  - Controles del juego (imagen + texto)
-  - Congela todos los sprites
-* Leaderboard: Continuar partida o Nueva partida
-* Sistema de transición entre escenas
-* Tiempo se congela en pausa
+### Princess:
+* Idle animation with frame switching (Idle1 ↔ Idle2)
+* Random “HELP!” effect (30% probability)
+* Position changes after game events
+
+### Effects:
+* Lightning storm effect (white screen flash) in both scenes
+  - Frequency increases with level difficulty
+  - Thunder sound effect
+* Animated rain (Level 1)
+* Animated snow (Level 2)
+* Death overlay when time runs out
+* Floating score texts (+100, +300, etc.)
+* Death sound effect
+
+### Scoring System:
+* Collect stars and jump over barrels (+100 points)
+* Hammer bonuses: normal barrel (+100), blue barrel (+500)
+* Level 2 items (+300 each)
+* Buttons (+100 each)
+* Persistent High Score displayed on screen
+* Top 5 leaderboard (player name, level, score)
+* Sorted by level and score
+* Saved in a scores.txt file
+
+### Game Management:
+* Game Over screen featuring:
+  - Sad Mario image (Mario_sad.png)
+  - Name entry system (maximum 10 characters)
+* Pause menu (P key) with:
+  - Resume game
+  - Main menu (Leaderboard)
+  - Game controls (image + text)
+  - Freezes all sprites and animations
+* Leaderboard options: Continue Game or New Game
+* Scene transition system
+* Timer freezes while the game is paused
 
 ### Debug Menu (Cheats):
-* Estrellas siempre al máximo
-* Martillo sin cooldown
-* Continuar partida
+* Stars always at maximum
+* Hammer with no cooldown
+* Continue game option
 
-### Interfaz:
-* Corazones mostrando vidas restantes
-* Iconos de estrellas y martillo con texto
-* Reloj de tiempo con sprites 
-* High Score en pantalla
-* Texto de nivel en transiciones
-
-
- 
-
-
-
-
-
-
-
-
-
+### Interface:
+* Hearts displaying remaining lives
+* Star and hammer icons with text
+* Time clock with animated sprites
+* High Score displayed on screen
+* Level text shown during transitions
